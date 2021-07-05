@@ -1,0 +1,94 @@
+body {
+  background-color: #fff;
+  height: auto;
+  max-height: 100px;
+}
+
+.overlay-container {
+  margin: 5px 10px;
+}
+
+.overlay-card {
+  width: auto !important;
+  overflow-y: auto;
+  max-height: calc(100vh - 130px);
+}
+
+.dimmer {
+  height: 100px;
+}
+
+.ui.checkbox {
+  margin: 5px 20px 0 0;
+}
+
+.ui.feed > .event:first-child {
+  margin-top: 5px !important;
+}
+
+.ui.feed > .event > .label {
+  margin-top: 0.5em;
+}
+
+.ui.feed > .event > .content > .summary {
+  margin-bottom: 5px !important;
+}
+
+.ui.feed > .event > .label img {
+  border-radius: unset !important;
+}
+
+.ui.menu .right.item::before,
+.ui.menu .right.menu > .item::before {
+  content: none !important;
+}
+
+.ui.menu:after {
+  content: none !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1) {
+  font-size: 1.1rem !important;
+  cursor: default;
+  padding: 1.5em 1em 1.1em !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1):hover {
+  background: none;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(2) {
+  font-size: 1.1rem !important;
+  padding: 1.1em 1em 1.5em !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(2).red {
+  color: IndianRed !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(2).green {
+  color: forestgreen !important;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1).connect {
+  cursor: pointer;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1).connect > p {
+  margin-bottom: auto;
+}
+
+.ui.menu > .right.menu > .item > .menu > div:nth-child(1).connect > p > span {
+  color: forestgreen;
+}
+
+.nft_counter {
+  display: flex;
+  justify-content: center;
+  font-size: 1.2em;
+  opacity: 0.6;
+}
+
+.notification {
+  color: forestgreen;
+}

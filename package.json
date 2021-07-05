@@ -1,0 +1,42 @@
+{
+  "name": "video-comments",
+  "version": "0.1.0",
+  "description": "Web video comments augmentation",
+  "main": "",
+  "scripts": {
+    "postinstall": "concurrently -c yellow,cyan -n dapplet,overlay \"npm run install:dapplet\" \"npm run install:overlay\"",
+    "install:dapplet": "cd dapplet && npm i",
+    "install:overlay": "cd overlay && npm i",
+    "start": "concurrently -c yellow,cyan -n dapplet,overlay \"npm run start:dapplet\" \"npm run start:overlay\"",
+    "start:dapplet": "cd dapplet && npm start",
+    "start:overlay": "cd overlay && npm start",
+    "prettier": "npx prettier --write .",
+    "linter": "npx eslint ."
+  },
+  "keywords": [
+    "dapplet",
+    "augmentation",
+    "comment"
+  ],
+  "cacheDirectories": [
+    "dapplet/node_modules",
+    "overlay/node_modules"
+  ],
+  "author": "Project Dapplets",
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.15.2",
+    "@typescript-eslint/parser": "^4.15.2",
+    "concurrently": "^6.0.2",
+    "eslint": "^7.21.0",
+    "eslint-config-airbnb-typescript": "^12.3.1",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-react": "^7.22.0",
+    "prettier": "2.2.1"
+  },
+  "bugs": {
+    "url": "https://github.com/dapplets/video-comments/issues"
+  },
+  "homepage": "https://github.com/dapplets/video-comments#readme"
+}
