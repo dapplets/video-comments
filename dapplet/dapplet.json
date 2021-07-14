@@ -13,6 +13,6 @@
     "default": "config/default.json"
   },
   "dependencies": {
-    "video-adapter.dapplet-base.eth": "0.1.0"
+    "video-adapter.dapplet-base.eth": "0.2.0"
   }
 }
