@@ -14,5 +14,8 @@
   },
   "dependencies": {
     "video-adapter.dapplet-base.eth": "0.2.0"
+  },
+  "overlays": {
+      "video-comments-overlay": "https://localhost:3000"
   }
 }

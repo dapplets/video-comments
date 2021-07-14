@@ -11,12 +11,11 @@ export default class VideoFeature implements IFeature {
 
   async activate(): Promise<void> {
 
-    const overlayUrl = await Core.storage.get('overlayUrl');
-    this._overlay = Core.overlay({ url: overlayUrl, title: 'Video Comments' });
+    if (!this._overlay) {
+        this._overlay = Core.overlay({ name: 'video-comments-overlay', title: 'Video Comments' });
+    }
 
-    /*Core.onAction(async () => {
-      this.openOverlay();
-    });*/
+    Core.onAction(async () => this.openOverlay());
 
     const { /*stickerPane,*/ sticker, label } = this.adapter.exports;
     this.adapter.attachConfig({
@@ -41,7 +40,7 @@ export default class VideoFeature implements IFeature {
             img: MENU_ICON,
             vertical: 10,
             horizontal: 0,
-            //exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay(),
+            exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay(),
           },
         }),
         sticker({
