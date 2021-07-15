@@ -1,12 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 body {
   background-color: #fff;
   height: auto;
   max-height: 100px;
-}
-
-@font-face {
-  font-family: "Roboto";
-  src: url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
 }
 
 .overlay-container {
@@ -14,9 +11,46 @@ body {
 }
 
 .overlay-card {
+  padding: 4px;
   width: auto !important;
   overflow-y: auto;
-  max-height: calc(100vh - 130px);
+  max-height: calc(100vh - 80px);
+}
+
+.default-badge {
+  position: absolute;
+  background-color: #5242bf;
+  width: 35px;
+  height: 35px;
+  border-radius: 99em;
+  color: white;
+  font-size: 23px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.eye-icon {
+  opacity: .4 !important;
+  cursor: pointer;
+}
+
+.eye-icon:hover {
+  opacity: .8 !important;
+}
+
+.eye-icon:active {
+  opacity: 1 !important;
+}
+
+.comment-hidden {
+  opacity: .4 !important;
 }
 
 .dimmer {
