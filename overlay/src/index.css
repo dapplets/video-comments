@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
 body {
-  background-color: #fff;
+  background-color: #F4F4F4 !important;
   height: auto;
   max-height: 100px;
 }
@@ -49,8 +49,41 @@ body {
   opacity: 1 !important;
 }
 
+.eye-icon-selected {
+  opacity: .7 !important;
+  cursor: pointer;
+}
+
+.eye-icon-selected:hover {
+  opacity: .9 !important;
+}
+
+.eye-icon-selected:active {
+  opacity: 1 !important;
+}
+
+.comment-active {
+  background-color: white !important;
+}
+
+.comment-inactive {
+  background-color: #F5F5F5 !important;
+}
+
+.comment-selected {
+  background-color: rgba(120, 242, 230, 0.15) !important;
+}
+
 .comment-hidden {
   opacity: .4 !important;
+}
+
+.no-comments {
+  display: flex !important;
+  position: relative;
+  flex-direction: column;
+  height: calc(100vh - 180px);
+  justify-content: center;
 }
 
 .dimmer {

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Icon, Container, Card, Comment } from 'semantic-ui-react';
 
-interface IData {
+export interface IData {
   id: number,
   name: string,
   time: string,
@@ -9,134 +9,71 @@ interface IData {
   image?: string,
   from: number,
   to: number,
+  selected?: boolean,
+  hidden?: boolean,
 }
-
-const mockedData: IData[] = [
-  {
-    id: 1,
-    name: 'Matt',
-    time: 'Today at 5:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/matt.jpg',
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 2,
-    name: 'Olivia',
-    time: 'Today at 6:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/jenny.jpg',
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 3,
-    name: 'Вася',
-    time: 'Today at 7:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 4,
-    name: 'Петя',
-    time: 'Today at 8:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 5,
-    name: 'Matt',
-    time: 'Today at 5:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/matt.jpg',
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 6,
-    name: 'Olivia',
-    time: 'Today at 6:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/jenny.jpg',
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 7,
-    name: 'Вася',
-    time: 'Today at 7:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: 8,
-    name: 'Петя',
-    time: 'Today at 8:42PM',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 0,
-    to: Infinity,
-  },
-];
 
 interface IProps {
-  item: string,
+  data: IData[],
+  currentTime: number,
+  currentGroup: CommentBlock,
 }
 
-export default function Comments(props: IProps) {
-  // Declare a new state variable, which we'll call "count"
+enum CommentBlock {
+  All = 'All',
+  Active = 'Active',
+  Inactive = 'Inactive',
+  Hidden = 'Hidden',
+  Empty = '',
+}
+
+let counter = Math.trunc(Math.random() * 1_000_000_000);
+
+export const Comments = (props: IProps) => {
+  const { data, currentTime, currentGroup } = props;
 
   return (
     <Container className='overlay-card'>
-      {mockedData.map((data) => comment(data))}
+      {data.filter((commentData) => {
+        const { id, name, time, text, image, from, to, selected = false, hidden = false } = commentData;
+        switch (currentGroup) {
+          case CommentBlock.All:
+            return true;
+          case CommentBlock.Active:
+            return !hidden && from <= currentTime && to >= currentTime;
+          case CommentBlock.Inactive:
+            return !hidden && (from > currentTime || to < currentTime);
+          case CommentBlock.Hidden:
+            return hidden;
+          default:
+            return false;
+        }
+      }).map((commentData) => <VideoComment key={counter++} data={commentData} currentTime={currentTime} />)}
     </Container>
   );
-}
+};
 
-function comment(data: IData) {
-  const { id, name, time, text, image } = data;
+interface IVideoCommentProps {
+  data: IData,
+  currentTime: number,
+};
+
+const VideoComment = (props: IVideoCommentProps) => {
+  const { data, currentTime } = props;
+  const { id, name, time, text, image, from, to, selected, hidden } = data;
   const [isCollapsed, toggleIsCollapsed] = useState(true);
-  const [isHidden, toggleIsHidden] = useState(false);
-  const handleToggleHidden = () => {
-    toggleIsHidden(!isHidden)
-  }
+  const [isHidden, toggleIsHidden] = useState(hidden ?? false);
   return (
-    <Card style={{ width: '100%', minHeight: '62px' }} className={isHidden ? 'comment-hidden' : ''}>
+    <Card
+      style={{ width: '100%', minHeight: '62px' }}
+      className={`${
+          currentTime >= from && currentTime <= to ? 'comment-active' : 'comment-inactive'
+        } ${
+          isHidden ? 'comment-hidden' : ''
+        } ${
+          selected && !isHidden ? 'comment-selected' : ''
+        }`}
+      >
       <Card.Content>
         <Comment.Group>
           <Comment>
@@ -155,7 +92,11 @@ function comment(data: IData) {
                     {time}
                   </div>
                 </Comment.Metadata>
-                <Icon name='eye' className='eye-icon' onClick={handleToggleHidden} />
+                <Icon 
+                  name={isHidden ? 'eye slash outline' : 'eye'}
+                  className={(selected || !isCollapsed) && !isHidden? 'eye-icon-selected' : 'eye-icon'}
+                  onClick={() => toggleIsHidden(!isHidden)}
+                />
               </div>
               <Comment.Text hidden={isHidden}>
                 {text.length > 103 && isCollapsed
@@ -176,4 +117,4 @@ function comment(data: IData) {
       </Card.Content>
     </Card>
   )
-}
+};
