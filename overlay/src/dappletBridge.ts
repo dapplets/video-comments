@@ -11,6 +11,14 @@ class Bridge extends GeneralBridge {
     });
   }
 
+  onTime(callback: (time: any) => void) {
+    this.subscribe('time', (time: any) => {
+      this._subId = Math.trunc(Math.random() * 1_000_000_000);
+      callback(time);
+      return this._subId.toString();
+    });
+  }
+
   afterLinking() {
     this.publish(this._subId.toString(), {
       type: 'afterLinking',
@@ -38,12 +46,21 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  async getCurrentNearAccount(): Promise<string> {
+  async getCurrentEthereumAccount(): Promise<string> {
     return this.call(
-      'getCurrentNearAccount',
+      'getCurrentEthereumAccount',
       null,
-      'getCurrentNearAccount_done',
-      'getCurrentNearAccount_undone',
+      'getCurrentEthereumAccount_done',
+      'getCurrentEthereumAccount_undone',
+    );
+  }
+
+  async getEnsNames(eths: string[]) {
+    return this.call(
+      'getEnsNames',
+      { eths },
+      'getEnsNames_done',
+      'getEnsNames_undone',
     );
   }
 

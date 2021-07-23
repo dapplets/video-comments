@@ -4,6 +4,7 @@ body {
   background-color: #F4F4F4 !important;
   height: auto;
   max-height: 100px;
+  font-family: Roboto, sans-serif !important;
 }
 
 .overlay-container {
@@ -11,10 +12,18 @@ body {
 }
 
 .overlay-card {
-  padding: 4px;
+  margin: 0 3px !important;
+  padding: 4px 16px !important;
   width: auto !important;
-  overflow-y: auto;
-  max-height: calc(100vh - 80px);
+  overflow-y: overlay;
+  max-height: calc(100vh - 150px);
+}
+
+@media only screen and (max-width: 767px) {
+  .ui.container.overlay-card {
+      margin-left: 3px !important;
+      margin-right: 3px !important;
+  }
 }
 
 .default-badge {
@@ -32,8 +41,18 @@ body {
 
 .comment-header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
+}
+
+.comment-header .author {
+  margin-right: .5em !important;
+}
+
+.comment-header .metadata {
+  margin-left: 0 !important;
+  margin-right: .5em !important;
 }
 
 .eye-icon {
@@ -89,6 +108,151 @@ body {
 .dimmer {
   height: 100px;
 }
+
+.button-back {
+  margin: 10px 10px 0;
+  color: black;
+  position: relative;
+  display: flex;
+  width: fit-content;
+  align-items: baseline;
+  opacity: .42;
+}
+
+.button-back:hover {
+  opacity: .6;
+}
+
+.button-back:active {
+  opacity: .8;
+}
+
+.button-back > button {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: 0.015em;
+  border: none;
+  color: inherit;
+  background: none;
+  cursor: pointer;
+}
+
+.button-back > button::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  content: '';
+}
+
+.action-button {
+  font-family: Roboto, sans-serif !important;
+  width: fit-content;
+  align-self: center;
+  margin-top: 21px !important;
+  min-height: 36px !important;
+}
+
+.authorisation-page {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  height: max-content;
+  max-height: calc(100vh - 24px);
+}
+
+.authorisation-page-text {
+  display: flex;
+  height: calc(40vh - 50px);
+  margin: 10px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.authorisation-page-text h1 {
+  font-family: Roboto;
+  color: #2A2A2A;
+}
+
+.authorisation-page-text p {
+  font-family: Roboto;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 16px;
+  line-height: 19px;
+  text-align: center;
+  letter-spacing: 0.015em;
+  color: #919191;
+}
+
+.sticker-card {
+  display: flex !important;
+  flex-direction: row !important;
+  background: none !important;
+  padding: 2px !important;
+  cursor: pointer;
+  transform: none !important;
+}
+
+.sticker-card img {
+  background: none !important;
+}
+
+.sticker-card .checkbox {
+  position: absolute !important;
+  top: 0 !important;
+  right: 0 !important;
+  margin: 3px 7px !important;
+}
+
+.ui.checkbox input~.box:before, .ui.checkbox input~label:before {
+  background: white !important;
+}
+
+.ui.checkbox input:checked~.box:before, .ui.checkbox input:checked~label:before {
+  background: #5242bf !important;
+}
+
+.ui.checkbox input:checked~.box:after, .ui.checkbox input:checked~label:after {
+  color: #fff !important;
+}
+
+.stickers-container {
+  margin: 10px 0 0 !important;
+  height: 300px;
+  resize: vertical;
+  overflow-x: hidden;
+  overflow-y: overlay;
+  padding: 2px 16px 12px;
+}
+
+@media only screen and (max-width: 767px) {
+  .ui.container.stickers-container {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+  }
+}
+
+.ui.four.cards>.card {
+  display: flex !important;
+  align-items: center !important;
+  width: 78px !important;
+  height: 78px !important;
+}
+
+.ui.four.cards>.card img {
+  position: absolute;
+  max-width: calc(100% - 4px) !important;
+}
+
+
+
+
 
 .ui.checkbox {
   margin: 5px 20px 0 0;
