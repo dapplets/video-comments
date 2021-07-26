@@ -1,4 +1,5 @@
 import React from 'react';
+import update from 'immutability-helper';
 import { bridge } from './dappletBridge';
 import { IData } from './VideoComment';
 import { Comments } from './Comments';
@@ -158,6 +159,7 @@ export default class App extends React.Component<Props, State> {
           image: comment.user.picture,
           from,
           to,
+          hidden: localStorage.getItem(comment.id) === 'hidden'
         };
         return structuredComment;
       });
@@ -166,6 +168,12 @@ export default class App extends React.Component<Props, State> {
       this.setState({ data: x });
       //this.setState({ data: mockedData });
     }));
+  }
+
+  toggleCommentHidden = (id: string, makeHidden: boolean) => {
+    const commentIndex = this.state.data!.findIndex((comment) => comment.id === id);
+    const newData = update(this.state.data!, { [commentIndex]: { hidden: { $set: makeHidden } } });
+    this.setState({ data: newData });
   }
 
   render() {
@@ -179,6 +187,7 @@ export default class App extends React.Component<Props, State> {
         data={data}
         createComment={Pages.CreateComment}
         onPageChange={(page: Pages) => this.setState({ page })}
+        toggleCommentHidden={this.toggleCommentHidden}
       />
     );
 

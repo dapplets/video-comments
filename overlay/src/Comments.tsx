@@ -7,6 +7,7 @@ interface ICommentsProps {
   data?: IData[],
   createComment: number,
   onPageChange: any,
+  toggleCommentHidden: any;
 }
 
 enum CommentBlock {
@@ -21,32 +22,13 @@ let counter = Math.trunc(Math.random() * 1_000_000_000);
 
 export const Comments = (props: ICommentsProps) => {
 
-  const { data, createComment, onPageChange } = props;
+  const { data, createComment, onPageChange, toggleCommentHidden } = props;
 
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
 
   const [currentTime, updateCurrentTime] = useState(0);
 
-  useEffect(() => {
-    bridge.onTime((data) => {
-      const time = Math.trunc(data.time);
-      if (time !== currentTime) {
-        console.log('time=', time)
-        //console.log('currentTime=', currentTime)
-        updateCurrentTime(time);
-      }
-    });
-  });
-
-  const itemStyle = {
-    marginTop: '1em',
-    fontFamily: 'Roboto, sans-serif',
-    fontStyle: 'normal',
-    fontWeight: 'normal',
-    fontSize: '14px',
-    lineHeight: '100%',
-    backgroundColor: '#F4F4F4',
-  };
+  useEffect(() => bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time))), []);
 
   const handleItemClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: MenuItemProps ) => {
     const group = data.name!;
@@ -63,33 +45,28 @@ export const Comments = (props: ICommentsProps) => {
         display: 'flex',
         flexDirection: 'column',
       }}>
-        <Menu tabular>
+        <Menu tabular className='dapplet-comments-menu'>
           <Menu.Item
             name={CommentBlock.Empty}
-            style={itemStyle}
             active={activeTab === CommentBlock.Empty}
           />
           <Menu.Item
             name={CommentBlock.All}
-            style={itemStyle}
             active={activeTab === CommentBlock.All}
             onClick={handleItemClick}
           />
           <Menu.Item
             name={CommentBlock.Active}
-            style={itemStyle}
             active={activeTab === CommentBlock.Active}
             onClick={handleItemClick}
           />
           <Menu.Item
             name={CommentBlock.Inactive}
-            style={itemStyle}
             active={activeTab === CommentBlock.Inactive}
             onClick={handleItemClick}
           />
           <Menu.Item
             name={CommentBlock.Hidden}
-            style={itemStyle}
             active={activeTab === CommentBlock.Hidden}
             onClick={handleItemClick}
           />
@@ -117,7 +94,7 @@ export const Comments = (props: ICommentsProps) => {
                   default:
                     return false;
                 }
-              }).map((commentData) => <VideoComment key={counter++} data={commentData} currentTime={currentTime} />)}
+              }).map((commentData) => <VideoComment key={counter++} data={commentData} currentTime={currentTime} toggleCommentHidden={toggleCommentHidden} />)}
             </Container>)
           : <Dimmer active inverted><Loader inverted>Loading</Loader></Dimmer>}
         <Button 

@@ -7,9 +7,9 @@ export interface IData {
   name: string,
   time: string,
   text: string,
-  image?: string,
   from: number,
   to: number,
+  image?: string,
   selected?: boolean,
   hidden?: boolean,
 }
@@ -17,22 +17,29 @@ export interface IData {
 interface IVideoCommentProps {
   data: IData,
   currentTime: number,
+  toggleCommentHidden: any,
 };
 
 export const VideoComment = (props: IVideoCommentProps) => {
-  const { data, currentTime } = props;
+  const { data, currentTime, toggleCommentHidden } = props;
   const { id, name, time, text, image, from, to, selected, hidden } = data;
   const [isCollapsed, toggleIsCollapsed] = useState(true);
-  const [isHidden, toggleIsHidden] = useState(hidden ?? false);
+
+  const handleToggleIsHidden = (event: any) => {
+    event.preventDefault();
+    hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
+    toggleCommentHidden(id, !hidden);
+  }
+
   return (
     <Card
       style={{ width: '100%', minHeight: '62px' }}
       className={`${
           currentTime >= from && currentTime <= to ? 'comment-active' : 'comment-inactive'
         } ${
-          isHidden ? 'comment-hidden' : ''
+          hidden ? 'comment-hidden' : ''
         } ${
-          selected && !isHidden ? 'comment-selected' : ''
+          selected && !hidden ? 'comment-selected' : ''
         }`}
       >
       <Card.Content>
@@ -47,7 +54,7 @@ export const VideoComment = (props: IVideoCommentProps) => {
               <div className='comment-header'>
                 <Comment.Author
                   as='a'
-                  className={isHidden ? 'comment-hidden' : ''}
+                  className={hidden ? 'comment-hidden' : ''}
                 >
                   {name}
                 </Comment.Author>
@@ -57,17 +64,17 @@ export const VideoComment = (props: IVideoCommentProps) => {
                   </div>
                 </Comment.Metadata>
                 <Icon 
-                  name={isHidden ? 'eye slash outline' : 'eye'}
-                  className={(selected || !isCollapsed) && !isHidden? 'eye-icon-selected' : 'eye-icon'}
-                  onClick={() => toggleIsHidden(!isHidden)}
+                  name={hidden ? 'eye slash outline' : 'eye'}
+                  className={(selected || !isCollapsed) && !hidden? 'eye-icon-selected' : 'eye-icon'}
+                  onClick={handleToggleIsHidden}
                 />
               </div>
-              <Comment.Text hidden={isHidden}>
+              <Comment.Text hidden={hidden}>
                 {text.length > 103 && isCollapsed
                   ? `${text.substring(0, 99)}...`
                   : text}
               </Comment.Text>
-              <Comment.Actions hidden={text.length <= 103 || isHidden}>
+              <Comment.Actions hidden={text.length <= 103 || hidden}>
                 <Comment.Action
                   index={id}
                   onClick={() => toggleIsCollapsed(!isCollapsed)}
