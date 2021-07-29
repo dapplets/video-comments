@@ -16,7 +16,7 @@ body {
   padding: 4px 16px !important;
   width: auto !important;
   overflow-y: overlay;
-  max-height: calc(100vh - 210px);
+  max-height: calc(100vh - 220px);
 }
 
 @media only screen and (max-width: 767px) {
@@ -130,7 +130,13 @@ body {
   height: 100vh;
   top: -34px;
   cursor: grabbing;
-  z-index: -1;
+  z-index: 9999;
+  display: none;
+}
+
+.timeline-touch-area.cc {
+  height: 400px;
+  top: -300px;
 }
 
 .dapplet-timeline-comments.timestamp > .bar::before {

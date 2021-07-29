@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { Button, Card, CardProps, Checkbox, Container, Divider, Form, Icon, Image, TextArea } from 'semantic-ui-react';
+import { CCTimeline } from './CCTimeline';
 
 interface IProps {
-  images?: any[],
-  back: number,
-  onPageChange: any,
+  images?: any[]
+  back: number
+  onPageChange: any
+  videoLength: number
+  currentTime: number
+  updateCurrentTime: any
 }
 
 export const CommentCreation = (props: IProps) => {
-  const { back, onPageChange, images } = props;
+  const { back, onPageChange, images, videoLength, currentTime, updateCurrentTime } = props;
   const [checkedSticker, changeCheckedSticker] = useState(0);
   const handleChangeCheckedSticker = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: CardProps) =>
     typeof data.id === 'number' && changeCheckedSticker(data.id);
@@ -111,6 +115,12 @@ export const CommentCreation = (props: IProps) => {
           <TextArea placeholder='Add text message' style={{ minHeight: 120, maxHeight: 'calc(70vh - 80px)' }} />
         </Form>
       </Container>
+      <CCTimeline
+        currentTime={currentTime}
+        videoLength={videoLength}
+        activeCommentCount={0}
+        updateCurrentTime={updateCurrentTime}
+      />
       <Button 
         color='violet'
         className='action-button'

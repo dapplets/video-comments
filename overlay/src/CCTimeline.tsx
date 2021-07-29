@@ -2,14 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 
-interface ITimelineProps {
+interface ICCTimelineProps {
   currentTime: number
   videoLength: number
   activeCommentCount: number
   updateCurrentTime: any
 };
 
-export const Timeline = (props: ITimelineProps) => {
+export const CCTimeline = (props: ICCTimelineProps) => {
   const { currentTime, videoLength, activeCommentCount, updateCurrentTime } = props;
   const [isMoving, setIsMoving] = useState(false);
 
@@ -58,7 +58,7 @@ export const Timeline = (props: ITimelineProps) => {
         }}
       />
       <div
-        className='timeline-touch-area'
+        className='timeline-touch-area cc'
         onMouseMove={(ev: any) => {
           ev.preventDefault();
           ev.stopPropagation();

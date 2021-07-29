@@ -122,14 +122,16 @@ enum Pages {
 interface Props {}
 
 interface State {
-  data?: IData[],
-  videoInfo?: any;
-  page: Pages,
-  images?: any[],
+  data?: IData[]
+  videoInfo?: any
+  page: Pages
+  images?: any[]
+  currentTime: number
 }
 
 const defaultState: State = {
   page: Pages.CommentsList,
+  currentTime: 0,
 };
 
 export default class App extends React.Component<Props, State> {
@@ -178,6 +180,8 @@ export default class App extends React.Component<Props, State> {
     this.setState({ data: newData });
   }
 
+  updateCurrentTime = (currentTime: number) => this.setState({ currentTime });
+
   render() {
     const { data, page, videoInfo } = this.state;
 
@@ -187,10 +191,12 @@ export default class App extends React.Component<Props, State> {
       Pages.CommentsList,
       <Comments
         data={data}
-        videoLength={videoInfo && videoInfo.duration}
         createComment={Pages.CreateComment}
         onPageChange={(page: Pages) => this.setState({ page })}
         toggleCommentHidden={this.toggleCommentHidden}
+        videoLength={videoInfo && videoInfo.duration}
+        currentTime={this.state.currentTime}
+        updateCurrentTime={this.updateCurrentTime}
       />
     );
 
@@ -200,6 +206,9 @@ export default class App extends React.Component<Props, State> {
         images={this.state.images}
         back={Pages.CommentsList}
         onPageChange={(page: Pages) => this.setState({ page })}
+        videoLength={videoInfo && videoInfo.duration}
+        currentTime={this.state.currentTime}
+        updateCurrentTime={this.updateCurrentTime}
       />
     );
 

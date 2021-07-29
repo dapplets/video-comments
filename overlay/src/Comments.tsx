@@ -10,6 +10,8 @@ interface ICommentsProps {
   onPageChange: any
   toggleCommentHidden: any
   videoLength: number
+  currentTime: number
+  updateCurrentTime: any
 }
 
 enum CommentBlock {
@@ -24,11 +26,9 @@ let counter = Math.trunc(Math.random() * 1_000_000_000);
 
 export const Comments = (props: ICommentsProps) => {
 
-  const { data, createComment, onPageChange, toggleCommentHidden, videoLength } = props;
+  const { data, createComment, onPageChange, toggleCommentHidden, videoLength, currentTime, updateCurrentTime } = props;
 
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
-
-  const [currentTime, updateCurrentTime] = useState(0);
 
   useEffect(() => bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time))), []);
 
@@ -48,10 +48,10 @@ export const Comments = (props: ICommentsProps) => {
         flexDirection: 'column',
       }}>
         <Timeline
-          currentTime={currentTime}
           videoLength={videoLength}
-          activeCommentCount={data ? countActiveComments(data!, currentTime) : 0}
+          currentTime={currentTime}
           updateCurrentTime={updateCurrentTime}
+          activeCommentCount={data ? countActiveComments(data!, currentTime) : 0}
         />
         <Menu tabular className='dapplet-comments-menu'>
           <Menu.Item
