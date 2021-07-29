@@ -14,9 +14,15 @@ const allStickers = [RED_ARROW, ORANGE_ARROW, GLASSES_1, GLASSES_2, GLASSES_3, M
 
 @Injectable
 export default class VideoFeature implements IFeature {
+  @Inject('twitter-adapter.dapplet-base.eth')
+  public twitterAdapter: any;
+
   @Inject('video-adapter.dapplet-base.eth')
   public adapter: any;
   private _overlay: any;
+  private _videoEl: any;
+  private _dontUpdate: boolean = false;
+  private _wasPaused: boolean;
 
   async activate(): Promise<void> {
 
@@ -64,6 +70,30 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('getCurrentEthereumAccount_undone', err);
             }
           },
+          pauseVideo: () => {
+            try {
+              this._wasPaused = this._videoEl.paused;
+              if (!this._videoEl.paused) this._videoEl.pause();
+              this._dontUpdate = true;
+            } catch (err) {
+              console.log('Cannot pause the video.', err);
+            }
+          },
+          playVideoIfWasPlayed: async () => {
+            try {
+              if (!this._wasPaused) await this._videoEl.play();
+              this._dontUpdate = false;
+            } catch (err) {
+              console.log('Cannot start to play the video.', err);
+            }
+          },
+          setCurrentTime: (op: any, { type, message }: { type?: any, message: { time: number } }) => {
+            try {
+              this._videoEl.currentTime = message.time;
+            } catch (err) {
+              console.log('Cannot set new currentTime.', err);
+            }
+          },
         });
     }
 
@@ -72,11 +102,12 @@ export default class VideoFeature implements IFeature {
     const { sticker, label } = this.adapter.exports;
     this.adapter.attachConfig({
       VIDEO: async (ctx: any) => {
+        this._videoEl = ctx.element;
         console.log('ctx', ctx)
         const commentsData = await this.getData(ctx.element!.baseURI!);
         console.log('all comments:', commentsData);
 
-        ctx.onTimeUpdate(() => this._overlay.isOpen() && this._overlay.send('time', { time: ctx.currentTime }));
+        ctx.onTimeUpdate(() => this._overlay.isOpen() && !this._dontUpdate && this._overlay.send('time', { time: ctx.currentTime }));
 
         return [
           label({
@@ -84,7 +115,7 @@ export default class VideoFeature implements IFeature {
               img: MENU_ICON,
               vertical: 10,
               horizontal: 0,
-              exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData }),
+              exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, ctx }),
             },
           }),
           sticker({
@@ -92,6 +123,8 @@ export default class VideoFeature implements IFeature {
               img: MUSTACHE_1,
               exec: () => {
                 console.log('ctx:', ctx)
+                  ctx.element.currentTime = 30;
+                  ctx.element?.play();
               },
             },
           }),
@@ -104,6 +137,8 @@ export default class VideoFeature implements IFeature {
               widthCo: 0.5, // coefficient for the sticker width
               exec: () => {
                 console.log('ctx:', ctx)
+                  ctx.element.currentTime = 60;
+                  ctx.element?.play();
               },
             },
           }),
@@ -115,6 +150,8 @@ export default class VideoFeature implements IFeature {
               to: 30,
               exec: () => {
                 console.log('ctx:', ctx)
+                  ctx.element.currentTime = 90;
+                  ctx.element?.play();
               },
             },
           }),

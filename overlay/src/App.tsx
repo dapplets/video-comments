@@ -7,7 +7,7 @@ import { CommentCreation } from './CommentCreation';
 import { Authorization } from './Authorization';
 import { IRemarkComment } from './types';
 
-const mockedData: IData[] = [
+/*const mockedData: IData[] = [
   {
     id: '1',
     name: 'Matt',
@@ -111,7 +111,7 @@ const mockedData: IData[] = [
     from: 20,
     to: Infinity,
   },
-];
+];*/
 
 enum Pages {
   CommentsList,
@@ -123,6 +123,7 @@ interface Props {}
 
 interface State {
   data?: IData[],
+  videoInfo?: any;
   page: Pages,
   images?: any[],
 }
@@ -140,7 +141,8 @@ export default class App extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    bridge.onData((data) => this.setState({ ...defaultState, images: data.images }, async () => {
+    bridge.onData((data) => this.setState({ ...defaultState, images: data.images, videoInfo: data.ctx }, async () => {
+      console.log('data.ctx', data.ctx)
       const structuredComments: Promise<IData>[] = data.commentsData.comments.map(async (commentData: any): Promise<IData> => {
         const comment: IRemarkComment = commentData.comment;
         const name = await bridge.getEnsNames([comment.user.name]);
@@ -177,7 +179,7 @@ export default class App extends React.Component<Props, State> {
   }
 
   render() {
-    const { data, page } = this.state;
+    const { data, page, videoInfo } = this.state;
 
     const openPage: Map<Pages, React.ReactElement> = new Map();
 
@@ -185,6 +187,7 @@ export default class App extends React.Component<Props, State> {
       Pages.CommentsList,
       <Comments
         data={data}
+        videoLength={videoInfo && videoInfo.duration}
         createComment={Pages.CreateComment}
         onPageChange={(page: Pages) => this.setState({ page })}
         toggleCommentHidden={this.toggleCommentHidden}

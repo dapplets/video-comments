@@ -64,6 +64,33 @@ class Bridge extends GeneralBridge {
     );
   }
 
+  setCurrentTime(time: number) {
+    return this.call(
+      'setCurrentTime',
+      { time },
+      'setCurrentTime_done',
+      'setCurrentTime_undone',
+    );
+  }
+
+  pauseVideo() {
+    return this.call(
+      'pauseVideo',
+      null,
+      'pauseVideo_done',
+      'pauseVideo_undone',
+    );
+  }
+
+  async playVideoIfWasPlayed() {
+    return this.call(
+      'playVideoIfWasPlayed',
+      null,
+      'playVideoIfWasPlayed_done',
+      'playVideoIfWasPlayed_undone',
+    );
+  }
+
   async getExternalAccounts(near: string): Promise<string[]> {
     return this.call(
       'getExternalAccounts',

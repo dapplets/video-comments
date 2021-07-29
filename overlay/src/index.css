@@ -16,7 +16,7 @@ body {
   padding: 4px 16px !important;
   width: auto !important;
   overflow-y: overlay;
-  max-height: calc(100vh - 150px);
+  max-height: calc(100vh - 210px);
 }
 
 @media only screen and (max-width: 767px) {
@@ -37,6 +37,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.dapplet-comments-menu {
+  margin-top: 0 !important;
 }
 
 .dapplet-comments-menu > .item {
@@ -63,6 +67,117 @@ body {
 .comment-header .metadata {
   margin-left: 0 !important;
   margin-right: .5em !important;
+}
+
+.dapplet-timeline-comments {
+  margin: 0 19px !important;
+}
+
+/*.dapplet-timeline-comments > .bar > .progress {
+  right: -10px !important;
+}*/
+
+.dapplet-double-timeline {
+  position: relative;
+  display: block;
+  width: calc(100% - 36px);
+  height: 40px;
+  margin-top: 2.4em;
+}
+
+.dapplet-timeline-comments {
+  position: absolute !important;
+  width: 100%;
+}
+
+.ui.progress.dapplet-timeline-comments .bar {
+  min-width: 0 !important;
+}
+
+.dapplet-timeline-comments.timestamp {
+  background: none !important;
+  padding: 0 22px !important;
+}
+
+.dapplet-timeline-comments.timestamp > .bar {
+  background: none !important;
+}
+
+.dapplet-timeline-comments.activecomments {
+  background: none !important;
+  padding: 0 22px !important;
+}
+
+.dapplet-timeline-comments.activecomments > .bar {
+  background: none !important;
+}
+
+.dapplet-timeline-comments.progressbar {
+  opacity: .2;
+  border: 1px solid !important;
+}
+
+.dapplet-timeline-comments.progressbar.touch {
+  top: 12px !important;
+  z-index: 5055;
+  opacity: 0 !important;
+  cursor: pointer;
+}
+
+.timeline-touch-area {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: -34px;
+  cursor: grabbing;
+  z-index: -1;
+}
+
+.dapplet-timeline-comments.timestamp > .bar::before {
+  position: absolute;
+  color: #747376;
+  padding: 3px 8px;
+  background: white;
+  border: 1px solid #5242bf;
+  top: -6px;
+  right: -2em;
+  left: auto;
+  border-radius: 99em;
+  content: attr(data-timestamp);
+  z-index: 5038;
+}
+
+.dapplet-timeline-comments.activecomments > .bar::before {
+  position: absolute;
+  padding: 5px;
+  top: -42px;
+  right: -17px;
+  left: auto;
+  content: url("./point.svg");
+  z-index: 5038;
+}
+
+.dapplet-timeline-comments.activecomments > .bar::after {
+  position: absolute;
+  color: white;
+  width: 40px;
+  padding: 5px;
+  top: -35px;
+  right: -20px;
+  left: auto;
+  text-align: center;
+  content: attr(data-activecomments);
+  z-index: 5039;
+}
+
+.time-labels {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 19px 2px;
+  color: #747376;
+  font-size: 12px;
 }
 
 .eye-icon {
@@ -107,12 +222,16 @@ body {
   opacity: .4 !important;
 }
 
+.ui.comments .comment .avatar {
+  height: 2.5em !important;
+}
+
 .no-comments {
   display: flex !important;
   position: relative;
   flex-direction: column;
-  height: calc(100vh - 180px);
-  justify-content: center;
+  height: calc(45vh - 100px);
+  justify-content: flex-end;
 }
 
 .dimmer {
