@@ -19,20 +19,6 @@ class Bridge extends GeneralBridge {
     });
   }
 
-  afterLinking() {
-    this.publish(this._subId.toString(), {
-      type: 'afterLinking',
-      message: '',
-    });
-  }
-
-  afterAvatarChanging() {
-    this.publish(this._subId.toString(), {
-      type: 'afterAvatarChanging',
-      message: '',
-    });
-  }
-
   async connectWallet(): Promise<string> {
     return this.call('connectWallet', null, 'connectWallet_done', 'connectWallet_undone');
   }
@@ -89,54 +75,6 @@ class Bridge extends GeneralBridge {
       'playVideoIfWasPlayed_done',
       'playVideoIfWasPlayed_undone',
     );
-  }
-
-  async getExternalAccounts(near: string): Promise<string[]> {
-    return this.call(
-      'getExternalAccounts',
-      { near },
-      'getExternalAccounts_done',
-      'getExternalAccounts_undone',
-    );
-  }
-
-  async getNearAccounts(account: string): Promise<string[]> {
-    return this.call(
-      'getNearAccounts',
-      { account },
-      'getNearAccounts_done',
-      'getNearAccounts_undone',
-    );
-  }
-
-  async addExternalAccount(account: string): Promise<void> {
-    return this.call(
-      'addExternalAccount',
-      { account },
-      'addExternalAccount_done',
-      'addExternalAccount_undone',
-    );
-  }
-
-  async removeExternalAccount(account: string): Promise<void> {
-    return this.call(
-      'removeExternalAccount',
-      { account },
-      'removeExternalAccount_done',
-      'removeExternalAccount_undone',
-    );
-  }
-
-  async getNftId(twitterAcc: string): Promise<string> {
-    return this.call('getNftId', { twitterAcc }, 'getNftId_done', 'getNftId_undone');
-  }
-
-  async setNftId(twitterAcc: string, id: string): Promise<void> {
-    return this.call('setNftId', { twitterAcc, id }, 'setNftId_done', 'setNftId_undone');
-  }
-
-  async removeNftId(twitterAcc: string): Promise<void> {
-    return this.call('removeNftId', { twitterAcc }, 'removeNftId_done', 'removeNftId_undone');
   }
 
   public async call(

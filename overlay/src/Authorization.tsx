@@ -6,7 +6,7 @@ interface IAuthorizationProps {
   onPageChange: any,
 }
 
-export const Authorization = (props: IAuthorizationProps) => {
+export default (props: IAuthorizationProps) => {
   const { back, onPageChange } = props;
   return (
     <div className='authorisation-page'>

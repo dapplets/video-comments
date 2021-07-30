@@ -1,117 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import update from 'immutability-helper';
 import { bridge } from './dappletBridge';
 import { IData } from './VideoComment';
-import { Comments } from './Comments';
-import { CommentCreation } from './CommentCreation';
-import { Authorization } from './Authorization';
+import Comments from './Comments';
+import CommentCreation from './CommentCreation';
+import Authorization from './Authorization';
 import { IRemarkComment } from './types';
-
-/*const mockedData: IData[] = [
-  {
-    id: '1',
-    name: 'Matt',
-    time: 'December 17, 1995 03:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/matt.jpg',
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: '2',
-    name: 'Olivia',
-    time: 'December 17, 1995 04:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/jenny.jpg',
-    from: 0,
-    to: Infinity,
-    selected: true,
-  },
-  {
-    id: '3',
-    name: 'Вася',
-    time: 'December 17, 1995 05:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 0,
-    to: Infinity,
-    hidden: true,
-  },
-  {
-    id: '4',
-    name: 'Петя',
-    time: 'December 17, 1995 06:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 0,
-    to: Infinity,
-  },
-  {
-    id: '5',
-    name: 'Jonny',
-    time: 'December 17, 1995 07:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/matt.jpg',
-    from: 20,
-    to: Infinity,
-    hidden: true,
-  },
-  {
-    id: '6',
-    name: 'Anna',
-    time: 'December 17, 1995 08:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    image: 'https://react.semantic-ui.com/images/avatar/small/jenny.jpg',
-    from: 20,
-    to: Infinity,
-  },
-  {
-    id: '7',
-    name: 'Галя',
-    time: 'December 17, 1995 09:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 20,
-    to: Infinity,
-  },
-  {
-    id: '8',
-    name: 'Инга',
-    time: 'December 17, 1995 10:24:00',
-    text: `In our quest to improve the user experience, 
-    we miss that those seeking to displace traditional production, 
-    nanotechnology, which is a vivid example of a continental-European
-    type of political culture, will be objectively considered 
-    by the relevant authorities!`,
-    from: 20,
-    to: Infinity,
-  },
-];*/
 
 enum Pages {
   CommentsList,
@@ -119,33 +13,19 @@ enum Pages {
   Authorization,
 }
 
-interface Props {}
+export default () => {
+  const [data, setData] = useState<IData[] | undefined>();
+  const [page, setPage] = useState(Pages.CommentsList);
+  const [videoInfo, addVideoInfo] = useState<any>({ duration: 60 });
+  const [images, addImages] = useState<any[] | undefined>();
+  const [currentTime, updateCurrentTime] = useState(0);
+  const [startTime, setStartTime] = useState(currentTime);
+  const [finishTime, setFinishTime] = useState(currentTime + 60 > videoInfo.duration ? videoInfo.duration : currentTime + 60);
+  const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
 
-interface State {
-  data?: IData[]
-  videoInfo?: any
-  page: Pages
-  images?: any[]
-  currentTime: number
-}
-
-const defaultState: State = {
-  page: Pages.CommentsList,
-  currentTime: 0,
-};
-
-export default class App extends React.Component<Props, State> {
-  //refs: any;
-
-  constructor(props: Props) {
-    super(props);
-    this.state = { ...defaultState };
-  }
-
-  componentDidMount() {
-    bridge.onData((data) => this.setState({ ...defaultState, images: data.images, videoInfo: data.ctx }, async () => {
-      console.log('data.ctx', data.ctx)
-      const structuredComments: Promise<IData>[] = data.commentsData.comments.map(async (commentData: any): Promise<IData> => {
+  useEffect(() => bridge.onData(async (data) => {
+    const structuredComments: Promise<IData>[] = data.commentsData.comments
+      .map(async (commentData: any): Promise<IData> => {
         const comment: IRemarkComment = commentData.comment;
         const name = await bridge.getEnsNames([comment.user.name]);
         let from = 0;
@@ -167,59 +47,58 @@ export default class App extends React.Component<Props, State> {
         };
         return structuredComment;
       });
-      const x = await Promise.all(structuredComments);
-      console.log('x:', x)
-      this.setState({ data: x });
-      //this.setState({ data: mockedData });
-    }));
-  }
+    const newData = await Promise.all(structuredComments);
+    setData(newData);
+    addImages(data.images);
+    addVideoInfo(data.ctx);
+  }), []);
 
-  toggleCommentHidden = (id: string, makeHidden: boolean) => {
-    const commentIndex = this.state.data!.findIndex((comment) => comment.id === id);
-    const newData = update(this.state.data!, { [commentIndex]: { hidden: { $set: makeHidden } } });
-    this.setState({ data: newData });
-  }
+  const toggleCommentHidden = (id: string, makeHidden: boolean) => {
+    const commentIndex = data!.findIndex((comment) => comment.id === id);
+    const newData = update(data!, { [commentIndex]: { hidden: { $set: makeHidden } } });
+    setData(newData);
+  };
 
-  updateCurrentTime = (currentTime: number) => this.setState({ currentTime });
+  const openPage: Map<Pages, React.ReactElement> = new Map();
 
-  render() {
-    const { data, page, videoInfo } = this.state;
+  openPage.set(
+    Pages.CommentsList,
+    <Comments
+      createComment={Pages.CreateComment}
+      data={data}
+      onPageChange={setPage}
+      toggleCommentHidden={toggleCommentHidden}
+      videoLength={videoInfo && videoInfo.duration}
+      currentTime={currentTime}
+      updateCurrentTime={updateCurrentTime}
+    />
+  );
 
-    const openPage: Map<Pages, React.ReactElement> = new Map();
+  openPage.set(
+    Pages.CreateComment,
+    <CommentCreation
+      back={Pages.CommentsList}
+      images={images}
+      onPageChange={setPage}
+      videoLength={videoInfo && videoInfo.duration}
+      updateCurrentTime={updateCurrentTime}
+      currentTime={currentTime}
+      startTime={startTime}
+      setStartTime={setStartTime}
+      finishTime={finishTime}
+      setFinishTime={setFinishTime}
+      doUpdateCCTimeline={doUpdateCCTimeline}
+      setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+    />
+  );
 
-    openPage.set(
-      Pages.CommentsList,
-      <Comments
-        data={data}
-        createComment={Pages.CreateComment}
-        onPageChange={(page: Pages) => this.setState({ page })}
-        toggleCommentHidden={this.toggleCommentHidden}
-        videoLength={videoInfo && videoInfo.duration}
-        currentTime={this.state.currentTime}
-        updateCurrentTime={this.updateCurrentTime}
-      />
-    );
+  openPage.set(
+    Pages.Authorization,
+    <Authorization
+      back={Pages.CommentsList}
+      onPageChange={setPage}
+    />
+  );
 
-    openPage.set(
-      Pages.CreateComment,
-      <CommentCreation
-        images={this.state.images}
-        back={Pages.CommentsList}
-        onPageChange={(page: Pages) => this.setState({ page })}
-        videoLength={videoInfo && videoInfo.duration}
-        currentTime={this.state.currentTime}
-        updateCurrentTime={this.updateCurrentTime}
-      />
-    );
-
-    openPage.set(
-      Pages.Authorization,
-      <Authorization
-        back={Pages.CommentsList}
-        onPageChange={(page: Pages) => this.setState({ page })}
-      />
-    );
-
-    return openPage.get(page)
-  }
-}
+  return openPage.get(page) ?? <></>;
+};

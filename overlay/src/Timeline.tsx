@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
+import { formatTime } from './utils';
 
 interface ITimelineProps {
   currentTime: number
@@ -9,7 +10,7 @@ interface ITimelineProps {
   updateCurrentTime: any
 };
 
-export const Timeline = (props: ITimelineProps) => {
+export default (props: ITimelineProps) => {
   const { currentTime, videoLength, activeCommentCount, updateCurrentTime } = props;
   const [isMoving, setIsMoving] = useState(false);
 
@@ -21,12 +22,8 @@ export const Timeline = (props: ITimelineProps) => {
   return (
     <div className='dapplet-double-timeline'>
       <div className='time-labels'>
-        <div>
-          00:00
-        </div>
-        <div>
-          {formatTime(Math.ceil(videoLength))}
-        </div>
+        <div>00:00</div>
+        <div>{formatTime(videoLength)}</div>
       </div>
       <Progress 
         className='dapplet-timeline-comments activecomments'
@@ -62,7 +59,7 @@ export const Timeline = (props: ITimelineProps) => {
         onMouseMove={(ev: any) => {
           ev.preventDefault();
           ev.stopPropagation();
-          if (!isMoving || ev.pageX < 20 || ev.pageX > 410) return;
+          if (!isMoving || ev.pageX < 20 || ev.pageX > ev.target.parentElement.offsetWidth + 20) return;
           const newTime = (ev.pageX - 20) * videoLength / ev.target.parentElement.offsetWidth;
           const newCurrentTime = newTime < 0 ? 0 : newTime > videoLength ? videoLength : newTime;
           updateCurrentTime(newCurrentTime);
@@ -87,16 +84,6 @@ export const Timeline = (props: ITimelineProps) => {
       />
     </div>
   );
-};
-
-const formatTime = (time: number) => {
-  const seconds = Math.ceil(time);
-  const s = (seconds % 60).toString();
-  const m = Math.floor(seconds / 60 % 60).toString();
-  const h = Math.floor(seconds / 60 / 60 % 60).toString();
-  return h !== '0'
-    ? `${h.padStart(2,'0')}:${m.padStart(2,'0')}:${s.padStart(2,'0')}`
-    : `${m.padStart(2,'0')}:${s.padStart(2,'0')}`;
 };
 
 const addPropTimestamp = (value: string) => {

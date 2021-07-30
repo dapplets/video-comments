@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Card, CardProps, Checkbox, Container, Divider, Form, Icon, Image, TextArea } from 'semantic-ui-react';
-import { CCTimeline } from './CCTimeline';
+import CCTimeline from './CCTimeline';
 
 interface IProps {
   images?: any[]
@@ -9,10 +9,29 @@ interface IProps {
   videoLength: number
   currentTime: number
   updateCurrentTime: any
+  startTime: number
+  setStartTime: any
+  finishTime: number
+  setFinishTime: any
+  doUpdateCCTimeline: boolean
+  setDoUpdateCCTimeline: any
 }
 
-export const CommentCreation = (props: IProps) => {
-  const { back, onPageChange, images, videoLength, currentTime, updateCurrentTime } = props;
+export default (props: IProps) => {
+  const {
+    back,
+    onPageChange,
+    images,
+    videoLength,
+    currentTime,
+    updateCurrentTime,
+    startTime,
+    setStartTime,
+    finishTime,
+    setFinishTime,
+    doUpdateCCTimeline,
+    setDoUpdateCCTimeline,
+  } = props;
   const [checkedSticker, changeCheckedSticker] = useState(0);
   const handleChangeCheckedSticker = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: CardProps) =>
     typeof data.id === 'number' && changeCheckedSticker(data.id);
@@ -116,10 +135,15 @@ export const CommentCreation = (props: IProps) => {
         </Form>
       </Container>
       <CCTimeline
-        currentTime={currentTime}
         videoLength={videoLength}
-        activeCommentCount={0}
+        currentTime={currentTime}
         updateCurrentTime={updateCurrentTime}
+        startTime={startTime}
+        setStartTime={setStartTime}
+        finishTime={finishTime}
+        setFinishTime={setFinishTime}
+        doUpdateCCTimeline={doUpdateCCTimeline}
+        setDoUpdateCCTimeline={setDoUpdateCCTimeline}
       />
       <Button 
         color='violet'

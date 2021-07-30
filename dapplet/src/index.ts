@@ -123,8 +123,6 @@ export default class VideoFeature implements IFeature {
               img: MUSTACHE_1,
               exec: () => {
                 console.log('ctx:', ctx)
-                  ctx.element.currentTime = 30;
-                  ctx.element?.play();
               },
             },
           }),
@@ -137,8 +135,6 @@ export default class VideoFeature implements IFeature {
               widthCo: 0.5, // coefficient for the sticker width
               exec: () => {
                 console.log('ctx:', ctx)
-                  ctx.element.currentTime = 60;
-                  ctx.element?.play();
               },
             },
           }),
@@ -150,8 +146,6 @@ export default class VideoFeature implements IFeature {
               to: 30,
               exec: () => {
                 console.log('ctx:', ctx)
-                  ctx.element.currentTime = 90;
-                  ctx.element?.play();
               },
             },
           }),

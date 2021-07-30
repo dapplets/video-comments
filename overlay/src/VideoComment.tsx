@@ -20,7 +20,7 @@ interface IVideoCommentProps {
   toggleCommentHidden: any,
 };
 
-export const VideoComment = (props: IVideoCommentProps) => {
+export default (props: IVideoCommentProps) => {
   const { data, currentTime, toggleCommentHidden } = props;
   const { id, name, time, text, image, from, to, selected, hidden } = data;
   const [isCollapsed, toggleIsCollapsed] = useState(true);

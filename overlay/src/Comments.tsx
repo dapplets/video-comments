@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Dimmer, Header, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
-import { VideoComment, IData } from './VideoComment';
-import { Timeline } from './Timeline';
+import VideoComment, { IData } from './VideoComment';
+import Timeline from './Timeline';
 import { bridge } from './dappletBridge';
 
 interface ICommentsProps {
@@ -24,10 +24,8 @@ enum CommentBlock {
 
 let counter = Math.trunc(Math.random() * 1_000_000_000);
 
-export const Comments = (props: ICommentsProps) => {
-
+export default (props: ICommentsProps) => {
   const { data, createComment, onPageChange, toggleCommentHidden, videoLength, currentTime, updateCurrentTime } = props;
-
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
 
   useEffect(() => bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time))), []);
@@ -42,6 +40,9 @@ export const Comments = (props: ICommentsProps) => {
       }
   }
 
+  const countActiveComments = () =>
+    data!.filter((comment) => comment.from <= currentTime && comment.to >= currentTime).length;
+
   return (
       <div style={{
         display: 'flex',
@@ -51,7 +52,7 @@ export const Comments = (props: ICommentsProps) => {
           videoLength={videoLength}
           currentTime={currentTime}
           updateCurrentTime={updateCurrentTime}
-          activeCommentCount={data ? countActiveComments(data!, currentTime) : 0}
+          activeCommentCount={data ? countActiveComments() : 0}
         />
         <Menu tabular className='dapplet-comments-menu'>
           <Menu.Item
@@ -114,7 +115,3 @@ export const Comments = (props: ICommentsProps) => {
       </div>
   );
 };
-
-
-const countActiveComments = (comments: IData[], currentTime: number) =>
-  comments.filter((comment) => comment.from <= currentTime && comment.to >= currentTime).length;
