@@ -19,7 +19,7 @@ export default () => {
   const [data, setData] = useState<IData[] | undefined>();
   const [page, setPage] = useState(Pages.CommentsList);
   const [videoInfo, addVideoInfo] = useState<any>({ duration: 60 });
-  const [images, addImages] = useState<any[] | undefined>();
+  const [images, addImages] = useState<any | undefined>();
   const [currentTime, updateCurrentTime] = useState(0);
   const [startTime, setStartTime] = useState(currentTime);
   const [finishTime, setFinishTime] = useState(currentTime + 60 > videoInfo.duration ? videoInfo.duration : currentTime + 60);
@@ -37,10 +37,12 @@ export default () => {
         const name = ensNames.length !== 0 ? ensNames[0] : comment.user.name;
         let from = 0;
         let to = Infinity;
+        let sticker: string | undefined;
         if (comment.title !== undefined) { 
-          const title: { from: number, to: number } = JSON.parse(comment.title);
+          const title: { from: number, to: number, sticker?: string } = JSON.parse(comment.title);
           from = title.from;
           to = title.to;
+          sticker = title.sticker;
         }
         const structuredComment: IData = {
           id: comment.id,
@@ -50,6 +52,7 @@ export default () => {
           image: comment.user.picture,
           from,
           to,
+          sticker,
           hidden: localStorage.getItem(comment.id) === 'hidden',
           url: comment.locator.url,
         };

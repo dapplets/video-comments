@@ -12,7 +12,7 @@ interface IVideoCommentProps {
 
 export default (props: IVideoCommentProps) => {
   const { data, currentTime, toggleCommentHidden } = props;
-  const { id, name, time, text, image, from, to, selected, hidden } = data;
+  const { id, name, time, text, image, from, to, selected, hidden, sticker } = data;
   const [isCollapsed, toggleIsCollapsed] = useState(true);
 
   const handleToggleIsHidden = (event: any) => {
@@ -80,6 +80,9 @@ export default (props: IVideoCommentProps) => {
                 dangerouslySetInnerHTML={{ __html: text.length > 103 && isCollapsed
                   ? `${text.substring(0, 99)}...`
                   : text }}/>
+              <Comment.Text hidden={isCollapsed || hidden || sticker === undefined}>
+                sticker: {sticker}
+              </Comment.Text>
               <Comment.Actions hidden={hidden}>
                 <Comment.Action
                   index={id}

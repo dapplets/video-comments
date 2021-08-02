@@ -6,7 +6,7 @@ import { bridge } from './dappletBridge';
 import { addComment } from './utils';
 
 interface IProps {
-  images?: any[]
+  images?: any
   back: number
   publicationNotice: number
   onPageChange: any
@@ -44,16 +44,29 @@ export default (props: IProps) => {
 
   const [accountId, getAccountId] = useState<string | undefined>();
   const [checkedSticker, changeCheckedSticker] = useState(0);
+  const [checkedStickerName, changeCheckedStickerName] = useState('');
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     setIsCommentPublished(false);
+    bridge.isWalletConnected()
+      .then(async (isWalletConnected) => {
+        if (!isWalletConnected) await bridge.connectWallet();
+        const currentEthAccount = await bridge.getCurrentEthereumAccount();
+        getAccountId(currentEthAccount);
+      });
+      changeCheckedStickerName(Object.keys(images)[0]);
   }, []);
 
   const handleChangeCheckedSticker = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     data: CardProps
-  ) => typeof data.id === 'number' && changeCheckedSticker(data.id);
+  ) => {
+    if (typeof data.id === 'number') {
+      changeCheckedSticker(data.id);
+      changeCheckedStickerName(data['data-name']);
+    }
+  };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -62,12 +75,14 @@ export default (props: IProps) => {
     console.log('message:', message)
     console.log('from:', startTime)
     console.log('to:', finishTime)
+    console.log('checkedStickerName:', checkedStickerName)
     const sendingData: ISendingData = {
       accountId: accountId!,
       videoId,
       text: message,
       from: startTime,
       to: finishTime,
+      sticker: checkedStickerName,
     };
     try {
       await addComment(sendingData);
@@ -90,9 +105,10 @@ export default (props: IProps) => {
       <Form className='authorisation-form' onSubmit={handleSubmit}>
         <Container className='stickers-container'>
           {images && <Card.Group itemsPerRow={4}>
-            {images.map((image, index) => (
+            {Object.entries(images).map(([imageName, image], index) => (
               <Card
                 id={index}
+                data-name={imageName}
                 key={index}
                 className='sticker-card'
                 style={{ opacity: checkedSticker === index ? '1' : '.7' }}

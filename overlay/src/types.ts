@@ -9,6 +9,7 @@ export interface IData {
   selected?: boolean
   hidden?: boolean
   url: string
+  sticker?: string
 }
 
 export interface ISendingData {
@@ -17,6 +18,7 @@ export interface ISendingData {
   text: string
   from: number
   to: number
+  sticker: string
 }
 
 export interface IRemarkUser {

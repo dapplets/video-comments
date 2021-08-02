@@ -12,7 +12,7 @@ import MUSTACHE_2 from './icons/mustache_2.svg';
 import MUSTACHE_3 from './icons/mustache_3.svg';
 import abi from './abi';
 
-const allStickers = [RED_ARROW, ORANGE_ARROW, GLASSES_1, GLASSES_2, GLASSES_3, MUSTACHE_1, MUSTACHE_2, MUSTACHE_3];
+const allStickers = { RED_ARROW, ORANGE_ARROW, GLASSES_1, GLASSES_2, GLASSES_3, MUSTACHE_1, MUSTACHE_2, MUSTACHE_3 };
 
 @Injectable
 export default class VideoFeature implements IFeature {
@@ -155,6 +155,7 @@ export default class VideoFeature implements IFeature {
             sticker({
               DEFAULT: {
                 img: RED_ARROW,
+                rotated: 1.26432,
                 horizontal: 65, // %
                 from: 10,
                 to: 30,

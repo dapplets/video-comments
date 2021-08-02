@@ -1,7 +1,7 @@
 import { ISendingData } from './types';
 
 export const addComment = async (props: ISendingData) => {
-  const { accountId, videoId, text, from, to } = props;
+  const { accountId, videoId, text, from, to, sticker } = props;
   try {
     const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
     const token = res.headers.get('X-Jwt');
@@ -13,6 +13,7 @@ export const addComment = async (props: ISendingData) => {
         title: JSON.stringify({
           from,
           to,
+          sticker,
         }),
         locator: {
           site: 'remark',
