@@ -1,13 +1,16 @@
 import React from 'react';
 import { Button, Divider, Icon } from 'semantic-ui-react';
+import { bridge } from './dappletBridge';
 
 interface IAuthorizationProps {
-  back: number,
-  onPageChange: any,
+  back: number
+  createComment: number
+  onPageChange: any
+  setIsAuthorized: any
 }
 
 export default (props: IAuthorizationProps) => {
-  const { back, onPageChange } = props;
+  const { back, createComment, onPageChange, setIsAuthorized } = props;
   return (
     <div className='authorisation-page'>
       <div className='button-back'>
@@ -23,7 +26,13 @@ export default (props: IAuthorizationProps) => {
       </div>
       <Button 
         color='violet'
-        className='action-button'
+        className='action-button exact'
+        onClick={() => bridge.connectWallet()
+          .then(() => {
+            setIsAuthorized(true);
+            onPageChange(createComment);
+          })
+          .catch((err) => console.log('Error connecting to the wallet.', err))}
       >
         Authorization
       </Button>

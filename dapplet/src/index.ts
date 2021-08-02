@@ -2,6 +2,8 @@ import { IFeature } from '@dapplets/dapplet-extension';
 import ORANGE_ARROW from './icons/arrow_001.png';
 import RED_ARROW from './icons/vector.svg';
 import MENU_ICON from './icons/floatingButton.svg';
+import MENU_ICON_HOVER from './icons/floatingButton_h.svg';
+import MENU_ICON_ACTIVE from './icons/floatingButton_a.svg';
 import GLASSES_1 from './icons/glasses_1.png';
 import GLASSES_2 from './icons/glasses_2.png';
 import GLASSES_3 from './icons/glasses_3.svg';
@@ -23,6 +25,8 @@ export default class VideoFeature implements IFeature {
   private _videoEl: any;
   private _dontUpdate: boolean = false;
   private _wasPaused: boolean;
+  private _config: any;
+  private _setConfig: any;
 
   async activate(): Promise<void> {
 
@@ -94,64 +98,77 @@ export default class VideoFeature implements IFeature {
               console.log('Cannot set new currentTime.', err);
             }
           },
+          updateData: () => {
+            this.adapter.detachConfig(this._config);
+            this.adapter.attachConfig(this._setConfig(true));
+          },
         });
     }
 
-    //await this.addComment();
-
     const { sticker, label } = this.adapter.exports;
-    this.adapter.attachConfig({
-      VIDEO: async (ctx: any) => {
-        this._videoEl = ctx.element;
-        console.log('ctx', ctx)
-        const commentsData = await this.getData(ctx.element!.baseURI!);
-        console.log('all comments:', commentsData);
 
-        ctx.onTimeUpdate(() => this._overlay.isOpen() && !this._dontUpdate && this._overlay.send('time', { time: ctx.currentTime }));
+    this._setConfig = (forceOpenOverlay: boolean = false) => {
+        this._config = {
+        VIDEO: async (ctx: any) => {
+          this._videoEl = ctx.element;
+          console.log('ctx', ctx)
+          const commentsData = await this.getData(ctx.element!.baseURI!);
+          console.log('all comments:', commentsData);
 
-        return [
-          label({
-            DEFAULT: {
-              img: MENU_ICON,
-              vertical: 10,
-              horizontal: 0,
-              exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, ctx }),
-            },
-          }),
-          sticker({
-            DEFAULT: {
-              img: MUSTACHE_1,
-              exec: () => {
-                console.log('ctx:', ctx)
+          if (forceOpenOverlay) this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI })
+
+          ctx.onTimeUpdate(() => this._overlay.isOpen() && !this._dontUpdate && this._overlay.send('time', { time: ctx.currentTime }));
+
+          return [
+            label({
+              DEFAULT: {
+                img: {
+                  main: MENU_ICON,
+                  hover: MENU_ICON_HOVER,
+                  active: MENU_ICON_ACTIVE,
+                },
+                vertical: 10,
+                horizontal: 0,
+                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI }),
               },
-            },
-          }),
-          sticker({
-            DEFAULT: {
-              img: GLASSES_1,
-              vertical: 10, // %
-              horizontal: 30, // %
-              heightCo: 0.5, // coefficient for the sticker height
-              widthCo: 0.5, // coefficient for the sticker width
-              exec: () => {
-                console.log('ctx:', ctx)
+            }),
+            sticker({
+              DEFAULT: {
+                img: MUSTACHE_1,
+                exec: () => {
+                  console.log('ctx:', ctx)
+                },
               },
-            },
-          }),
-          sticker({
-            DEFAULT: {
-              img: RED_ARROW,
-              horizontal: 65, // %
-              from: 10,
-              to: 30,
-              exec: () => {
-                console.log('ctx:', ctx)
+            }),
+            sticker({
+              DEFAULT: {
+                img: GLASSES_1,
+                vertical: 10, // %
+                horizontal: 30, // %
+                heightCo: 0.5, // coefficient for the sticker height
+                widthCo: 0.5, // coefficient for the sticker width
+                exec: () => {
+                  console.log('ctx:', ctx)
+                },
               },
-            },
-          }),
-        ];
-      },
-    });
+            }),
+            sticker({
+              DEFAULT: {
+                img: RED_ARROW,
+                horizontal: 65, // %
+                from: 10,
+                to: 30,
+                exec: () => {
+                  console.log('ctx:', ctx)
+                },
+              },
+            }),
+          ];
+        },
+      };
+      return this._config
+    }
+    this.adapter.attachConfig(this._setConfig());
   }
 
   openOverlay(props?: any): void {
@@ -164,39 +181,6 @@ export default class VideoFeature implements IFeature {
       return await response.json();
     } catch (e) {
       console.log('Error in getData():', e);
-    }
-  }
-
-  async addComment() {
-    try {
-      const res = await fetch('https://comments.dapplets.org/auth/anonymous/login?user=0x9126d36880905fcb9e5f2a7f7c4f19703d52bc62&site=remark&aud=remark');
-      const token = res.headers.get('X-Jwt');
-      const headers: HeadersInit = new Headers();
-      if (token) {
-        headers.set('X-Jwt', token!);
-        const data = {
-          text: `This is a сomment from the 10th to the 30th second`,
-          title: JSON.stringify({
-            from: 10,
-            to: 30,
-          }),
-          locator: {
-            site: 'remark',
-            url: 'https://twitter.com/virgingalactic/status/1415023224350560259'
-          },
-        };
-        const strData = JSON.stringify(data);
-        console.log('strData=', strData)
-        const response = await fetch('https://comments.dapplets.org/api/v1/comment', {
-          method: 'POST',
-          headers,
-          body: strData,
-        });
-        const result = await response.json();
-        console.log('result of POST comment:', result);
-      }
-    } catch (e) {
-      console.log(e)
     }
   }
 }

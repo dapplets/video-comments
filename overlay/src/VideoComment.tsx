@@ -1,18 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Comment, Icon } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
-
-export interface IData {
-  id: string,
-  name: string,
-  time: string,
-  text: string,
-  from: number,
-  to: number,
-  image?: string,
-  selected?: boolean,
-  hidden?: boolean,
-}
+import { IData } from './types';
+import { formatTime } from './utils';
 
 interface IVideoCommentProps {
   data: IData,
@@ -69,12 +59,28 @@ export default (props: IVideoCommentProps) => {
                   onClick={handleToggleIsHidden}
                 />
               </div>
-              <Comment.Text hidden={hidden}>
-                {text.length > 103 && isCollapsed
+              <div
+                className='comment-header'
+                style={{ margin: '5px 0 10px' }}
+                hidden={isCollapsed || hidden}
+              >
+                <Comment.Metadata>
+                  <div>
+                    begining: {formatTime(from)}
+                  </div>
+                </Comment.Metadata>
+                <Comment.Metadata>
+                  <div>
+                    end: {formatTime(to)}
+                  </div>
+                </Comment.Metadata>
+              </div>
+              <Comment.Text
+                hidden={hidden}
+                dangerouslySetInnerHTML={{ __html: text.length > 103 && isCollapsed
                   ? `${text.substring(0, 99)}...`
-                  : text}
-              </Comment.Text>
-              <Comment.Actions hidden={text.length <= 103 || hidden}>
+                  : text }}/>
+              <Comment.Actions hidden={hidden}>
                 <Comment.Action
                   index={id}
                   onClick={() => toggleIsCollapsed(!isCollapsed)}

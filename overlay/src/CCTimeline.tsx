@@ -46,7 +46,6 @@ export default (props: ICCTimelineProps) => {
     ev.stopPropagation();
     if (!isMoving) return;
     ev.target.style.display = 'none';
-    await bridge.playVideoIfWasPlayed();
     setIsMoving(false);
   };
 

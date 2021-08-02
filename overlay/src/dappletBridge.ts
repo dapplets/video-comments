@@ -41,7 +41,7 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  async getEnsNames(eths: string[]) {
+  async getEnsNames(eths: string[]): Promise<string[] | []> {
     return this.call(
       'getEnsNames',
       { eths },
@@ -74,6 +74,15 @@ class Bridge extends GeneralBridge {
       null,
       'playVideoIfWasPlayed_done',
       'playVideoIfWasPlayed_undone',
+    );
+  }
+
+  updateData() {
+    return this.call(
+      'updateData',
+      null,
+      'updateData_done',
+      'updateData_undone',
     );
   }
 

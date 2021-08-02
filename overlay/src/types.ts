@@ -1,3 +1,24 @@
+export interface IData {
+  id: string
+  name: string
+  time: string
+  text: string
+  from: number
+  to: number
+  image?: string
+  selected?: boolean
+  hidden?: boolean
+  url: string
+}
+
+export interface ISendingData {
+  accountId: string
+  videoId: string
+  text: string
+  from: number
+  to: number
+}
+
 export interface IRemarkUser {
   id: string         //  ID
   name: string       //  Name
