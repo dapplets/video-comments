@@ -11,6 +11,7 @@ import MUSTACHE_1 from './icons/mustache_1.svg';
 import MUSTACHE_2 from './icons/mustache_2.svg';
 import MUSTACHE_3 from './icons/mustache_3.svg';
 import abi from './abi';
+import { IData, IRemarkComment } from './types';
 
 const allStickers = { RED_ARROW, ORANGE_ARROW, GLASSES_1, GLASSES_2, GLASSES_3, MUSTACHE_1, MUSTACHE_2, MUSTACHE_3 };
 
@@ -34,15 +35,6 @@ export default class VideoFeature implements IFeature {
       this._overlay = Core
         .overlay({ name: 'video-comments-overlay', title: 'Video Comments' })
         .listen({
-          getEnsNames: async (op: any, { type, message }: { type?: any, message: { eths: string[] } }) => {
-            const contract = Core.contract('ethereum', '0x196eC7109e127A353B709a20da25052617295F6f', abi);
-            try {
-              const ensNames = await contract.getNames(message.eths);
-              this._overlay.send('getEnsNames_done', ensNames);
-            } catch (err) {
-              this._overlay.send('getEnsNames_undone', err);
-            }
-          },
           connectWallet: async () => {
             try {
               const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
@@ -108,14 +100,44 @@ export default class VideoFeature implements IFeature {
     const { sticker, label } = this.adapter.exports;
 
     this._setConfig = (forceOpenOverlay: boolean = false) => {
-        this._config = {
+      this._config = {
         VIDEO: async (ctx: any) => {
           this._videoEl = ctx.element;
-          console.log('ctx', ctx)
           const commentsData = await this.getData(ctx.element!.baseURI!);
-          console.log('all comments:', commentsData);
+          console.log('commentsData:', commentsData)
 
-          if (forceOpenOverlay) this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI })
+          const structuredComments: Promise<IData>[] = commentsData.comments
+            .map(async (commentData: any): Promise<IData> => {
+              const comment: IRemarkComment = commentData.comment;
+              const ensNames = await this.getEnsNames([comment.user.name]);
+              const name = ensNames !== undefined && ensNames.length !== 0 ? ensNames[0] : comment.user.name;
+              let from = 0;
+              let to: number | undefined;
+              let sticker: string | undefined;
+              if (comment.title !== undefined) { 
+                const title: { from: number, to: number, sticker?: string } = JSON.parse(comment.title);
+                from = title.from;
+                to = title.to;
+                sticker = title.sticker;
+              }
+              const structuredComment: IData = {
+                id: comment.id,
+                name: name,
+                time: comment.time,
+                text: comment.text,
+                image: comment.user.picture,
+                from,
+                to,
+                sticker,
+                hidden: localStorage.getItem(comment.id) === 'hidden',
+                url: comment.locator.url,
+              };
+              return structuredComment;
+            });
+          const newData = await Promise.all(structuredComments);
+          console.log('newData:', newData)
+
+          if (forceOpenOverlay) this.openOverlay({ commentsData: newData, ctx, videoId: ctx.element.baseURI })
 
           ctx.onTimeUpdate(() => this._overlay.isOpen() && !this._dontUpdate && this._overlay.send('time', { time: ctx.currentTime }));
 
@@ -129,7 +151,7 @@ export default class VideoFeature implements IFeature {
                 },
                 vertical: 10,
                 horizontal: 0,
-                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI }),
+                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData: newData, ctx, videoId: ctx.element.baseURI }),
               },
             }),
             sticker({
@@ -182,6 +204,16 @@ export default class VideoFeature implements IFeature {
       return await response.json();
     } catch (e) {
       console.log('Error in getData():', e);
+    }
+  }
+
+  getEnsNames = async ( eths: string[] ): Promise<string[] | undefined> => {
+    const contract = Core.contract('ethereum', '0x196eC7109e127A353B709a20da25052617295F6f', abi);
+    try {
+      const ensNames = await contract.getNames(eths);
+      return ensNames;
+    } catch (err) {
+      console.log('Error getting ens names.', err)
     }
   }
 }

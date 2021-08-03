@@ -25,7 +25,7 @@ export default (props: IVideoCommentProps) => {
     <Card
       style={{ width: '100%', minHeight: '62px' }}
       className={`${
-          currentTime >= from && currentTime <= to ? 'comment-active' : 'comment-inactive'
+          currentTime >= from && (to === undefined || currentTime <= to) ? 'comment-active' : 'comment-inactive'
         } ${
           hidden ? 'comment-hidden' : ''
         } ${

@@ -63,7 +63,7 @@ export default (props: ICommentsProps) => {
   }
 
   const countActiveComments = () =>
-    data!.filter((comment) => comment.from <= currentTime && comment.to >= currentTime).length;
+    data!.filter((comment) => comment.from <= currentTime && (comment.to === undefined || comment.to >= currentTime)).length;
 
   const handleGoToCCPage = async () => {
     try {
@@ -145,9 +145,9 @@ export default (props: ICommentsProps) => {
                     case CommentBlock.All:
                       return true;
                     case CommentBlock.Active:
-                      return !hidden && from <= currentTime && to >= currentTime;
+                      return !hidden && from <= currentTime && (to === undefined || to >= currentTime);
                     case CommentBlock.Inactive:
-                      return !hidden && (from > currentTime || to < currentTime);
+                      return !hidden && (from > currentTime || (to !== undefined && to < currentTime));
                     case CommentBlock.Hidden:
                       return hidden;
                     case CommentBlock.Admin:

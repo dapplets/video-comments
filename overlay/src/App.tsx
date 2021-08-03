@@ -5,7 +5,7 @@ import Comments from './Comments';
 import CommentCreation from './CommentCreation';
 import Authorization from './Authorization';
 import PublicationNotice from './PublicationNotice';
-import { IData, IRemarkComment } from './types';
+import { IData } from './types';
 import { getUserInfo } from './utils';
 
 enum Pages {
@@ -30,36 +30,8 @@ export default () => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => bridge.onData(async (data) => {
-    const structuredComments: Promise<IData>[] = data.commentsData.comments
-      .map(async (commentData: any): Promise<IData> => {
-        const comment: IRemarkComment = commentData.comment;
-        const ensNames = await bridge.getEnsNames([comment.user.name]);
-        const name = ensNames.length !== 0 ? ensNames[0] : comment.user.name;
-        let from = 0;
-        let to = Infinity;
-        let sticker: string | undefined;
-        if (comment.title !== undefined) { 
-          const title: { from: number, to: number, sticker?: string } = JSON.parse(comment.title);
-          from = title.from;
-          to = title.to;
-          sticker = title.sticker;
-        }
-        const structuredComment: IData = {
-          id: comment.id,
-          name: name,
-          time: comment.time,
-          text: comment.text,
-          image: comment.user.picture,
-          from,
-          to,
-          sticker,
-          hidden: localStorage.getItem(comment.id) === 'hidden',
-          url: comment.locator.url,
-        };
-        return structuredComment;
-      });
-    const newData = await Promise.all(structuredComments);
-    setData(newData);
+    console.log('DATA', data)
+    setData(data.commentsData);
     addImages(data.images);
     addVideoInfo(data.ctx);
     setVideoId(data.videoId);
