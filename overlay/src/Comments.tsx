@@ -48,6 +48,7 @@ export default (props: ICommentsProps) => {
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   const [commentUrlToDelete, setCommentUrlToDelete] = useState('');
+  const [expandedComments, setExpandedComments] = useState<string[]>([]);
 
   useEffect(() => bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time))), []);
 
@@ -163,6 +164,8 @@ export default (props: ICommentsProps) => {
                     data={commentData}
                     currentTime={currentTime}
                     toggleCommentHidden={toggleCommentHidden}
+                    expandedComments={expandedComments}
+                    setExpandedComments={setExpandedComments}
                   />)}
             </Container>)
           : <Dimmer active inverted><Loader inverted>Loading</Loader></Dimmer>}

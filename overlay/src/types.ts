@@ -1,3 +1,12 @@
+export interface ISticker {
+  id: string
+  vertical: number
+  horizontal: number
+  widthCo: number
+  heightCo: number
+  rotated: number
+}
+
 export interface IData {
   id: string
   name: string
@@ -9,7 +18,7 @@ export interface IData {
   selected?: boolean
   hidden?: boolean
   url: string
-  sticker?: string
+  sticker: ISticker
 }
 
 export interface ISendingData {
@@ -18,5 +27,5 @@ export interface ISendingData {
   text: string
   from: number
   to: number
-  sticker: string
+  sticker: ISticker
 }

@@ -1,19 +1,28 @@
 import { IFeature } from '@dapplets/dapplet-extension';
-import ORANGE_ARROW from './icons/arrow_001.png';
-import RED_ARROW from './icons/vector.svg';
+import { IData, ISticker, IRemarkComment } from './types';
+import abi from './abi';
 import MENU_ICON from './icons/floatingButton.svg';
 import MENU_ICON_HOVER from './icons/floatingButton_h.svg';
 import MENU_ICON_ACTIVE from './icons/floatingButton_a.svg';
+import ORANGE_ARROW from './icons/arrow_001.png';
+import RED_ARROW from './icons/vector.svg';
 import GLASSES_1 from './icons/glasses_1.png';
 import GLASSES_2 from './icons/glasses_2.png';
 import GLASSES_3 from './icons/glasses_3.svg';
 import MUSTACHE_1 from './icons/mustache_1.svg';
 import MUSTACHE_2 from './icons/mustache_2.svg';
 import MUSTACHE_3 from './icons/mustache_3.svg';
-import abi from './abi';
-import { IData, IRemarkComment } from './types';
 
-const allStickers = { RED_ARROW, ORANGE_ARROW, GLASSES_1, GLASSES_2, GLASSES_3, MUSTACHE_1, MUSTACHE_2, MUSTACHE_3 };
+const allStickers = {
+  RED_ARROW,
+  ORANGE_ARROW,
+  GLASSES_1,
+  GLASSES_2,
+  GLASSES_3,
+  MUSTACHE_1,
+  MUSTACHE_2,
+  MUSTACHE_3,
+};
 
 @Injectable
 export default class VideoFeature implements IFeature {
@@ -22,6 +31,7 @@ export default class VideoFeature implements IFeature {
 
   @Inject('video-adapter.dapplet-base.eth')
   public adapter: any;
+
   private _overlay: any;
   private _videoEl: any;
   private _dontUpdate: boolean = false;
@@ -30,7 +40,6 @@ export default class VideoFeature implements IFeature {
   private _setConfig: any;
 
   async activate(): Promise<void> {
-
     if (!this._overlay) {
       this._overlay = Core
         .overlay({ name: 'video-comments-overlay', title: 'Video Comments' })
@@ -103,19 +112,19 @@ export default class VideoFeature implements IFeature {
       this._config = {
         VIDEO: async (ctx: any) => {
           this._videoEl = ctx.element;
-          const commentsData = await this.getData(ctx.element!.baseURI!);
-          console.log('commentsData:', commentsData)
+          const commentsRemarkData = await this.getData(ctx.element!.baseURI!);
+          console.log('commentsRemarkData:', commentsRemarkData)
 
-          const structuredComments: Promise<IData>[] = commentsData.comments
+          const structuredComments: Promise<IData>[] = commentsRemarkData.comments
             .map(async (commentData: any): Promise<IData> => {
               const comment: IRemarkComment = commentData.comment;
               const ensNames = await this.getEnsNames([comment.user.name]);
               const name = ensNames !== undefined && ensNames.length !== 0 ? ensNames[0] : comment.user.name;
               let from = 0;
-              let to: number | undefined;
-              let sticker: string | undefined;
+              let to: number;
+              let sticker: ISticker;
               if (comment.title !== undefined) { 
-                const title: { from: number, to: number, sticker?: string } = JSON.parse(comment.title);
+                const title: { from: number, to: number, sticker: ISticker } = JSON.parse(comment.title);
                 from = title.from;
                 to = title.to;
                 sticker = title.sticker;
@@ -134,12 +143,30 @@ export default class VideoFeature implements IFeature {
               };
               return structuredComment;
             });
-          const newData = await Promise.all(structuredComments);
-          console.log('newData:', newData)
+          const commentsData = await Promise.all(structuredComments);
+          console.log('commentsData:', commentsData)
 
-          if (forceOpenOverlay) this.openOverlay({ commentsData: newData, ctx, videoId: ctx.element.baseURI })
+          if (forceOpenOverlay) this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI })
 
           ctx.onTimeUpdate(() => this._overlay.isOpen() && !this._dontUpdate && this._overlay.send('time', { time: ctx.currentTime }));
+
+          const stickers = commentsData
+            .map((commentData) => sticker({
+              DEFAULT: {
+                img: allStickers[commentData.sticker.id],
+                vertical: commentData.sticker.vertical, // %
+                horizontal: commentData.sticker.horizontal, // %
+                heightCo: commentData.sticker.heightCo, // coefficient for the sticker height
+                widthCo: commentData.sticker.widthCo, // coefficient for the sticker width
+                rotated: commentData.sticker.rotated, // rad
+                from: commentData.from,
+                to: commentData.to,
+                mutable: false,
+                exec: () => {
+                  console.log('ctx:', ctx)
+                },
+              },
+            }));
 
           return [
             label({
@@ -151,41 +178,10 @@ export default class VideoFeature implements IFeature {
                 },
                 vertical: 10,
                 horizontal: 0,
-                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData: newData, ctx, videoId: ctx.element.baseURI }),
+                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI }),
               },
             }),
-            sticker({
-              DEFAULT: {
-                img: MUSTACHE_1,
-                exec: () => {
-                  console.log('ctx:', ctx)
-                },
-              },
-            }),
-            sticker({
-              DEFAULT: {
-                img: GLASSES_1,
-                vertical: 10, // %
-                horizontal: 30, // %
-                heightCo: 0.5, // coefficient for the sticker height
-                widthCo: 0.5, // coefficient for the sticker width
-                exec: () => {
-                  console.log('ctx:', ctx)
-                },
-              },
-            }),
-            sticker({
-              DEFAULT: {
-                img: RED_ARROW,
-                rotated: 1.26432,
-                horizontal: 65, // %
-                from: 10,
-                to: 30,
-                exec: () => {
-                  console.log('ctx:', ctx)
-                },
-              },
-            }),
+            ...stickers,
           ];
         },
       };

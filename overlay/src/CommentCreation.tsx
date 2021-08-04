@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardProps, Checkbox, Container, Divider, Form, Icon, Image } from 'semantic-ui-react';
 import CCTimeline from './CCTimeline';
-import { ISendingData } from './types';
+import { ISendingData, ISticker } from './types';
 import { bridge } from './dappletBridge';
 import { addComment } from './utils';
 
@@ -76,13 +76,21 @@ export default (props: IProps) => {
     console.log('from:', startTime)
     console.log('to:', finishTime)
     console.log('checkedStickerName:', checkedStickerName)
+    const currentSticker: ISticker = {
+      id: checkedStickerName,
+      vertical: 50,
+      horizontal: 50,
+      widthCo: 1.5,
+      heightCo: 1.5,
+      rotated: 1.2,
+    };
     const sendingData: ISendingData = {
       accountId: accountId!,
       videoId,
       text: message,
       from: startTime,
       to: finishTime,
-      sticker: checkedStickerName,
+      sticker: currentSticker,
     };
     try {
       await addComment(sendingData);

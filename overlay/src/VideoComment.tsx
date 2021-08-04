@@ -5,21 +5,24 @@ import { IData } from './types';
 import { formatTime } from './utils';
 
 interface IVideoCommentProps {
-  data: IData,
-  currentTime: number,
-  toggleCommentHidden: any,
+  data: IData
+  currentTime: number
+  toggleCommentHidden: any
+  expandedComments: string[]
+  setExpandedComments: any
 };
 
 export default (props: IVideoCommentProps) => {
-  const { data, currentTime, toggleCommentHidden } = props;
-  const { id, name, time, text, image, from, to, selected, hidden, sticker } = data;
-  const [isCollapsed, toggleIsCollapsed] = useState(true);
+  const { data, currentTime, toggleCommentHidden, expandedComments, setExpandedComments } = props;
+  const { id, name, time, text, image, from, to, selected, hidden } = data;
 
   const handleToggleIsHidden = (event: any) => {
     event.preventDefault();
     hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
     toggleCommentHidden(id, !hidden);
   }
+
+  const isCollapsed = !expandedComments.includes(id);
 
   return (
     <Card
@@ -80,13 +83,14 @@ export default (props: IVideoCommentProps) => {
                 dangerouslySetInnerHTML={{ __html: text.length > 103 && isCollapsed
                   ? `${text.substring(0, 99)}...`
                   : text }}/>
-              <Comment.Text hidden={isCollapsed || hidden || sticker === undefined}>
-                sticker: {sticker}
-              </Comment.Text>
               <Comment.Actions hidden={hidden}>
                 <Comment.Action
                   index={id}
-                  onClick={() => toggleIsCollapsed(!isCollapsed)}
+                  onClick={() => setExpandedComments(
+                    isCollapsed
+                      ? [...expandedComments, id]
+                      : expandedComments.filter((commentId) => commentId !== id)
+                  )}
                 >
                   {isCollapsed ? 'More' : 'Less'}
                 </Comment.Action>
