@@ -119,7 +119,8 @@ export default class VideoFeature implements IFeature {
             .map(async (commentData: any): Promise<IData> => {
               const comment: IRemarkComment = commentData.comment;
               const ensNames = await this.getEnsNames([comment.user.name]);
-              const name = ensNames !== undefined && ensNames.length !== 0 ? ensNames[0] : comment.user.name;
+              console.log('ensNames', ensNames)
+              const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : comment.user.name;
               let from = 0;
               let to: number;
               let sticker: ISticker;
