@@ -1,10 +1,8 @@
 export interface ISticker {
   id: string
-  vertical: number
-  horizontal: number
   widthCo: number
   heightCo: number
-  rotated: number
+  transform: string
 }
 
 export interface IData {

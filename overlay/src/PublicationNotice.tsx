@@ -8,13 +8,25 @@ interface IPublicationNoticeProps {
   authorization: number
   onPageChange: any
   isCommentPublished: boolean
+  changeCheckedSticker: any
+  setMessage: any
 }
 
 export default (props: IPublicationNoticeProps) => {
-  const { back, createComment, authorization, onPageChange, isCommentPublished } = props;
+  const {
+    back,
+    createComment,
+    authorization,
+    onPageChange,
+    isCommentPublished,
+    changeCheckedSticker,
+    setMessage,
+  } = props;
 
   useEffect(() => {
     bridge.updateData();
+    changeCheckedSticker();
+    setMessage('');
   }, []);
 
   const handleGoToCCPage = async () => {

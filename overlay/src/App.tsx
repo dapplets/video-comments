@@ -28,6 +28,8 @@ export default () => {
   const [isCommentPublished, setIsCommentPublished] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [checkedSticker, changeCheckedSticker] = useState<string>();
+  const [message, setMessage] = useState('');
 
   useEffect(() => bridge.onData(async (data) => {
     console.log('DATA', data)
@@ -90,6 +92,10 @@ export default () => {
       setDoUpdateCCTimeline={setDoUpdateCCTimeline}
       videoId={videoId}
       setIsCommentPublished={setIsCommentPublished}
+      checkedSticker={checkedSticker}
+      changeCheckedSticker={changeCheckedSticker}
+      message={message}
+      setMessage={setMessage}
     />
   );
 
@@ -111,6 +117,8 @@ export default () => {
       authorization={Pages.Authorization}
       onPageChange={setPage}
       isCommentPublished={isCommentPublished}
+      changeCheckedSticker={changeCheckedSticker}
+      setMessage={setMessage}
     />
   );
 

@@ -24,6 +24,11 @@ const allStickers = {
   MUSTACHE_3,
 };
 
+interface ISetConfigProps {
+  forceOpenOverlay?: boolean
+  stickerId?: string
+}
+
 @Injectable
 export default class VideoFeature implements IFeature {
   @Inject('twitter-adapter.dapplet-base.eth')
@@ -38,6 +43,8 @@ export default class VideoFeature implements IFeature {
   private _wasPaused: boolean;
   private _config: any;
   private _setConfig: any;
+  private _addingStickerId: number;
+  private _currentTime: number;
 
   async activate(): Promise<void> {
     if (!this._overlay) {
@@ -75,6 +82,17 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('getCurrentEthereumAccount_undone', err);
             }
           },
+          getAddingStickerParams: () => {
+            const stickerElement: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
+            console.log('stickerElemen', stickerElement);
+            const width = stickerElement!.style.width;
+            const height = stickerElement!.style.height;
+            const transform = stickerElement!.style.transform;
+            console.log('width', width);
+            console.log('height', height);
+            console.log('transform', transform);
+            this._overlay.send('getAddingStickerParams_done', { width, height, transform });
+          },
           pauseVideo: () => {
             try {
               this._wasPaused = this._videoEl.paused;
@@ -101,25 +119,32 @@ export default class VideoFeature implements IFeature {
           },
           updateData: () => {
             this.adapter.detachConfig(this._config);
-            this.adapter.attachConfig(this._setConfig(true));
+            this._addingStickerId = undefined;
+            this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
+          },
+          addSticker: (op: any, { type, message }: { type?: any, message: { stickerId: string } }) => {
+            this.adapter.detachConfig(this._config);
+            if (message) {
+              this.adapter.attachConfig(this._setConfig({ stickerId: message.stickerId }));
+            } else {
+              this._addingStickerId = undefined;
+              this.adapter.attachConfig(this._setConfig());
+            }
           },
         });
     }
 
     const { sticker, label } = this.adapter.exports;
 
-    this._setConfig = (forceOpenOverlay: boolean = false) => {
+    this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
         VIDEO: async (ctx: any) => {
           this._videoEl = ctx.element;
           const commentsRemarkData = await this.getData(ctx.element!.baseURI!);
-          console.log('commentsRemarkData:', commentsRemarkData)
-
           const structuredComments: Promise<IData>[] = commentsRemarkData.comments
             .map(async (commentData: any): Promise<IData> => {
               const comment: IRemarkComment = commentData.comment;
               const ensNames = await this.getEnsNames([comment.user.name]);
-              console.log('ensNames', ensNames)
               const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : comment.user.name;
               let from = 0;
               let to: number;
@@ -145,11 +170,17 @@ export default class VideoFeature implements IFeature {
               return structuredComment;
             });
           const commentsData = await Promise.all(structuredComments);
-          console.log('commentsData:', commentsData)
 
-          if (forceOpenOverlay) this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI })
+          if (props && props.forceOpenOverlay) this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI })
 
-          ctx.onTimeUpdate(() => this._overlay.isOpen() && !this._dontUpdate && this._overlay.send('time', { time: ctx.currentTime }));
+          ctx.onTimeUpdate(() => {
+            if (this._overlay.isOpen() && !this._dontUpdate) {
+              this._overlay.send('time', { time: ctx.currentTime });
+            }
+            this._currentTime = ctx.currentTime;
+          });
+
+          const stickersOpacity = props && props.stickerId ? .3 : 1;
 
           const stickers = commentsData
             .map((commentData) => sticker({
@@ -157,19 +188,18 @@ export default class VideoFeature implements IFeature {
                 img: allStickers[commentData.sticker.id],
                 vertical: commentData.sticker.vertical, // %
                 horizontal: commentData.sticker.horizontal, // %
-                heightCo: commentData.sticker.heightCo, // coefficient for the sticker height
-                widthCo: commentData.sticker.widthCo, // coefficient for the sticker width
-                rotated: commentData.sticker.rotated, // rad
+                transform: commentData.sticker.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
+                opacity: stickersOpacity,
                 exec: () => {
                   console.log('ctx:', ctx)
                 },
               },
             }));
 
-          return [
+          const widgets = [
             label({
               DEFAULT: {
                 img: {
@@ -184,15 +214,28 @@ export default class VideoFeature implements IFeature {
             }),
             ...stickers,
           ];
+
+          if (props && props.stickerId) {
+            if (this._addingStickerId === undefined) this._addingStickerId = Math.trunc(Math.random() * 1_000_000_000);
+            widgets.push(sticker({
+              DEFAULT: {
+                stickerId: this._addingStickerId,
+                img: allStickers[props.stickerId],
+              },
+            }));
+          }
+
+          return widgets;
         },
       };
-      return this._config
+      return this._config;
     }
     this.adapter.attachConfig(this._setConfig());
   }
 
   openOverlay(props?: any): void {
     this._overlay.send('data', { ...props, images: allStickers });
+    this._overlay.send('time', { time: this._currentTime });
   }
 
   async getData(uri: string) {

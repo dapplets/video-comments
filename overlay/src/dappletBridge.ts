@@ -50,6 +50,24 @@ class Bridge extends GeneralBridge {
     );
   }
 
+  addSticker(stickerId?: string) {
+    return this.call(
+      'addSticker',
+      stickerId ? { stickerId } : null,
+      'addSticker_done',
+      'addSticker_undone',
+    );
+  }
+
+  getAddingStickerParams() {
+    return this.call(
+      'getAddingStickerParams',
+      null,
+      'getAddingStickerParams_done',
+      'getAddingStickerParams_undone',
+    );
+  }
+
   pauseVideo() {
     return this.call(
       'pauseVideo',
