@@ -171,7 +171,7 @@ export default class VideoFeature implements IFeature {
             });
           const commentsData = await Promise.all(structuredComments);
 
-          if (props && props.forceOpenOverlay) this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI })
+          if (props && props.forceOpenOverlay) this.openOverlay({ commentsData, duration: ctx.duration, videoId: ctx.element.baseURI })
 
           ctx.onTimeUpdate(() => {
             if (this._overlay.isOpen() && !this._dontUpdate) {
@@ -209,7 +209,7 @@ export default class VideoFeature implements IFeature {
                 },
                 vertical: 10,
                 horizontal: 0,
-                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, ctx, videoId: ctx.element.baseURI }),
+                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, duration: ctx.duration, videoId: ctx.element.baseURI }),
               },
             }),
             ...stickers,

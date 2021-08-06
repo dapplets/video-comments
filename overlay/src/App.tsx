@@ -18,11 +18,11 @@ enum Pages {
 export default () => {
   const [data, setData] = useState<IData[] | undefined>();
   const [page, setPage] = useState(Pages.CommentsList);
-  const [videoInfo, addVideoInfo] = useState<any>({ duration: 60 });
+  const [duration, addDuration] = useState(60);
   const [images, addImages] = useState<any | undefined>();
   const [currentTime, updateCurrentTime] = useState(0);
   const [startTime, setStartTime] = useState(currentTime);
-  const [finishTime, setFinishTime] = useState(currentTime + 60 > videoInfo.duration ? videoInfo.duration : currentTime + 60);
+  const [finishTime, setFinishTime] = useState(currentTime + 60 > duration ? duration : currentTime + 60);
   const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
   const [videoId, setVideoId] = useState('');
   const [isCommentPublished, setIsCommentPublished] = useState(false);
@@ -33,9 +33,10 @@ export default () => {
 
   useEffect(() => bridge.onData(async (data) => {
     console.log('DATA', data)
+    console.log('ctx', data.ctx)
     setData(data.commentsData);
     addImages(data.images);
-    addVideoInfo(data.ctx);
+    addDuration(data.duration);
     setVideoId(data.videoId);
   }), []);
 
@@ -65,7 +66,7 @@ export default () => {
       data={data}
       onPageChange={setPage}
       toggleCommentHidden={toggleCommentHidden}
-      videoLength={videoInfo && videoInfo.duration}
+      videoLength={duration}
       currentTime={currentTime}
       updateCurrentTime={updateCurrentTime}
       isAdmin={isAdmin}
@@ -81,7 +82,7 @@ export default () => {
       publicationNotice={Pages.PublicationNotice}
       images={images}
       onPageChange={setPage}
-      videoLength={videoInfo && videoInfo.duration}
+      videoLength={duration}
       updateCurrentTime={updateCurrentTime}
       currentTime={currentTime}
       startTime={startTime}
