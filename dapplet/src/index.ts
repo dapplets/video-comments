@@ -84,13 +84,9 @@ export default class VideoFeature implements IFeature {
           },
           getAddingStickerParams: () => {
             const stickerElement: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
-            console.log('stickerElemen', stickerElement);
             const width = stickerElement!.style.width;
             const height = stickerElement!.style.height;
             const transform = stickerElement!.style.transform;
-            console.log('width', width);
-            console.log('height', height);
-            console.log('transform', transform);
             this._overlay.send('getAddingStickerParams_done', { width, height, transform });
           },
           pauseVideo: () => {
@@ -140,8 +136,17 @@ export default class VideoFeature implements IFeature {
       this._config = {
         VIDEO: async (ctx: any) => {
           this._videoEl = ctx.element;
-          const commentsRemarkData = await this.getData(ctx.element!.baseURI!);
-          const structuredComments: Promise<IData>[] = commentsRemarkData.comments
+          //console.log('ctx+++++++++++++++++', ctx)
+          //console.log('ctx.parent!!!!!!!!', ctx.parent)
+          //console.log('this._videoEl', this._videoEl)
+          const videoId = await this.getVideoId(this._videoEl!.baseURI!, ctx)
+          const commentsRemarkData_old = this.getData(this._videoEl!.baseURI!);
+          const commentsRemarkData_new = this.getData(videoId);
+          const commentsRemarkData = await Promise.all([commentsRemarkData_old, commentsRemarkData_new]);
+          //console.log('commentsRemarkData', commentsRemarkData)
+          const comments = commentsRemarkData.reduce((acc, value) => [...acc, ...value.comments], []);
+          //console.log('comments', comments)
+          const structuredComments: Promise<IData>[] = comments
             .map(async (commentData: any): Promise<IData> => {
               const comment: IRemarkComment = commentData.comment;
               const ensNames = await this.getEnsNames([comment.user.name]);
@@ -171,7 +176,13 @@ export default class VideoFeature implements IFeature {
             });
           const commentsData = await Promise.all(structuredComments);
 
-          if (props && props.forceOpenOverlay) this.openOverlay({ commentsData, duration: ctx.duration, videoId: ctx.element.baseURI })
+          if (props && props.forceOpenOverlay) {
+            this.openOverlay({
+              commentsData,
+              duration: ctx.duration,
+              videoId: videoId,
+            });
+          }
 
           ctx.onTimeUpdate(() => {
             if (this._overlay.isOpen() && !this._dontUpdate) {
@@ -181,6 +192,11 @@ export default class VideoFeature implements IFeature {
           });
 
           const stickersOpacity = props && props.stickerId ? .3 : 1;
+
+          ///////////////////////////////////////////////
+          console.log('ctx+++++++++++++++++', ctx)
+          console.log('ID:', videoId);
+          ///////////////////////////////////////////////
 
           const stickers = commentsData
             .map((commentData) => sticker({
@@ -209,7 +225,17 @@ export default class VideoFeature implements IFeature {
                 },
                 vertical: 10,
                 horizontal: 0,
-                exec: () => this._overlay.isOpen() ? this._overlay.close() : this.openOverlay({ commentsData, duration: ctx.duration, videoId: ctx.element.baseURI }),
+                exec: () => {
+                  if (this._overlay.isOpen()) {
+                    this._overlay.close();
+                  } else {
+                    this.openOverlay({
+                      commentsData,
+                      duration: ctx.duration,
+                      videoId: videoId,
+                    });
+                  }
+                },
               },
             }),
             ...stickers,
@@ -254,6 +280,26 @@ export default class VideoFeature implements IFeature {
       return ensNames;
     } catch (err) {
       console.log('Error getting ens names.', err)
+    }
+  }
+
+  getVideoId = async (baseUri: string, ctx: any) => {
+    const myUrl = new URL(baseUri);
+    //console.log('myUrl.hostname', myUrl.hostname)
+    // Oo?&#@%^
+    switch (myUrl.hostname) {
+      case 'www.youtube.com':
+      case 'youtube.com':
+        return Promise.resolve(myUrl.hostname + '/' + myUrl.searchParams.get('v'));
+      case 'youtube.googleapis.com':
+        return Promise.resolve(myUrl.hostname + '/' + myUrl.searchParams.get('docid'));
+      case 'www.twitter.com':
+      case 'twitter.com':
+        return new Promise((resolve, reject) => setTimeout(resolve, 1000, ctx))
+          .then((context: any) => myUrl.hostname + '/' + context.parent.authorUsername + '/' + context.parent.id)
+          .catch(() => myUrl.hostname + myUrl.pathname);
+      default:
+        return Promise.resolve(myUrl.hostname + myUrl.pathname);
     }
   }
 }
