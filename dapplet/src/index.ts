@@ -31,9 +31,9 @@ interface ISetConfigProps {
 
 @Injectable
 export default class VideoFeature implements IFeature {
+
   @Inject('twitter-adapter.dapplet-base.eth')
   public twitterAdapter: any;
-
   @Inject('video-adapter.dapplet-base.eth')
   public adapter: any;
 
@@ -47,87 +47,87 @@ export default class VideoFeature implements IFeature {
   private _currentTime: number;
 
   async activate(): Promise<void> {
+
     if (!this._overlay) {
-      this._overlay = Core
-        .overlay({ name: 'video-comments-overlay', title: 'Video Comments' })
-        .listen({
-          connectWallet: async () => {
-            try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
-              await wallet.connect();
-              this._overlay.send('connectWallet_done', '');
-            } catch (err) {
-              this._overlay.send('connectWallet_undone', err);
-            }
-          },
-          isWalletConnected: async () => {
-            try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
-              const isWalletConnected = await wallet.isConnected();
-              this._overlay.send('isWalletConnected_done', isWalletConnected);
-            } catch (err) {
-              this._overlay.send('isWalletConnected_undone', err);
-            }
-          },
-          getCurrentEthereumAccount: async () => {
-            try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
-              wallet.sendAndListen('eth_accounts', [], {
-                result: (op, { data }) => {
-                  const currentAddress = data[0];
-                  this._overlay.send('getCurrentEthereumAccount_done', currentAddress);
-                },
-              });
-            } catch (err) {
-              this._overlay.send('getCurrentEthereumAccount_undone', err);
-            }
-          },
-          getAddingStickerParams: () => {
-            const stickerElement: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
-            const width = stickerElement!.style.width;
-            const height = stickerElement!.style.height;
-            const transform = stickerElement!.style.transform;
-            this._overlay.send('getAddingStickerParams_done', { width, height, transform });
-          },
-          pauseVideo: () => {
-            try {
-              this._wasPaused = this._videoEl.paused;
-              if (!this._videoEl.paused) this._videoEl.pause();
-              this._dontUpdate = true;
-            } catch (err) {
-              console.log('Cannot pause the video.', err);
-            }
-          },
-          playVideoIfWasPlayed: async () => {
-            try {
-              if (!this._wasPaused) await this._videoEl.play();
-              this._dontUpdate = false;
-            } catch (err) {
-              console.log('Cannot start to play the video.', err);
-            }
-          },
-          setCurrentTime: (op: any, { type, message }: { type?: any, message: { time: number } }) => {
-            try {
-              this._videoEl.currentTime = message.time;
-            } catch (err) {
-              console.log('Cannot set new currentTime.', err);
-            }
-          },
-          updateData: () => {
-            this.adapter.detachConfig(this._config);
+      this._overlay = Core.overlay({ name: 'video-comments-overlay', title: 'Video Comments' });
+      this._overlay.listen({
+        connectWallet: async () => {
+          try {
+            const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+            await wallet.connect();
+            this._overlay.send('connectWallet_done', '');
+          } catch (err) {
+            this._overlay.send('connectWallet_undone', err);
+          }
+        },
+        isWalletConnected: async () => {
+          try {
+            const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+            const isWalletConnected = await wallet.isConnected();
+            this._overlay.send('isWalletConnected_done', isWalletConnected);
+          } catch (err) {
+            this._overlay.send('isWalletConnected_undone', err);
+          }
+        },
+        getCurrentEthereumAccount: async () => {
+          try {
+            const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+            wallet.sendAndListen('eth_accounts', [], {
+              result: (op, { data }) => {
+                const currentAddress = data[0];
+                this._overlay.send('getCurrentEthereumAccount_done', currentAddress);
+              },
+            });
+          } catch (err) {
+            this._overlay.send('getCurrentEthereumAccount_undone', err);
+          }
+        },
+        getAddingStickerParams: () => {
+          const stickerElement: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
+          const width = stickerElement!.style.width;
+          const height = stickerElement!.style.height;
+          const transform = stickerElement!.style.transform;
+          this._overlay.send('getAddingStickerParams_done', { width, height, transform });
+        },
+        pauseVideo: () => {
+          try {
+            this._wasPaused = this._videoEl.paused;
+            if (!this._videoEl.paused) this._videoEl.pause();
+            this._dontUpdate = true;
+          } catch (err) {
+            console.log('Cannot pause the video.', err);
+          }
+        },
+        playVideoIfWasPlayed: async () => {
+          try {
+            if (!this._wasPaused) await this._videoEl.play();
+            this._dontUpdate = false;
+          } catch (err) {
+            console.log('Cannot start to play the video.', err);
+          }
+        },
+        setCurrentTime: (op: any, { type, message }: { type?: any, message: { time: number } }) => {
+          try {
+            this._videoEl.currentTime = message.time;
+          } catch (err) {
+            console.log('Cannot set new currentTime.', err);
+          }
+        },
+        updateData: () => {
+          this.adapter.detachConfig(this._config);
+          this._addingStickerId = undefined;
+          this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
+        },
+        addSticker: (op: any, { type, message }: { type?: any, message: { stickerId: string } }) => {
+          this.adapter.detachConfig(this._config);
+          if (message) {
+            this.adapter.attachConfig(this._setConfig({ stickerId: message.stickerId }));
+          } else {
             this._addingStickerId = undefined;
-            this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
-          },
-          addSticker: (op: any, { type, message }: { type?: any, message: { stickerId: string } }) => {
-            this.adapter.detachConfig(this._config);
-            if (message) {
-              this.adapter.attachConfig(this._setConfig({ stickerId: message.stickerId }));
-            } else {
-              this._addingStickerId = undefined;
-              this.adapter.attachConfig(this._setConfig());
-            }
-          },
-        });
+            this.adapter.attachConfig(this._setConfig());
+          }
+        },
+      });
     }
 
     const { sticker, label } = this.adapter.exports;
@@ -139,7 +139,7 @@ export default class VideoFeature implements IFeature {
           //console.log('ctx+++++++++++++++++', ctx)
           //console.log('ctx.parent!!!!!!!!', ctx.parent)
           //console.log('this._videoEl', this._videoEl)
-          const videoId = await this.getVideoId(this._videoEl!.baseURI!, ctx)
+          const videoId = this.getVideoId(this._videoEl!.baseURI!, ctx)
           const commentsRemarkData_old = this.getData(this._videoEl!.baseURI!);
           const commentsRemarkData_new = this.getData(videoId);
           const commentsRemarkData = await Promise.all([commentsRemarkData_old, commentsRemarkData_new]);
@@ -283,7 +283,7 @@ export default class VideoFeature implements IFeature {
     }
   }
 
-  getVideoId = async (baseUri: string, ctx: any) => {
+  sgetVideoId = async (baseUri: string, ctx: any) => {
     const myUrl = new URL(baseUri);
     //console.log('myUrl.hostname', myUrl.hostname)
     // Oo?&#@%^
@@ -300,6 +300,22 @@ export default class VideoFeature implements IFeature {
           .catch(() => myUrl.hostname + myUrl.pathname);
       default:
         return Promise.resolve(myUrl.hostname + myUrl.pathname);
+    }
+  }
+
+  getVideoId = (baseUri: string, ctx: any) => {
+    const myUrl = new URL(baseUri);
+    switch (myUrl.hostname) {
+      case 'www.youtube.com':
+      case 'youtube.com':
+        return myUrl.hostname + '/' + myUrl.searchParams.get('v');
+      case 'youtube.googleapis.com':
+        return myUrl.hostname + '/' + myUrl.searchParams.get('docid');
+      case 'www.twitter.com':
+      case 'twitter.com':
+        return myUrl.hostname + '/' + ctx.parent.authorUsername + '/' + ctx.parent.id;
+      default:
+        return myUrl.hostname + myUrl.pathname;
     }
   }
 }
