@@ -170,6 +170,7 @@ export default class VideoFeature implements IFeature {
                 to,
                 sticker,
                 hidden: localStorage.getItem(comment.id) === 'hidden',
+                selected: false,
                 url: comment.locator.url,
               };
               return structuredComment;
@@ -199,7 +200,7 @@ export default class VideoFeature implements IFeature {
           ///////////////////////////////////////////////
 
           const stickers = commentsData
-            .map((commentData) => sticker({
+            .map((commentData, i) => sticker({
               DEFAULT: {
                 img: allStickers[commentData.sticker.id],
                 vertical: commentData.sticker.vertical, // %
@@ -210,7 +211,12 @@ export default class VideoFeature implements IFeature {
                 mutable: false,
                 opacity: stickersOpacity,
                 exec: () => {
-                  console.log('ctx:', ctx)
+                  this.openOverlay({
+                    commentsData,
+                    duration: ctx.duration,
+                    videoId: videoId,
+                    selectedCommentId: commentData.id,
+                  });
                 },
               },
             }));

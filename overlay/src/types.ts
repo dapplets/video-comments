@@ -13,8 +13,8 @@ export interface IData {
   from: number
   to?: number
   image?: string
-  selected?: boolean
-  hidden?: boolean
+  selected: boolean
+  hidden: boolean
   url: string
   sticker: ISticker
 }

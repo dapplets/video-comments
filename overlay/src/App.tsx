@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import update from 'immutability-helper';
 import { bridge } from './dappletBridge';
 import Comments from './Comments';
@@ -30,6 +30,9 @@ export default () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkedSticker, changeCheckedSticker] = useState<string>();
   const [message, setMessage] = useState('');
+  const [selectedCommentId, setSelectedCommentId] = useState<string | undefined>();
+
+  const refs: any = {};
 
   useEffect(() => bridge.onData(async (data) => {
     console.log('DATA', data)
@@ -38,6 +41,7 @@ export default () => {
     addImages(data.images);
     addDuration(data.duration);
     setVideoId(data.videoId);
+    setSelectedCommentId(data.selectedCommentId);
   }), []);
 
   useEffect(() => {
@@ -49,6 +53,15 @@ export default () => {
       }
     });
   }, [isAuthorized]);
+
+  useEffect(() => {
+    if (data && selectedCommentId) {
+      refs[selectedCommentId].current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [data, selectedCommentId]);
 
   const toggleCommentHidden = (id: string, makeHidden: boolean) => {
     const commentIndex = data!.findIndex((comment) => comment.id === id);
@@ -72,6 +85,8 @@ export default () => {
       isAdmin={isAdmin}
       isAuthorized={isAuthorized}
       setIsAuthorized={setIsAuthorized}
+      selectedCommentId={selectedCommentId}
+      refs={refs}
     />
   );
 

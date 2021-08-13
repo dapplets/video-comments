@@ -18,6 +18,8 @@ interface ICommentsProps {
   isAdmin: boolean
   isAuthorized: boolean
   setIsAuthorized: any
+  selectedCommentId?: string
+  refs: any
 }
 
 enum CommentBlock {
@@ -44,6 +46,8 @@ export default (props: ICommentsProps) => {
     isAdmin,
     isAuthorized,
     setIsAuthorized,
+    selectedCommentId,
+    refs,
   } = props;
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
@@ -166,6 +170,8 @@ export default (props: ICommentsProps) => {
                     toggleCommentHidden={toggleCommentHidden}
                     expandedComments={expandedComments}
                     setExpandedComments={setExpandedComments}
+                    selectedCommentId={selectedCommentId}
+                    refs={refs}
                   />)}
             </Container>)
           : <Dimmer active inverted><Loader inverted>Loading</Loader></Dimmer>}
