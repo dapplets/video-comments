@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Button, Container, Dimmer, Form, Header, Icon, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
 import VideoComment from './VideoComment';
 import Timeline from './Timeline';
@@ -53,8 +53,6 @@ export default (props: ICommentsProps) => {
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   const [commentUrlToDelete, setCommentUrlToDelete] = useState('');
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
-
-  useEffect(() => bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time))), []);
 
   const handleItemClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: MenuItemProps ) => {
     const group = data.name!;

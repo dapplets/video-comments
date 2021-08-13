@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Card, Comment, Icon, Ref } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
 import { IData } from './types';

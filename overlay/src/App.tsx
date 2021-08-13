@@ -34,15 +34,18 @@ export default () => {
 
   const refs: any = {};
 
-  useEffect(() => bridge.onData(async (data) => {
-    console.log('DATA', data)
-    console.log('ctx', data.ctx)
-    setData(data.commentsData);
-    addImages(data.images);
-    addDuration(data.duration);
-    setVideoId(data.videoId);
-    setSelectedCommentId(data.selectedCommentId);
-  }), []);
+  useEffect(() => {
+    bridge.onData(async (data) => {
+      console.log('DATA', data)
+      console.log('ctx', data.ctx)
+      setData(data.commentsData);
+      addImages(data.images);
+      addDuration(data.duration);
+      setVideoId(data.videoId);
+      setSelectedCommentId(data.selectedCommentId);
+    });
+    bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time)));
+  }, []);
 
   useEffect(() => {
     bridge.isWalletConnected().then(async (res) => {
