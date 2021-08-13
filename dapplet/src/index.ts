@@ -113,7 +113,11 @@ export default class VideoFeature implements IFeature {
               console.log('Cannot set new currentTime.', err);
             }
           },
-          updateData: () => {
+          updateData: (op: any, { type, message }: { type?: any, message?: { props: any } }) => {
+            if (message && message.props && message.props.itemToHideId) {
+              const id = message.props.itemToHideId
+              localStorage.getItem(id) === 'hidden' ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
+            }
             this.adapter.detachConfig(this._config);
             this._addingStickerId = undefined;
             this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
@@ -200,7 +204,8 @@ export default class VideoFeature implements IFeature {
           ///////////////////////////////////////////////
 
           const stickers = commentsData
-            .map((commentData, i) => sticker({
+            .filter((commentData) => !commentData.hidden)
+            .map((commentData) => sticker({
               DEFAULT: {
                 img: allStickers[commentData.sticker.id],
                 vertical: commentData.sticker.vertical, // %

@@ -70,6 +70,7 @@ export default () => {
     const commentIndex = data!.findIndex((comment) => comment.id === id);
     const newData = update(data!, { [commentIndex]: { hidden: { $set: makeHidden } } });
     setData(newData);
+    bridge.updateData({ itemToHideId: id });
   };
 
   const openPage: Map<Pages, React.ReactElement> = new Map();

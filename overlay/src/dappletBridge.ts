@@ -86,10 +86,10 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  updateData() {
+  updateData(props?: any) {
     return this.call(
       'updateData',
-      null,
+      { props },
       'updateData_done',
       'updateData_undone',
     );
