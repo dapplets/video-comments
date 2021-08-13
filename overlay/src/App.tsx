@@ -90,6 +90,7 @@ export default () => {
       isAuthorized={isAuthorized}
       setIsAuthorized={setIsAuthorized}
       selectedCommentId={selectedCommentId}
+      setSelectedCommentId={setSelectedCommentId}
       refs={refs}
     />
   );

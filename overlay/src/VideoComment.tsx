@@ -3,19 +3,32 @@ import { Card, Comment, Icon, Ref } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
 import { IData } from './types';
 import { formatTime } from './utils';
+import { bridge } from './dappletBridge';
 
 interface IVideoCommentProps {
   data: IData
   currentTime: number
+  updateCurrentTime: any
   toggleCommentHidden: any
   expandedComments: string[]
   setExpandedComments: any
   selectedCommentId?: string
+  setSelectedCommentId: any
   refs: any
 };
 
 export default (props: IVideoCommentProps) => {
-  const { data, currentTime, toggleCommentHidden, expandedComments, setExpandedComments, selectedCommentId, refs } = props;
+  const {
+    data,
+    currentTime,
+    updateCurrentTime,
+    toggleCommentHidden,
+    expandedComments,
+    setExpandedComments,
+    selectedCommentId,
+    setSelectedCommentId,
+    refs,
+  } = props;
   const { id, name, time, text, image, from, to, selected, hidden } = data;
 
   const handleToggleIsHidden = (event: any) => {
@@ -39,6 +52,13 @@ export default (props: IVideoCommentProps) => {
           } ${
             id === selectedCommentId && !hidden ? 'comment-selected' : ''
           }`}
+          onClick={(e: any) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setSelectedCommentId(id);
+            updateCurrentTime(from);
+            bridge.setCurrentTime(from);
+          }}
         >
         <Card.Content>
           <Comment.Group>
@@ -91,11 +111,14 @@ export default (props: IVideoCommentProps) => {
                 <Comment.Actions hidden={hidden}>
                   <Comment.Action
                     index={id}
-                    onClick={() => setExpandedComments(
-                      isCollapsed
-                        ? [...expandedComments, id]
-                        : expandedComments.filter((commentId) => commentId !== id)
-                    )}
+                    onClick={(e: any) => {
+                      e.stopPropagation();
+                      setExpandedComments(
+                        isCollapsed
+                          ? [...expandedComments, id]
+                          : expandedComments.filter((commentId) => commentId !== id)
+                      );
+                    }}
                   >
                     {isCollapsed ? 'More' : 'Less'}
                   </Comment.Action>

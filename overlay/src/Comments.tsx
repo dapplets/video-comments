@@ -19,6 +19,7 @@ interface ICommentsProps {
   isAuthorized: boolean
   setIsAuthorized: any
   selectedCommentId?: string
+  setSelectedCommentId: any
   refs: any
 }
 
@@ -47,6 +48,7 @@ export default (props: ICommentsProps) => {
     isAuthorized,
     setIsAuthorized,
     selectedCommentId,
+    setSelectedCommentId,
     refs,
   } = props;
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
@@ -165,10 +167,12 @@ export default (props: ICommentsProps) => {
                     key={counter++}
                     data={commentData}
                     currentTime={currentTime}
+                    updateCurrentTime={updateCurrentTime}
                     toggleCommentHidden={toggleCommentHidden}
                     expandedComments={expandedComments}
                     setExpandedComments={setExpandedComments}
                     selectedCommentId={selectedCommentId}
+                    setSelectedCommentId={setSelectedCommentId}
                     refs={refs}
                   />)}
             </Container>)

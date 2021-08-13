@@ -290,6 +290,7 @@ body {
 }
 
 .eye-icon {
+  color: #2A2A2A;
   opacity: .4 !important;
   cursor: pointer;
 }
@@ -303,6 +304,7 @@ body {
 }
 
 .eye-icon-selected {
+  color: #2A2A2A;
   opacity: .7 !important;
   cursor: pointer;
 }
@@ -503,4 +505,8 @@ body {
   flex-direction: column;
   height: max-content;
   max-height: calc(100vh - 86px);
+}
+
+a.ui.card:hover {
+  transform: none !important;
 }
