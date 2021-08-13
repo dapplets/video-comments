@@ -139,7 +139,7 @@ export default class VideoFeature implements IFeature {
           //console.log('ctx+++++++++++++++++', ctx)
           //console.log('ctx.parent!!!!!!!!', ctx.parent)
           //console.log('this._videoEl', this._videoEl)
-          const videoId = await this.getVideoId(this._videoEl!.baseURI!, ctx)
+          const videoId = this.getVideoId(this._videoEl!.baseURI!, ctx)
           const commentsRemarkData_old = this.getData(this._videoEl!.baseURI!);
           const commentsRemarkData_new = this.getData(videoId);
           const commentsRemarkData = await Promise.all([commentsRemarkData_old, commentsRemarkData_new]);
@@ -283,23 +283,19 @@ export default class VideoFeature implements IFeature {
     }
   }
 
-  getVideoId = async (baseUri: string, ctx: any) => {
+  getVideoId = (baseUri: string, ctx: any) => {
     const myUrl = new URL(baseUri);
-    //console.log('myUrl.hostname', myUrl.hostname)
-    // Oo?&#@%^
     switch (myUrl.hostname) {
       case 'www.youtube.com':
       case 'youtube.com':
-        return Promise.resolve(myUrl.hostname + '/' + myUrl.searchParams.get('v'));
+        return myUrl.hostname + '/' + myUrl.searchParams.get('v');
       case 'youtube.googleapis.com':
-        return Promise.resolve(myUrl.hostname + '/' + myUrl.searchParams.get('docid'));
+        return myUrl.hostname + '/' + myUrl.searchParams.get('docid');
       case 'www.twitter.com':
       case 'twitter.com':
-        return new Promise((resolve, reject) => setTimeout(resolve, 1000, ctx))
-          .then((context: any) => myUrl.hostname + '/' + context.parent.authorUsername + '/' + context.parent.id)
-          .catch(() => myUrl.hostname + myUrl.pathname);
+        return myUrl.hostname + '/' + ctx.parent.authorUsername + '/' + ctx.parent.id;
       default:
-        return Promise.resolve(myUrl.hostname + myUrl.pathname);
+        return myUrl.hostname + myUrl.pathname;
     }
   }
 }
