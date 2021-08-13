@@ -15,6 +15,7 @@ export default (props: ITimelineProps) => {
   const [isMoving, setIsMoving] = useState(false);
 
   useEffect(() => {
+    console.log('currentTime%%%%%%%%', currentTime)
     addPropTimestamp(formatTime(currentTime));
     addPropActiveComments(activeCommentCount.toString());
   });

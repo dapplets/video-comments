@@ -39,7 +39,7 @@ export default class VideoFeature implements IFeature {
 
   private _overlay: any;
   private _videoEl: any;
-  private _dontUpdate: boolean = false;
+  /*private _dontUpdate: boolean = false;*/
   private _wasPaused: boolean;
   private _config: any;
   private _setConfig: any;
@@ -93,7 +93,7 @@ export default class VideoFeature implements IFeature {
             try {
               this._wasPaused = this._videoEl.paused;
               if (!this._videoEl.paused) this._videoEl.pause();
-              this._dontUpdate = true;
+              /*this._dontUpdate = true;*/
             } catch (err) {
               console.log('Cannot pause the video.', err);
             }
@@ -101,7 +101,7 @@ export default class VideoFeature implements IFeature {
           playVideoIfWasPlayed: async () => {
             try {
               if (!this._wasPaused) await this._videoEl.play();
-              this._dontUpdate = false;
+              /*this._dontUpdate = false;*/
             } catch (err) {
               console.log('Cannot start to play the video.', err);
             }
@@ -185,7 +185,7 @@ export default class VideoFeature implements IFeature {
           }
 
           ctx.onTimeUpdate(() => {
-            if (this._overlay.isOpen() && !this._dontUpdate) {
+            if (this._overlay.isOpen()/* && !this._dontUpdate*/) {
               this._overlay.send('time', { time: ctx.currentTime });
             }
             this._currentTime = ctx.currentTime;

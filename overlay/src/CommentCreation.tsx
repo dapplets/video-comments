@@ -66,24 +66,25 @@ export default (props: IProps) => {
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     data: CardProps
   ) => {
-      if (checkedSticker !== data['data-name']) {
-        changeCheckedSticker(data['data-name']);
-        bridge.addSticker(data['data-name'])
-      } else {
-        changeCheckedSticker(undefined);
-        bridge.addSticker();
-      }
+    bridge.pauseVideo();
+    if (checkedSticker !== data['data-name']) {
+      changeCheckedSticker(data['data-name']);
+      bridge.addSticker(data['data-name'])
+    } else {
+      changeCheckedSticker(undefined);
+      bridge.addSticker();
+    }
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     const addingStickerParams: { transform: string } = await bridge.getAddingStickerParams();
-    console.log('accountId:', accountId)
+    /*console.log('accountId:', accountId)
     console.log('videoId:', videoId)
     console.log('message:', message)
     console.log('from:', startTime)
     console.log('to:', finishTime)
-    console.log('checkedSticker:', checkedSticker)
+    console.log('checkedSticker:', checkedSticker)*/
     Object.entries(addingStickerParams).forEach(([key, value]) => console.log(key + ': ' + value))
     const currentSticker: ISticker = {
       id: checkedSticker!,
