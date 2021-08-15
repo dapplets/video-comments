@@ -33,6 +33,7 @@ export default (props: IVideoCommentProps) => {
 
   const handleToggleIsHidden = (event: any) => {
     event.preventDefault();
+    event.stopPropagation();
     hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
     toggleCommentHidden(id, !hidden);
   }
@@ -112,6 +113,7 @@ export default (props: IVideoCommentProps) => {
                   <Comment.Action
                     index={id}
                     onClick={(e: any) => {
+                      e.preventDefault();
                       e.stopPropagation();
                       setExpandedComments(
                         isCollapsed

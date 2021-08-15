@@ -59,7 +59,7 @@ export default () => {
 
   useEffect(() => {
     if (data && selectedCommentId) {
-      refs[selectedCommentId].current.scrollIntoView({
+      if (refs[selectedCommentId]) refs[selectedCommentId].current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       });
