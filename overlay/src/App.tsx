@@ -84,7 +84,7 @@ export default () => {
       onPageChange={setPage}
       toggleCommentHidden={toggleCommentHidden}
       videoLength={duration}
-      currentTime={currentTime}
+      currentTime={typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime}
       updateCurrentTime={updateCurrentTime}
       isAdmin={isAdmin}
       isAuthorized={isAuthorized}
@@ -104,7 +104,7 @@ export default () => {
       onPageChange={setPage}
       videoLength={duration}
       updateCurrentTime={updateCurrentTime}
-      currentTime={currentTime}
+      currentTime={typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime}
       startTime={startTime}
       setStartTime={setStartTime}
       finishTime={finishTime}
