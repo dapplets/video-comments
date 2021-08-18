@@ -1,8 +1,8 @@
-import React, { useRef } from 'react';
-import { Card, Comment, Icon, Ref } from 'semantic-ui-react';
+import React, { useRef, useState } from 'react';
+import { Card, Comment, Confirm, Icon, Ref } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
 import { IData } from './types';
-import { formatTime } from './utils';
+import { formatTime, setCommentDeleted } from './utils';
 import { bridge } from './dappletBridge';
 
 interface IVideoCommentProps {
@@ -15,6 +15,9 @@ interface IVideoCommentProps {
   selectedCommentId?: string
   setSelectedCommentId: any
   refs: any
+  currentUser?: string
+  videoId: string
+  accountEthId?: string
 };
 
 export default (props: IVideoCommentProps) => {
@@ -28,10 +31,22 @@ export default (props: IVideoCommentProps) => {
     selectedCommentId,
     setSelectedCommentId,
     refs,
+    currentUser,
+    videoId,
+    accountEthId,
   } = props;
   const { id, name, time, text, image, from, to, selected, hidden } = data;
 
+  const [openDimmer, toggleOpenDimmer] = useState(false);
+
   const handleToggleIsHidden = (event: any) => {
+    event.preventDefault();
+    event.stopPropagation();
+    hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
+    toggleCommentHidden(id, !hidden);
+  }
+
+  const handleDeleteComment = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
     hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
@@ -56,9 +71,10 @@ export default (props: IVideoCommentProps) => {
           onClick={(e: any) => {
             e.preventDefault();
             e.stopPropagation();
+            console.log('from:', from)
             setSelectedCommentId(id);
-            updateCurrentTime(from);
-            bridge.setCurrentTime(from);
+            updateCurrentTime(Math.ceil(from));
+            bridge.setCurrentTime(Math.ceil(from));
           }}
         >
         <Card.Content>
@@ -82,6 +98,35 @@ export default (props: IVideoCommentProps) => {
                       <ReactTimeAgo date={new Date(time)} locale="en-US" />
                     </div>
                   </Comment.Metadata>
+                  {name === currentUser && (
+                    <>
+                      <Icon 
+                        name='trash alternate'
+                        className={(id === selectedCommentId || !isCollapsed) && !hidden? 'trash-icon-selected' : 'trash-icon'}
+                        onClick={(e: any) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleOpenDimmer(true);
+                        }}
+                      />        
+                      <Confirm
+                        open={openDimmer}
+                        content='This comment will be deleted for all users.'
+                        confirmButton='Delete Comment'
+                        onCancel={(e: any) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          toggleOpenDimmer(false);
+                        }}
+                        onConfirm={async (e: any) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          await setCommentDeleted(id, videoId, accountEthId!);
+                          bridge.updateData();
+                        }}
+                      />
+                    </>
+                  )}
                   <Icon 
                     name={hidden ? 'eye slash outline' : 'eye'}
                     className={(id === selectedCommentId || !isCollapsed) && !hidden? 'eye-icon-selected' : 'eye-icon'}

@@ -41,6 +41,15 @@ class Bridge extends GeneralBridge {
     );
   }
 
+  async getEnsNames(name: string): Promise<string[] | [] | undefined> {
+    return this.call(
+      'getEnsNames',
+      { name },
+      'getEnsNames_done',
+      'getEnsNames_undone',
+    );
+  }
+
   setCurrentTime(time: number) {
     return this.call(
       'setCurrentTime',

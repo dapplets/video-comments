@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Container, Dimmer, Form, Header, Icon, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
 import VideoComment from './VideoComment';
 import Timeline from './Timeline';
@@ -21,6 +21,8 @@ interface ICommentsProps {
   selectedCommentId?: string
   setSelectedCommentId: any
   refs: any
+  currentUser?: string
+  videoId: string
 }
 
 enum CommentBlock {
@@ -50,11 +52,25 @@ export default (props: ICommentsProps) => {
     selectedCommentId,
     setSelectedCommentId,
     refs,
+    currentUser,
+    videoId,
   } = props;
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   const [commentUrlToDelete, setCommentUrlToDelete] = useState('');
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
+
+  const [accountEthId, getAccountEthId] = useState<string | undefined>();
+
+  useEffect(() => {
+    bridge.isWalletConnected()
+      .then(async (isWalletConnected) => {
+        if (isWalletConnected) {
+          const currentEthAccount = await bridge.getCurrentEthereumAccount();
+          getAccountEthId(currentEthAccount);
+        }
+      });
+  }, []);
 
   const handleItemClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: MenuItemProps ) => {
     const group = data.name!;
@@ -174,6 +190,9 @@ export default (props: ICommentsProps) => {
                     selectedCommentId={selectedCommentId}
                     setSelectedCommentId={setSelectedCommentId}
                     refs={refs}
+                    currentUser={currentUser}
+                    videoId={videoId}
+                    accountEthId={accountEthId}
                   />)}
             </Container>)
           : <Dimmer active inverted><Loader inverted>Loading</Loader></Dimmer>}

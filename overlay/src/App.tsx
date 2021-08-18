@@ -31,6 +31,7 @@ export default () => {
   const [checkedSticker, changeCheckedSticker] = useState<string>();
   const [message, setMessage] = useState('');
   const [selectedCommentId, setSelectedCommentId] = useState<string | undefined>();
+  const [currentUser, setCurrentUser] = useState<string | undefined>();
 
   const refs: any = {};
 
@@ -52,7 +53,11 @@ export default () => {
       if (res) {
         const accountId = await bridge.getCurrentEthereumAccount();
         const userInfo = await getUserInfo(accountId);
-        setIsAdmin(userInfo.admin)
+        setIsAdmin(userInfo.admin);
+        const ensNames = await bridge.getEnsNames(accountId);
+        const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+        console.log('name', name)
+        setCurrentUser(name);
       }
     });
   }, [isAuthorized]);
@@ -92,6 +97,8 @@ export default () => {
       selectedCommentId={selectedCommentId}
       setSelectedCommentId={setSelectedCommentId}
       refs={refs}
+      currentUser={currentUser}
+      videoId={videoId}
     />
   );
 

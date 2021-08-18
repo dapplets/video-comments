@@ -289,32 +289,62 @@ body {
   width: calc(100% + 30px);
 }
 
-.eye-icon {
+.trash-icon,
+.trash-icon-selected {
+  margin-right: .5rem !important;
+}
+
+.eye-icon,
+.trash-icon {
   color: #2A2A2A;
   opacity: .4 !important;
   cursor: pointer;
 }
 
-.eye-icon:hover {
+.eye-icon:hover,
+.trash-icon:hover {
   opacity: .8 !important;
 }
 
-.eye-icon:active {
+.eye-icon:active,
+.trash-icon:active {
   opacity: 1 !important;
 }
 
-.eye-icon-selected {
+.eye-icon-selected,
+.trash-icon-selected  {
   color: #2A2A2A;
   opacity: .7 !important;
   cursor: pointer;
 }
 
-.eye-icon-selected:hover {
+.eye-icon-selected:hover,
+.trash-icon-selected:hover {
   opacity: .9 !important;
 }
 
-.eye-icon-selected:active {
+.eye-icon-selected:active,
+.trash-icon-selected:active {
   opacity: 1 !important;
+}
+
+.eye-icon::before,
+.trash-icon::before,
+.eye-icon-selected::before,
+.trash-icon-selected::before {
+  padding: 5px;
+}
+
+.ui.page.modals.dimmer.transition.visible.active {
+  z-index: 65000 !important;
+}
+
+.ui.small.modal.transition.visible.active {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+  padding: .5em 1.5em;
 }
 
 .comment-active {

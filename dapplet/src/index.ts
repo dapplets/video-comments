@@ -82,6 +82,15 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('getCurrentEthereumAccount_undone', err);
             }
           },
+          getEnsNames: async (op: any, { type, message }: { type?: any, message: { name: string } }) => {
+            try {
+              const ensNames = await this.getEnsNames([message.name]);
+              this._overlay.send('getEnsNames_done', ensNames);
+            } catch (err) {
+              console.log('Cannot get ens names.', err);
+              this._overlay.send('getEnsNames_undone', err);
+            }
+          },
           getAddingStickerParams: () => {
             const stickerElement: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
             const width = stickerElement!.style.width;

@@ -57,6 +57,28 @@ export const deleteComment = async (commentId: string, url: string, accountId: s
   }
 };
 
+export const setCommentDeleted = async (commentId: string, url: string, accountId: string) => {
+  const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+  const token = res.headers.get('X-Jwt');
+  const headers: HeadersInit = new Headers();
+  if (token) {
+    headers.set('X-Jwt', token!);
+    const data = {
+      delete: true
+    };
+    const strData = JSON.stringify(data);
+    const response = await fetch(`https://comments.dapplets.org/api/v1/comment/${commentId}?site=remark&url=${url}`, {
+      method: 'PUT',
+      headers,
+      body: strData,
+    });
+    console.log('response.status', response.status)
+    const result = await response.json();
+    //if (response.status !== 201) throw new Error(result)
+    console.log('result of POST comment:', result);
+  }
+};
+
 export const getUserInfo = async (accountId: string) => {
   try {
     const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
