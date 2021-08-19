@@ -147,6 +147,7 @@ export default () => {
       isCommentPublished={isCommentPublished}
       changeCheckedSticker={changeCheckedSticker}
       setMessage={setMessage}
+      setDoUpdateCCTimeline={setDoUpdateCCTimeline}
     />
   );
 

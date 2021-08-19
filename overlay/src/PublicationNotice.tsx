@@ -10,6 +10,7 @@ interface IPublicationNoticeProps {
   isCommentPublished: boolean
   changeCheckedSticker: any
   setMessage: any
+  setDoUpdateCCTimeline: any
 }
 
 export default (props: IPublicationNoticeProps) => {
@@ -21,12 +22,14 @@ export default (props: IPublicationNoticeProps) => {
     isCommentPublished,
     changeCheckedSticker,
     setMessage,
+    setDoUpdateCCTimeline,
   } = props;
 
   useEffect(() => {
     bridge.updateData();
     changeCheckedSticker();
     setMessage('');
+    setDoUpdateCCTimeline(true);
   }, []);
 
   const handleGoToCCPage = async () => {
