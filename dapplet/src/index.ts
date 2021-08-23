@@ -1,9 +1,9 @@
 import { IFeature } from '@dapplets/dapplet-extension';
 import { IData, ISticker, IRemarkComment, IVideoCtx } from './types';
 import abi from './abi';
-import MENU_ICON from './icons/floatingButton.svg';
-import MENU_ICON_HOVER from './icons/floatingButton_h.svg';
-import MENU_ICON_ACTIVE from './icons/floatingButton_a.svg';
+import MENU_ICON from './icons/Purple_Icon.svg';
+import MENU_ICON_HOVER from './icons/Purple_Icon_h.svg';
+import MENU_ICON_ACTIVE from './icons/Purple_Icon_a.svg';
 import ORANGE_ARROW from './icons/arrow_001.png';
 import RED_ARROW from './icons/vector.svg';
 import GLASSES_1 from './icons/glasses_1.png';
@@ -252,6 +252,8 @@ export default class VideoFeature implements IFeature {
                   hover: MENU_ICON_HOVER,
                   active: MENU_ICON_ACTIVE,
                 },
+                withCo: .7,
+                heightCo: .7,
                 vertical: 10,
                 horizontal: 0,
                 exec: () => {
