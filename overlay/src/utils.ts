@@ -20,16 +20,16 @@ export const addComment = async (props: ISendingData) => {
       },
     };
     const strData = JSON.stringify(data);
-    console.log('strData=', strData)
+    //console.log('strData=', strData)
     const response = await fetch('https://comments.dapplets.org/api/v1/comment', {
       method: 'POST',
       headers,
       body: strData,
     });
-    console.log('response.status', response.status)
+    //console.log('response.status', response.status)
     const result = await response.json();
     if (response.status !== 201) throw new Error(result)
-    console.log('result of POST comment:', result);
+    //console.log('result of POST comment:', result);
   }
 }
 
@@ -45,9 +45,9 @@ export const deleteComment = async (commentId: string, url: string, accountId: s
           method: 'DELETE',
           headers,
         });
-        console.log('response.status', response.status)
+        //console.log('response.status', response.status)
         const result = await response.json();
-        console.log('result of DELETE comment:', result);
+        //console.log('result of DELETE comment:', result);
       } catch (err) {
         console.log('Error deleting the comment.', err)
       }
@@ -63,19 +63,23 @@ export const setCommentDeleted = async (commentId: string, url: string, accountI
   const headers: HeadersInit = new Headers();
   if (token) {
     headers.set('X-Jwt', token!);
-    const data = {
-      delete: true
-    };
-    const strData = JSON.stringify(data);
-    const response = await fetch(`https://comments.dapplets.org/api/v1/comment/${commentId}?site=remark&url=${url}`, {
-      method: 'PUT',
-      headers,
-      body: strData,
-    });
-    console.log('response.status', response.status)
-    const result = await response.json();
-    //if (response.status !== 201) throw new Error(result)
-    console.log('result of POST comment:', result);
+    try {
+      const data = {
+        delete: true
+      };
+      const strData = JSON.stringify(data);
+      const response = await fetch(`https://comments.dapplets.org/api/v1/comment/${commentId}?site=remark&url=${url}`, {
+        method: 'PUT',
+        headers,
+        body: strData,
+      });
+      //console.log('response.status', response.status)
+      const result = await response.json();
+      //if (response.status !== 201) throw new Error(result)
+      //console.log('result of POST comment:', result);
+    } catch (err) {
+      console.log('Error delete the comment.', err);
+    }
   }
 };
 
@@ -91,9 +95,9 @@ export const getUserInfo = async (accountId: string) => {
           method: 'GET',
           headers,
         });
-        console.log('response.status', response.status)
+        //console.log('response.status', response.status)
         const result = await response.json();
-        console.log('result of GET user info:', result);
+        //console.log('result of GET user info:', result);
         return result;
       } catch (err) {
         console.log('Error getting the user info.', err)

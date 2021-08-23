@@ -37,8 +37,9 @@ export default () => {
 
   useEffect(() => {
     bridge.onData(async (data) => {
-      console.log('DATA', data)
-      console.log('ctx', data.ctx)
+      //console.log('DATA', data)
+      //console.log('videoId', data.videoId)
+      //console.log('duration', data.duration)
       setData(data.commentsData);
       addImages(data.images);
       addDuration(data.duration);
@@ -56,7 +57,7 @@ export default () => {
         setIsAdmin(userInfo.admin);
         const ensNames = await bridge.getEnsNames(accountId);
         const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
-        console.log('name', name)
+        //console.log('name', name)
         setCurrentUser(name);
       }
     });
