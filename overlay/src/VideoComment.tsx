@@ -71,7 +71,7 @@ export default (props: IVideoCommentProps) => {
           onClick={(e: any) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('from:', from)
+            //console.log('from:', from)
             setSelectedCommentId(id);
             updateCurrentTime(Math.ceil(from));
             bridge.setCurrentTime(Math.ceil(from));
