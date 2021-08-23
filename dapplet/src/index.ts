@@ -1,5 +1,5 @@
 import { IFeature } from '@dapplets/dapplet-extension';
-import { IData, ISticker, IRemarkComment } from './types';
+import { IData, ISticker, IRemarkComment, IVideoCtx } from './types';
 import abi from './abi';
 import MENU_ICON from './icons/floatingButton.svg';
 import MENU_ICON_HOVER from './icons/floatingButton_h.svg';
@@ -31,8 +31,8 @@ interface ISetConfigProps {
 
 @Injectable
 export default class VideoFeature implements IFeature {
-  @Inject('twitter-adapter.dapplet-base.eth')
-  public twitterAdapter: any;
+  //@Inject('twitter-adapter.dapplet-base.eth')
+  //public twitterAdapter: any;
 
   @Inject('video-adapter.dapplet-base.eth')
   public adapter: any;
@@ -147,17 +147,24 @@ export default class VideoFeature implements IFeature {
 
     this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
-        VIDEO: async (ctx: any) => {
+        VIDEO: async (ctx: IVideoCtx ) => {
           this._videoEl = ctx.element;
           //console.log('ctx+++++++++++++++++', ctx)
           //console.log('ctx.parent!!!!!!!!', ctx.parent)
           //console.log('this._videoEl', this._videoEl)
+          if (Number.isNaN(ctx.duration)) return;
           const videoId = this.getVideoId(this._videoEl!.baseURI!, ctx)
-          const commentsRemarkData_old = this.getData(this._videoEl!.baseURI!);
-          const commentsRemarkData_new = this.getData(videoId);
-          const commentsRemarkData = await Promise.all([commentsRemarkData_old, commentsRemarkData_new]);
+          let commentsRemarkData: any;
+          try {
+            const commentsRemarkData_old = this.getData(this._videoEl!.baseURI!);
+            const commentsRemarkData_new = this.getData(videoId);
+            commentsRemarkData = await Promise.all([commentsRemarkData_old, commentsRemarkData_new]);
+          } catch (err) {
+            console.log('Error getting data from Remark.', err);
+          }
           //console.log('commentsRemarkData', commentsRemarkData)
-          const comments = commentsRemarkData.reduce((acc, value) => [...acc, ...value.comments], []);
+          if (commentsRemarkData === undefined || commentsRemarkData[0] === undefined) return;
+          const comments = commentsRemarkData.flatMap((value: any) => value.comments);
           //console.log('comments', comments)
           const structuredComments: Promise<IData>[] = comments
             .map(async (commentData: any): Promise<IData> => {
@@ -190,7 +197,7 @@ export default class VideoFeature implements IFeature {
             });
           const commentsData = await Promise.all(structuredComments);
 
-          if (props && props.forceOpenOverlay) {
+          if ((props && props.forceOpenOverlay) || this._overlay.isOpen()) {
             this.openOverlay({
               commentsData,
               duration: ctx.duration,
@@ -208,8 +215,10 @@ export default class VideoFeature implements IFeature {
           const stickersOpacity = props && props.stickerId ? .3 : 1;
 
           ///////////////////////////////////////////////
-          console.log('ctx+++++++++++++++++', ctx)
-          console.log('ID:', videoId);
+          //console.log('ctx+++++++++++++++++', ctx)
+          //console.log('element:', ctx.element);
+          //console.log('duration:', ctx.duration);
+          //console.log('ID:', videoId);
           ///////////////////////////////////////////////
 
           const stickers = commentsData
@@ -305,17 +314,19 @@ export default class VideoFeature implements IFeature {
 
   getVideoId = (baseUri: string, ctx: any) => {
     const myUrl = new URL(baseUri);
-    switch (myUrl.hostname) {
+    const { hostname, pathname, searchParams } = myUrl;
+    const { duration, parent } = ctx;
+    switch (hostname) {
       case 'www.youtube.com':
       case 'youtube.com':
-        return myUrl.hostname + '/' + myUrl.searchParams.get('v');
+        return `${hostname}/${searchParams.get('v')}/${duration}`;
       case 'youtube.googleapis.com':
-        return myUrl.hostname + '/' + myUrl.searchParams.get('docid');
+        return `${hostname}/${searchParams.get('docid')}/${duration}`;
       case 'www.twitter.com':
       case 'twitter.com':
-        return myUrl.hostname + '/' + ctx.parent.authorUsername + '/' + ctx.parent.id;
+        return `${hostname}/${parent.authorUsername}/${parent.id}/${duration}`;
       default:
-        return myUrl.hostname + myUrl.pathname;
+        return `${hostname}/${pathname}/${duration}`;
     }
   }
 }

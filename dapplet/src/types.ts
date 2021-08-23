@@ -5,6 +5,28 @@ export interface ISticker {
   transform?: string
 }
 
+export interface IVideoCtx {
+  id: string
+  pause: any
+  play: any
+  setCurrentTime: any
+  onTimeUpdate: any
+  onResize: any
+  onTranslate: any
+  element: HTMLElement
+  height: number
+  width: number
+  poster?: string
+  duration: number | any
+  loop: boolean
+  muted: boolean
+  currentTime: number
+  src: string
+  volume: number
+  paused: boolean
+  parent: any
+}
+
 export interface IData {
   id: string
   name: string
