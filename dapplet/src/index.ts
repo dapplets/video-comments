@@ -152,7 +152,6 @@ export default class VideoFeature implements IFeature {
           //console.log('ctx+++++++++++++++++', ctx)
           //console.log('ctx.parent!!!!!!!!', ctx.parent)
           //console.log('this._videoEl', this._videoEl)
-          if (Number.isNaN(ctx.duration)) return;
           const videoId = this.getVideoId(this._videoEl!.baseURI!, ctx)
           let commentsRemarkData: any;
           try {
