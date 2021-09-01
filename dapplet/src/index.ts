@@ -155,15 +155,13 @@ export default class VideoFeature implements IFeature {
           const videoId = this.getVideoId(this._videoEl!.baseURI!, ctx)
           let commentsRemarkData: any;
           try {
-            const commentsRemarkData_old = this.getData(this._videoEl!.baseURI!);
-            const commentsRemarkData_new = this.getData(videoId);
-            commentsRemarkData = await Promise.all([commentsRemarkData_old, commentsRemarkData_new]);
+            commentsRemarkData = await this.getData(videoId);
           } catch (err) {
             console.log('Error getting data from Remark.', err);
           }
           //console.log('commentsRemarkData', commentsRemarkData)
-          if (commentsRemarkData === undefined || commentsRemarkData[0] === undefined) return;
-          const comments = commentsRemarkData.flatMap((value: any) => value.comments);
+          if (commentsRemarkData === undefined || Object.keys(commentsRemarkData).length === 0) return;
+          const { comments } = commentsRemarkData;
           //console.log('comments', comments)
           const structuredComments: Promise<IData>[] = comments
             .map(async (commentData: any): Promise<IData> => {
