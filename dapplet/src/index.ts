@@ -148,11 +148,12 @@ export default class VideoFeature implements IFeature {
     this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
         VIDEO: async (ctx: IVideoCtx ) => {
+          if (!ctx.element) return;
           this._videoEl = ctx.element;
-          //console.log('ctx+++++++++++++++++', ctx)
+          // console.log('ctx+++++++++++++++++', ctx)
           //console.log('ctx.parent!!!!!!!!', ctx.parent)
           //console.log('this._videoEl', this._videoEl)
-          const videoId = this.getVideoId(this._videoEl!.baseURI!, ctx)
+          const videoId = ctx.id;
           let commentsRemarkData: any;
           try {
             commentsRemarkData = await this.getData(videoId);
@@ -308,24 +309,6 @@ export default class VideoFeature implements IFeature {
       return ensNames;
     } catch (err) {
       console.log('Error getting ens names.', err)
-    }
-  }
-
-  getVideoId = (baseUri: string, ctx: any) => {
-    const myUrl = new URL(baseUri);
-    const { hostname, pathname, searchParams } = myUrl;
-    const { duration, parent } = ctx;
-    switch (hostname) {
-      case 'www.youtube.com':
-      case 'youtube.com':
-        return `${hostname}/${searchParams.get('v')}/${duration}`;
-      case 'youtube.googleapis.com':
-        return `${hostname}/${searchParams.get('docid')}/${duration}`;
-      case 'www.twitter.com':
-      case 'twitter.com':
-        return `${hostname}/${parent.authorUsername}/${parent.id}/${duration}`;
-      default:
-        return `${hostname}/${pathname}/${duration}`;
     }
   }
 }

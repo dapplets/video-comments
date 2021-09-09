@@ -16,8 +16,7 @@
     "default": "config/default.json"
   },
   "dependencies": {
-    "twitter-adapter.dapplet-base.eth": "0.9.0",
-    "video-adapter.dapplet-base.eth": "0.2.12"
+    "video-adapter.dapplet-base.eth": "0.3.0"
   },
   "overlays": {
       "video-comments-overlay": "https://localhost:3000"
