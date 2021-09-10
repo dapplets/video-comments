@@ -148,9 +148,9 @@ export default class VideoFeature implements IFeature {
     this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
         VIDEO: async (ctx: IVideoCtx ) => {
+          //console.log('ctx+++++++++++++++++', ctx)
           if (!ctx.element) return;
           this._videoEl = ctx.element;
-          // console.log('ctx+++++++++++++++++', ctx)
           //console.log('ctx.parent!!!!!!!!', ctx.parent)
           //console.log('this._videoEl', this._videoEl)
           const videoId = ctx.id;
