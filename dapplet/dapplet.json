@@ -16,7 +16,7 @@
     "default": "config/default.json"
   },
   "dependencies": {
-    "video-adapter.dapplet-base.eth": "0.3.0"
+    "video-adapter.dapplet-base.eth": "0.4.0"
   },
   "overlays": {
       "video-comments-overlay": "https://localhost:3000"

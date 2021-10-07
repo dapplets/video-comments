@@ -1,9 +1,7 @@
 import { IFeature } from '@dapplets/dapplet-extension';
 import { IData, ISticker, IRemarkComment, IVideoCtx } from './types';
 import abi from './abi';
-import MENU_ICON from './icons/Purple_Icon.svg';
-import MENU_ICON_HOVER from './icons/Purple_Icon_h.svg';
-import MENU_ICON_ACTIVE from './icons/Purple_Icon_a.svg';
+import MENU_ICON from './icons/white-menu-icon.svg';
 import ORANGE_ARROW from './icons/arrow_001.png';
 import RED_ARROW from './icons/vector.svg';
 import GLASSES_1 from './icons/glasses_1.png';
@@ -45,6 +43,9 @@ export default class VideoFeature implements IFeature {
   private _setConfig: any;
   private _addingStickerId: number;
   private _currentTime: number;
+  private _commentsData: any;
+  private _duration: number;
+  private _videoId: string;
 
   async activate(): Promise<void> {
     if (!this._overlay) {
@@ -143,7 +144,7 @@ export default class VideoFeature implements IFeature {
         });
     }
 
-    const { sticker, label } = this.adapter.exports;
+    const { sticker, control } = this.adapter.exports;
 
     this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
@@ -195,6 +196,10 @@ export default class VideoFeature implements IFeature {
             });
           const commentsData = await Promise.all(structuredComments);
 
+          this._commentsData = commentsData;
+          this._duration = ctx.duration;
+          this._videoId = videoId;
+
           if ((props && props.forceOpenOverlay) || this._overlay.isOpen()) {
             this.openOverlay({
               commentsData,
@@ -242,33 +247,7 @@ export default class VideoFeature implements IFeature {
               },
             }));
 
-          const widgets = [
-            label({
-              DEFAULT: {
-                img: {
-                  main: MENU_ICON,
-                  hover: MENU_ICON_HOVER,
-                  active: MENU_ICON_ACTIVE,
-                },
-                withCo: .7,
-                heightCo: .7,
-                vertical: 10,
-                horizontal: 0,
-                exec: () => {
-                  if (this._overlay.isOpen()) {
-                    this._overlay.close();
-                  } else {
-                    this.openOverlay({
-                      commentsData,
-                      duration: ctx.duration,
-                      videoId: videoId,
-                    });
-                  }
-                },
-              },
-            }),
-            ...stickers,
-          ];
+          const widgets = stickers;
 
           if (props && props.stickerId) {
             if (this._addingStickerId === undefined) this._addingStickerId = Math.trunc(Math.random() * 1_000_000_000);
@@ -282,6 +261,24 @@ export default class VideoFeature implements IFeature {
 
           return widgets;
         },
+        RIGHT_CONTROLS: () =>
+          control({
+            DEFAULT: {
+              img: MENU_ICON,
+              tooltip: 'Video Comments',
+              exec: () => {
+                if (this._overlay.isOpen()) {
+                  this._overlay.close();
+                } else {
+                  this.openOverlay({
+                    commentsData: this._commentsData,
+                    duration: this._duration,
+                    videoId: this._videoId,
+                  });
+                }
+              },
+            },
+          }),
       };
       return this._config;
     }
