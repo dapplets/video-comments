@@ -32,7 +32,7 @@ export default (props: ICCTimelineProps) => {
   useEffect(() => {
     if (doUpdateCCTimeline) {
       setStartTime(currentTime);
-      setFinishTime(currentTime + 60 > videoLength ? videoLength : currentTime + 60);
+      setFinishTime(currentTime + 30 > videoLength ? videoLength : currentTime + 30);
     }
   }, [currentTime]);
 

@@ -35,23 +35,41 @@ export default (props: IVideoCommentProps) => {
     videoId,
     accountEthId,
   } = props;
-  const { id, name, time, text, image, from, to, selected, hidden } = data;
+  const { id, name, time, text, image, from, to, hidden } = data;
 
   const [openDimmer, toggleOpenDimmer] = useState(false);
 
   const handleToggleIsHidden = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
-    hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
-    toggleCommentHidden(id, !hidden);
-  }
+    toggleCommentHidden(id);
+  };
 
-  const handleDeleteComment = (event: any) => {
-    event.preventDefault();
-    event.stopPropagation();
-    hidden ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
-    toggleCommentHidden(id, !hidden);
-  }
+  const handleToggleAdditionalInfo = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setExpandedComments(
+      isCollapsed
+        ? [...expandedComments, id]
+        : expandedComments.filter((commentId) => commentId !== id)
+    );
+  };
+
+  const handleSelectComment = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (id !== selectedCommentId) {
+      setSelectedCommentId(id);
+      if (isCollapsed) setExpandedComments([...expandedComments, id]);
+      updateCurrentTime(Math.ceil(from));
+      bridge.highlightSticker(id);
+      bridge.setCurrentTime(Math.ceil(from));
+    } else {
+      setSelectedCommentId();
+      bridge.highlightSticker();
+      if (!isCollapsed) setExpandedComments(expandedComments.filter((commentId) => commentId !== id));
+    }
+  };
 
   const isCollapsed = !expandedComments.includes(id);
   
@@ -66,16 +84,9 @@ export default (props: IVideoCommentProps) => {
           } ${
             hidden ? 'comment-hidden' : ''
           } ${
-            id === selectedCommentId && !hidden ? 'comment-selected' : ''
+            id === selectedCommentId ? 'comment-selected' : ''
           }`}
-          onClick={(e: any) => {
-            e.preventDefault();
-            e.stopPropagation();
-            //console.log('from:', from)
-            setSelectedCommentId(id);
-            updateCurrentTime(Math.ceil(from));
-            bridge.setCurrentTime(Math.ceil(from));
-          }}
+          onClick={handleSelectComment}
         >
         <Card.Content>
           <Comment.Group>
@@ -157,15 +168,7 @@ export default (props: IVideoCommentProps) => {
                 <Comment.Actions hidden={hidden}>
                   <Comment.Action
                     index={id}
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      setExpandedComments(
-                        isCollapsed
-                          ? [...expandedComments, id]
-                          : expandedComments.filter((commentId) => commentId !== id)
-                      );
-                    }}
+                    onClick={handleToggleAdditionalInfo}
                   >
                     {isCollapsed ? 'More' : 'Less'}
                   </Comment.Action>

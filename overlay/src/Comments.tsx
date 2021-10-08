@@ -23,6 +23,8 @@ interface ICommentsProps {
   refs: any
   currentUser?: string
   videoId: string
+  expandedComments: string[]
+  setExpandedComments: any
 }
 
 enum CommentBlock {
@@ -54,11 +56,12 @@ export default (props: ICommentsProps) => {
     refs,
     currentUser,
     videoId,
+    expandedComments,
+    setExpandedComments,
   } = props;
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   const [commentUrlToDelete, setCommentUrlToDelete] = useState('');
-  const [expandedComments, setExpandedComments] = useState<string[]>([]);
 
   const [accountEthId, getAccountEthId] = useState<string | undefined>();
 
@@ -244,8 +247,6 @@ export default (props: ICommentsProps) => {
           }}>
             <Button 
               icon
-              //color='violet'
-              //className='action-button exact'
               style={{
                 fontFamily: 'Roboto, sans-serif',
                 width: 'fit-content',

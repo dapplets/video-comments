@@ -22,7 +22,7 @@ export default () => {
   const [images, addImages] = useState<any | undefined>();
   const [currentTime, updateCurrentTime] = useState(0);
   const [startTime, setStartTime] = useState(currentTime);
-  const [finishTime, setFinishTime] = useState(currentTime + 60 > duration ? duration : currentTime + 60);
+  const [finishTime, setFinishTime] = useState(currentTime + 30 > duration ? duration : currentTime + 30);
   const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
   const [videoId, setVideoId] = useState('');
   const [isCommentPublished, setIsCommentPublished] = useState(false);
@@ -32,6 +32,7 @@ export default () => {
   const [message, setMessage] = useState('');
   const [selectedCommentId, setSelectedCommentId] = useState<string | undefined>();
   const [currentUser, setCurrentUser] = useState<string | undefined>();
+  const [expandedComments, setExpandedComments] = useState<string[]>([]);
 
   const refs: any = {};
 
@@ -57,7 +58,6 @@ export default () => {
         setIsAdmin(userInfo.admin);
         const ensNames = await bridge.getEnsNames(accountId);
         const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
-        //console.log('name', name)
         setCurrentUser(name);
       }
     });
@@ -65,6 +65,9 @@ export default () => {
 
   useEffect(() => {
     if (data && selectedCommentId) {
+      if (!expandedComments.includes(selectedCommentId)) {
+        setExpandedComments([...expandedComments, selectedCommentId]);
+      }
       if (refs[selectedCommentId]) refs[selectedCommentId].current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
@@ -72,10 +75,7 @@ export default () => {
     }
   }, [data, selectedCommentId]);
 
-  const toggleCommentHidden = (id: string, makeHidden: boolean) => {
-    const commentIndex = data!.findIndex((comment) => comment.id === id);
-    const newData = update(data!, { [commentIndex]: { hidden: { $set: makeHidden } } });
-    setData(newData);
+  const toggleCommentHidden = (id: string) => {
     bridge.updateData({ itemToHideId: id });
   };
 
@@ -100,6 +100,8 @@ export default () => {
       refs={refs}
       currentUser={currentUser}
       videoId={videoId}
+      expandedComments={expandedComments}
+      setExpandedComments={setExpandedComments}
     />
   );
 

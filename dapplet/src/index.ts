@@ -1,6 +1,7 @@
 import { IFeature } from '@dapplets/dapplet-extension';
 import { IData, ISticker, IRemarkComment, IVideoCtx } from './types';
 import abi from './abi';
+import update from 'immutability-helper';
 import MENU_ICON from './icons/white-menu-icon.svg';
 import ORANGE_ARROW from './icons/arrow_001.png';
 import RED_ARROW from './icons/vector.svg';
@@ -24,20 +25,17 @@ const allStickers = {
 
 interface ISetConfigProps {
   forceOpenOverlay?: boolean
-  stickerId?: string
+  stickerName?: string
 }
 
 @Injectable
 export default class VideoFeature implements IFeature {
-  //@Inject('twitter-adapter.dapplet-base.eth')
-  //public twitterAdapter: any;
 
   @Inject('video-adapter.dapplet-base.eth')
   public adapter: any;
 
   private _overlay: any;
   private _videoEl: any;
-  /*private _dontUpdate: boolean = false;*/
   private _wasPaused: boolean;
   private _config: any;
   private _setConfig: any;
@@ -46,6 +44,9 @@ export default class VideoFeature implements IFeature {
   private _commentsData: any;
   private _duration: number;
   private _videoId: string;
+  private _$: any;
+  private _ctx: any;
+  private _selectedCommentId: string;
 
   async activate(): Promise<void> {
     if (!this._overlay) {
@@ -103,7 +104,6 @@ export default class VideoFeature implements IFeature {
             try {
               this._wasPaused = this._videoEl.paused;
               if (!this._videoEl.paused) this._videoEl.pause();
-              /*this._dontUpdate = true;*/
             } catch (err) {
               console.log('Cannot pause the video.', err);
             }
@@ -111,7 +111,6 @@ export default class VideoFeature implements IFeature {
           playVideoIfWasPlayed: async () => {
             try {
               if (!this._wasPaused) await this._videoEl.play();
-              /*this._dontUpdate = false;*/
             } catch (err) {
               console.log('Cannot start to play the video.', err);
             }
@@ -126,19 +125,66 @@ export default class VideoFeature implements IFeature {
           updateData: (op: any, { type, message }: { type?: any, message?: { props: any } }) => {
             if (message && message.props && message.props.itemToHideId) {
               const id = message.props.itemToHideId
-              localStorage.getItem(id) === 'hidden' ? localStorage.removeItem(id) : localStorage.setItem(id, 'hidden');
+              if (localStorage.getItem(id) === 'hidden') {
+                localStorage.removeItem(id);
+                const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+                this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
+                this._$(this._ctx, id).hidden = false;
+              } else {
+                localStorage.setItem(id, 'hidden');
+                const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+                this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: true } } });
+                this._$(this._ctx, id).hidden = true;
+              }
+              this.openOverlay({
+                commentsData: this._commentsData,
+                duration: this._duration,
+                videoId: this._videoId,
+              });
+              return;
             }
             this.adapter.detachConfig(this._config);
             this._addingStickerId = undefined;
-            this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
+            const { $ } = this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
+            this._$ = $;
           },
-          addSticker: (op: any, { type, message }: { type?: any, message: { stickerId: string } }) => {
-            this.adapter.detachConfig(this._config);
+          addSticker: (op: any, { type, message }: { type?: any, message: { stickerName: string } }) => {
             if (message) {
-              this.adapter.attachConfig(this._setConfig({ stickerId: message.stickerId }));
+              this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+                this._$(this._ctx, commentData.id).state = 'INACTIVE';
+              });
+              this._$(this._ctx, this._addingStickerId).newState = 'ACTIVE';
+              this._$(this._ctx, this._addingStickerId).img = allStickers[message.stickerName];
             } else {
-              this._addingStickerId = undefined;
-              this.adapter.attachConfig(this._setConfig());
+              this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+                this._$(this._ctx, commentData.id).state = 'DEFAULT';
+              });
+              this._$(this._ctx, this._addingStickerId).state = 'HIDDEN';
+            }
+          },
+          highlightSticker: (op: any, { type, message }: { type?: any, message: { stickerID: string } }) => {
+            if (message) {
+              const id = this._selectedCommentId = message.stickerID;
+              this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+                this._$(this._ctx, commentData.id).state = commentData.id === id ? 'ACTIVE' : 'MUTED';
+              });
+              if (localStorage.getItem(id) === 'hidden') {
+                localStorage.removeItem(id);
+                const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+                this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
+                this._$(this._ctx, id).hidden = false;
+              }
+              this.openOverlay({
+                commentsData: this._commentsData,
+                duration: this._duration,
+                videoId: this._videoId,
+                selectedCommentId: id,
+              });
+            } else {
+              this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+                this._$(this._ctx, commentData.id).state = 'DEFAULT';
+                this._selectedCommentId = undefined;
+              });
             }
           },
         });
@@ -199,23 +245,23 @@ export default class VideoFeature implements IFeature {
           this._commentsData = commentsData;
           this._duration = ctx.duration;
           this._videoId = videoId;
+          this._ctx = ctx;
 
           if ((props && props.forceOpenOverlay) || this._overlay.isOpen()) {
             this.openOverlay({
               commentsData,
               duration: ctx.duration,
               videoId: videoId,
+              selectedCommentId: this._selectedCommentId,
             });
           }
 
           ctx.onTimeUpdate(() => {
-            if (this._overlay.isOpen()/* && !this._dontUpdate*/) {
+            if (this._overlay.isOpen()) {
               this._overlay.send('time', { time: ctx.currentTime });
             }
             this._currentTime = ctx.currentTime;
           });
-
-          const stickersOpacity = props && props.stickerId ? .3 : 1;
 
           ///////////////////////////////////////////////
           //console.log('ctx+++++++++++++++++', ctx)
@@ -224,19 +270,24 @@ export default class VideoFeature implements IFeature {
           //console.log('ID:', videoId);
           ///////////////////////////////////////////////
 
-          const stickers = commentsData
-            .filter((commentData) => !commentData.hidden)
+          const displayedStickersData = commentsData.filter((commentData) => !commentData.hidden);
+          const stickers = displayedStickersData
             .map((commentData) => sticker({
+              id: commentData.id,
+              initial: props && props.stickerName ? 'MUTED' : 'DEFAULT',
               DEFAULT: {
                 img: allStickers[commentData.sticker.id],
-                vertical: commentData.sticker.vertical, // %
-                horizontal: commentData.sticker.horizontal, // %
+                vertical: commentData.sticker.vertical,
+                horizontal: commentData.sticker.horizontal,
                 transform: commentData.sticker.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
-                opacity: stickersOpacity,
+                opacity: '1',
                 exec: () => {
+                  displayedStickersData.forEach((dispStDt) => {
+                    this._$(ctx, dispStDt.id).state = dispStDt.id === commentData.id ? 'ACTIVE' : 'MUTED';
+                  });
                   this.openOverlay({
                     commentsData,
                     duration: ctx.duration,
@@ -245,21 +296,76 @@ export default class VideoFeature implements IFeature {
                   });
                 },
               },
-            }));
-
-          const widgets = stickers;
-
-          if (props && props.stickerId) {
-            if (this._addingStickerId === undefined) this._addingStickerId = Math.trunc(Math.random() * 1_000_000_000);
-            widgets.push(sticker({
-              DEFAULT: {
-                stickerId: this._addingStickerId,
-                img: allStickers[props.stickerId],
+              ACTIVE: {
+                img: allStickers[commentData.sticker.id],
+                vertical: commentData.sticker.vertical,
+                horizontal: commentData.sticker.horizontal,
+                transform: commentData.sticker.transform,
+                from: commentData.from,
+                to: commentData.to,
+                mutable: false,
+                opacity: '1',
+                exec: () => {
+                  displayedStickersData.forEach((dispStDt) => {
+                    this._$(ctx, dispStDt.id).state = 'DEFAULT';
+                  });
+                  this.openOverlay({
+                    commentsData,
+                    duration: ctx.duration,
+                    videoId: videoId,
+                  });
+                },
+              },
+              MUTED: {
+                img: allStickers[commentData.sticker.id],
+                vertical: commentData.sticker.vertical,
+                horizontal: commentData.sticker.horizontal,
+                transform: commentData.sticker.transform,
+                from: commentData.from,
+                to: commentData.to,
+                mutable: false,
+                opacity: '.3',
+                exec: () => {
+                  displayedStickersData.forEach((dispStDt) => {
+                    this._$(ctx, dispStDt.id).state = dispStDt.id === commentData.id ? 'ACTIVE' : 'MUTED';
+                  });
+                  this.openOverlay({
+                    commentsData,
+                    duration: ctx.duration,
+                    videoId: videoId,
+                    selectedCommentId: commentData.id,
+                  });
+                },
+              },
+              INACTIVE: {
+                img: allStickers[commentData.sticker.id],
+                vertical: commentData.sticker.vertical,
+                horizontal: commentData.sticker.horizontal,
+                transform: commentData.sticker.transform,
+                from: commentData.from,
+                to: commentData.to,
+                mutable: false,
+                opacity: '.3',
               },
             }));
-          }
 
-          return widgets;
+          this._addingStickerId = Math.trunc(Math.random() * 1_000_000_000);
+          stickers.push(sticker({
+            id: this._addingStickerId,
+            initial: 'HIDDEN',
+            ACTIVE: {
+              stickerId: this._addingStickerId,
+              reset: false,
+              hidden: false,
+            },
+            HIDDEN: {
+              stickerId: this._addingStickerId,
+              reset: true,
+              hidden: true,
+            },
+          }));
+
+          return stickers;
         },
         RIGHT_CONTROLS: () =>
           control({
@@ -282,7 +388,8 @@ export default class VideoFeature implements IFeature {
       };
       return this._config;
     }
-    this.adapter.attachConfig(this._setConfig());
+    const { $ } = this.adapter.attachConfig(this._setConfig());
+    this._$ = $;
   }
 
   openOverlay(props?: any): void {

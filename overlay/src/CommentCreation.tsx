@@ -106,6 +106,8 @@ export default (props: IProps) => {
     } catch (err) {
       console.log('Error in the comment engine.', err);
     }
+    updateCurrentTime(Math.ceil(startTime));
+    bridge.setCurrentTime(Math.ceil(startTime));
     onPageChange(publicationNotice);
   };
 
@@ -113,7 +115,11 @@ export default (props: IProps) => {
     <div className='authorisation-page'>
       <div className='button-back'>
         <Icon name='arrow left' />
-        <button onClick={() => onPageChange(back)}>
+        <button onClick={() => {
+          onPageChange(back);
+          changeCheckedSticker(undefined);
+          bridge.addSticker();
+        }}>
           Back
         </button>
       </div>
