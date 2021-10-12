@@ -4,13 +4,13 @@ import { bridge } from './dappletBridge';
 
 interface IAuthorizationProps {
   back: number
-  createComment: number
   onPageChange: any
   setIsAuthorized: any
+  nextPage: number
 }
 
 export default (props: IAuthorizationProps) => {
-  const { back, createComment, onPageChange, setIsAuthorized } = props;
+  const { back, onPageChange, setIsAuthorized, nextPage } = props;
   return (
     <div className='authorisation-page'>
       <div className='button-back'>
@@ -30,7 +30,8 @@ export default (props: IAuthorizationProps) => {
         onClick={() => bridge.connectWallet()
           .then(() => {
             setIsAuthorized(true);
-            onPageChange(createComment);
+            bridge.updateData();
+            onPageChange(nextPage);
           })
           .catch((err) => console.log('Error connecting to the wallet.', err))}
       >

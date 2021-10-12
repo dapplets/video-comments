@@ -53,6 +53,10 @@ body {
   background-color: #F4F4F4 !important;
 }
 
+.ui.tabular.menu.dapplet-comments-menu .active.item.menu-active-tab {
+  border-radius: 6px 6px 0 0 !important;
+}
+
 .comment-header {
   display: flex;
   flex-wrap: wrap;
@@ -539,4 +543,37 @@ body {
 
 a.ui.card:hover {
   transform: none !important;
+}
+
+.comment-button-like {
+  background: no-repeat url("./heart_gray.svg");
+  width: 20px;
+  height: 20px;
+  margin: 4px 0 0 !important;
+  transform: scale(1);
+  transition: all .1s ease-in-out !important;
+}
+
+.comment-button-like:hover {
+  transform: scale(1);
+  background: no-repeat url("./heart.svg");
+}
+
+.comment-button-like.disabled:hover {
+  transform: scale(1);
+  background: no-repeat url("./heart_gray.svg");
+}
+
+.comment-button-like:active {
+  background: no-repeat url("./heart.svg");
+  transform: scale(.7);
+}
+
+.comment-button-like.liked {
+  background: no-repeat url("./heart_filled.svg");
+}
+
+.comment-button-like.liked:active {
+  background: no-repeat url("./heart_filled.svg");
+  transform: scale(.7);
 }

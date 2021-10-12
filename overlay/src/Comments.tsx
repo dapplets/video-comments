@@ -10,6 +10,7 @@ interface ICommentsProps {
   data?: IData[]
   createComment: number
   authorization: number
+  commentsList: number
   onPageChange: any
   toggleCommentHidden: any
   videoLength: number
@@ -25,6 +26,7 @@ interface ICommentsProps {
   videoId: string
   expandedComments: string[]
   setExpandedComments: any
+  setNextPage: any
 }
 
 enum CommentBlock {
@@ -43,6 +45,7 @@ export default (props: ICommentsProps) => {
     data,
     createComment,
     authorization,
+    commentsList,
     onPageChange,
     toggleCommentHidden,
     videoLength,
@@ -58,6 +61,7 @@ export default (props: ICommentsProps) => {
     videoId,
     expandedComments,
     setExpandedComments,
+    setNextPage,
   } = props;
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
@@ -93,7 +97,12 @@ export default (props: ICommentsProps) => {
     try {
       const isWalletConnected = await bridge.isWalletConnected();
       isAuthorized !== isWalletConnected && setIsAuthorized(isWalletConnected);
-      onPageChange(isWalletConnected ? createComment : authorization);
+      if (isWalletConnected) {
+        onPageChange(createComment);
+      } else {
+        setNextPage(createComment);
+        onPageChange(authorization);
+      }
     } catch (err) {
       console.log('Error connecting to the wallet.', err);
     }
@@ -132,26 +141,31 @@ export default (props: ICommentsProps) => {
             name={CommentBlock.All}
             active={activeTab === CommentBlock.All}
             onClick={handleItemClick}
+            className={activeTab === CommentBlock.All ? 'menu-active-tab' : 'menu-tab'}
           />
           <Menu.Item
             name={CommentBlock.Active}
             active={activeTab === CommentBlock.Active}
             onClick={handleItemClick}
+            className={activeTab === CommentBlock.Active ? 'menu-active-tab' : 'menu-tab'}
           />
           <Menu.Item
             name={CommentBlock.Inactive}
             active={activeTab === CommentBlock.Inactive}
             onClick={handleItemClick}
+            className={activeTab === CommentBlock.Inactive ? 'menu-active-tab' : 'menu-tab'}
           />
           <Menu.Item
             name={CommentBlock.Hidden}
             active={activeTab === CommentBlock.Hidden}
             onClick={handleItemClick}
+            className={activeTab === CommentBlock.Hidden ? 'menu-active-tab' : 'menu-tab'}
           />
           {isAdmin && <Menu.Item
             name={CommentBlock.Admin}
             active={activeTab === CommentBlock.Admin}
             onClick={handleItemClick}
+            className={activeTab === CommentBlock.Admin ? 'menu-active-tab' : 'menu-tab'}
           />}
         </Menu>
         {data
@@ -183,6 +197,7 @@ export default (props: ICommentsProps) => {
                 .sort((a, b) => a.from - b.from)
                 .map((commentData) =>
                   <VideoComment
+                    commentsList={commentsList}
                     key={counter++}
                     data={commentData}
                     currentTime={currentTime}
@@ -196,6 +211,9 @@ export default (props: ICommentsProps) => {
                     currentUser={currentUser}
                     videoId={videoId}
                     accountEthId={accountEthId}
+                    authorization={authorization}
+                    onPageChange={onPageChange}
+                    setNextPage={setNextPage}
                   />)}
             </Container>)
           : <Dimmer active inverted><Loader inverted>Loading</Loader></Dimmer>}

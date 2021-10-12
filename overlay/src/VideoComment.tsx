@@ -2,10 +2,12 @@ import React, { useRef, useState } from 'react';
 import { Card, Comment, Confirm, Icon, Ref } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
 import { IData } from './types';
-import { formatTime, setCommentDeleted } from './utils';
+import { formatTime, setCommentDeleted, voteForComment } from './utils';
 import { bridge } from './dappletBridge';
+import cn from 'classnames';
 
 interface IVideoCommentProps {
+  commentsList: number
   data: IData
   currentTime: number
   updateCurrentTime: any
@@ -18,10 +20,14 @@ interface IVideoCommentProps {
   currentUser?: string
   videoId: string
   accountEthId?: string
+  onPageChange: any
+  authorization: number
+  setNextPage: any
 };
 
 export default (props: IVideoCommentProps) => {
   const {
+    commentsList,
     data,
     currentTime,
     updateCurrentTime,
@@ -34,8 +40,12 @@ export default (props: IVideoCommentProps) => {
     currentUser,
     videoId,
     accountEthId,
+    onPageChange,
+    authorization,
+    setNextPage,
   } = props;
-  const { id, name, time, text, image, from, to, hidden } = data;
+
+  const { id, name, ensName, time, text, image, from, to, hidden, score, vote } = data;
 
   const [openDimmer, toggleOpenDimmer] = useState(false);
 
@@ -71,6 +81,18 @@ export default (props: IVideoCommentProps) => {
     }
   };
 
+  const handleVoteForComment = async (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (accountEthId === undefined) {
+      setNextPage(commentsList);
+      onPageChange(authorization);
+      return;
+    }
+    await voteForComment(id, videoId, accountEthId, vote);
+    bridge.updateData();
+  }
+
   const isCollapsed = !expandedComments.includes(id);
   
   refs[id] = useRef();
@@ -78,7 +100,12 @@ export default (props: IVideoCommentProps) => {
   return (
     <Ref innerRef={refs[id]}>
       <Card
-        style={{ width: '100%', minHeight: '62px' }}
+        style={{
+          width: '100%',
+          minHeight: '62px',
+          boxShadow: '0px 0px 5px rgba(0, 0, 0, 0.25)',
+          borderRadius: '15px',
+        }}
         className={`${
             currentTime >= from && (to === undefined || currentTime <= to) ? 'comment-active' : 'comment-inactive'
           } ${
@@ -94,7 +121,7 @@ export default (props: IVideoCommentProps) => {
               <Comment.Avatar src={image} />
               {!image && (
                 <div className='default-badge'>
-                  {name[0].toUpperCase()}
+                  {(ensName || name)[0].toUpperCase()}
                 </div>)}
               <Comment.Content>
                 <div className='comment-header'>
@@ -102,7 +129,7 @@ export default (props: IVideoCommentProps) => {
                     as='a'
                     className={hidden ? 'comment-hidden' : ''}
                   >
-                    {name}
+                    {ensName || name}
                   </Comment.Author>
                   <Comment.Metadata style={{ flexGrow: 1 }}>
                     <div>
@@ -165,7 +192,23 @@ export default (props: IVideoCommentProps) => {
                   dangerouslySetInnerHTML={{ __html: text.length > 103 && isCollapsed
                     ? `${text.substring(0, 99)}...`
                     : text }}/>
-                <Comment.Actions hidden={hidden}>
+                <Comment.Actions
+                  hidden={hidden}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <Comment.Action
+                    index={id}
+                    className={cn('comment-button-like', { liked: vote === 1, disabled: name === accountEthId })}
+                    onClick={name !== accountEthId ? handleVoteForComment : (e: any) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  />
+                  <Comment.Metadata
+                    style={{ margin: '0 24px 0 6px' }}
+                  >
+                    {score}
+                  </Comment.Metadata>
                   <Comment.Action
                     index={id}
                     onClick={handleToggleAdditionalInfo}

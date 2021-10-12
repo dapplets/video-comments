@@ -30,6 +30,7 @@ export interface IVideoCtx {
 export interface IData {
   id: string
   name: string
+  ensName?: string
   time: string
   text: string
   from: number
@@ -39,6 +40,8 @@ export interface IData {
   hidden: boolean
   url: string
   sticker: ISticker
+  score: number
+  vote: number
 }
 
 export interface IRemarkUser {

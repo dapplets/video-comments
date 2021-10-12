@@ -195,27 +195,27 @@ export default class VideoFeature implements IFeature {
     this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
         VIDEO: async (ctx: IVideoCtx ) => {
-          //console.log('ctx+++++++++++++++++', ctx)
           if (!ctx.element) return;
           this._videoEl = ctx.element;
-          //console.log('ctx.parent!!!!!!!!', ctx.parent)
-          //console.log('this._videoEl', this._videoEl)
           const videoId = ctx.id;
+
+          const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+          const isWalletConnected = await wallet.isConnected();
+
           let commentsRemarkData: any;
           try {
-            commentsRemarkData = await this.getData(videoId);
+            commentsRemarkData = await this.getData(videoId, isWalletConnected);
           } catch (err) {
             console.log('Error getting data from Remark.', err);
           }
-          //console.log('commentsRemarkData', commentsRemarkData)
           if (commentsRemarkData === undefined || Object.keys(commentsRemarkData).length === 0) return;
           const { comments } = commentsRemarkData;
-          //console.log('comments', comments)
           const structuredComments: Promise<IData>[] = comments
             .map(async (commentData: any): Promise<IData> => {
               const comment: IRemarkComment = commentData.comment;
+              const name = comment.user.name
               const ensNames = await this.getEnsNames([comment.user.name]);
-              const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : comment.user.name;
+              const ensName = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== '' && ensNames[0];
               let from = 0;
               let to: number;
               let sticker: ISticker;
@@ -228,6 +228,7 @@ export default class VideoFeature implements IFeature {
               const structuredComment: IData = {
                 id: comment.id,
                 name: name,
+                ensName,
                 time: comment.time,
                 text: comment.text,
                 image: comment.user.picture,
@@ -237,6 +238,8 @@ export default class VideoFeature implements IFeature {
                 hidden: localStorage.getItem(comment.id) === 'hidden',
                 selected: false,
                 url: comment.locator.url,
+                score: comment.score,
+                vote: comment.vote,
               };
               return structuredComment;
             });
@@ -262,13 +265,6 @@ export default class VideoFeature implements IFeature {
             }
             this._currentTime = ctx.currentTime;
           });
-
-          ///////////////////////////////////////////////
-          //console.log('ctx+++++++++++++++++', ctx)
-          //console.log('element:', ctx.element);
-          //console.log('duration:', ctx.duration);
-          //console.log('ID:', videoId);
-          ///////////////////////////////////////////////
 
           const displayedStickersData = commentsData.filter((commentData) => !commentData.hidden);
           const stickers = displayedStickersData
@@ -397,13 +393,51 @@ export default class VideoFeature implements IFeature {
     this._overlay.send('time', { time: this._currentTime });
   }
 
-  async getData(uri: string) {
-    try {
-      const response = await fetch(`https://comments.dapplets.org/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`);
-      return await response.json();
-    } catch (e) {
-      console.log('Error in getData():', e);
+  async getData(uri: string, isWalletConnected: boolean) {
+    if (isWalletConnected) {
+      const accountId = await this.getAccountId();
+      try {
+        const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+        const token = res.headers.get('X-Jwt');
+        const headers: HeadersInit = new Headers();
+        if (token) {
+          headers.set('X-Jwt', token!);
+          try {
+            const response = await fetch(`https://comments.dapplets.org/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`, {
+              method: 'GET',
+              headers,
+            });
+            const res = await response.json();
+            return res;
+          } catch (err) {
+            console.log('Error getting comments.', err)
+          }
+        }
+      } catch (e) {
+        console.log('Error connecting to the comment engine.', e)
+      }
+    } else {
+      try {
+        const response = await fetch(`https://comments.dapplets.org/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`);
+        return await response.json();
+      } catch (e) {
+        console.log('Error in getData():', e);
+      }
     }
+  }
+  
+  async getAccountId(): Promise<string> {
+    return new Promise((res, rej) => 
+      Core.wallet({ type: "ethereum", network: "rinkeby" })
+        .then(w => w.sendAndListen('eth_accounts', [], {
+          result: (op, { data }) => {
+            const accountId =  data[0];
+            res(accountId);
+          },
+          reject: () => rej('Error getting etherium account.')
+        }))
+        .catch(() => rej('Error connecting to wallet.'))
+    );
   }
 
   getEnsNames = async ( eths: string[] ): Promise<string[] | undefined> => {

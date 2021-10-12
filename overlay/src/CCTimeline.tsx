@@ -13,6 +13,8 @@ interface ICCTimelineProps {
   setFinishTime: any
   doUpdateCCTimeline: boolean
   setDoUpdateCCTimeline: any
+  isMoving: boolean
+  setIsMoving: any
 };
 
 export default (props: ICCTimelineProps) => {
@@ -26,8 +28,9 @@ export default (props: ICCTimelineProps) => {
     setFinishTime,
     doUpdateCCTimeline,
     setDoUpdateCCTimeline,
+    isMoving,
+    setIsMoving,
   } = props;
-  const [isMoving, setIsMoving] = useState(false);
 
   useEffect(() => {
     if (doUpdateCCTimeline) {

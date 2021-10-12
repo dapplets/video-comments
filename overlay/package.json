@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@dapplets/dapplet-overlay-bridge": "^0.1.0",
+    "classnames": "^2.3.1",
     "ethers": "^5.0.14",
     "immutability-helper": "^3.1.1",
     "javascript-time-ago": "^2.3.8",

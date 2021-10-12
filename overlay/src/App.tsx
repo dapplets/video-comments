@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import update from 'immutability-helper';
 import { bridge } from './dappletBridge';
 import Comments from './Comments';
 import CommentCreation from './CommentCreation';
@@ -33,14 +32,12 @@ export default () => {
   const [selectedCommentId, setSelectedCommentId] = useState<string | undefined>();
   const [currentUser, setCurrentUser] = useState<string | undefined>();
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
+  const [nextPage, setNextPage] = useState<number>(Pages.CommentsList)
 
   const refs: any = {};
 
   useEffect(() => {
     bridge.onData(async (data) => {
-      //console.log('DATA', data)
-      //console.log('videoId', data.videoId)
-      //console.log('duration', data.duration)
       setData(data.commentsData);
       addImages(data.images);
       addDuration(data.duration);
@@ -86,6 +83,7 @@ export default () => {
     <Comments
       createComment={Pages.CreateComment}
       authorization={Pages.Authorization}
+      commentsList={Pages.CommentsList}
       data={data}
       onPageChange={setPage}
       toggleCommentHidden={toggleCommentHidden}
@@ -102,6 +100,7 @@ export default () => {
       videoId={videoId}
       expandedComments={expandedComments}
       setExpandedComments={setExpandedComments}
+      setNextPage={setNextPage}
     />
   );
 
@@ -134,7 +133,7 @@ export default () => {
     Pages.Authorization,
     <Authorization
       back={Pages.CommentsList}
-      createComment={Pages.CreateComment}
+      nextPage={nextPage}
       onPageChange={setPage}
       setIsAuthorized={setIsAuthorized}
     />

@@ -51,6 +51,7 @@ export default (props: IProps) => {
   } = props;
 
   const [accountId, getAccountId] = useState<string | undefined>();
+  const [isMoving, setIsMoving] = useState(false);
 
   useEffect(() => {
     setIsCommentPublished(false);
@@ -118,6 +119,7 @@ export default (props: IProps) => {
         <button onClick={() => {
           onPageChange(back);
           changeCheckedSticker(undefined);
+          setIsMoving(true);
           bridge.addSticker();
         }}>
           Back
@@ -161,6 +163,8 @@ export default (props: IProps) => {
           setFinishTime={setFinishTime}
           doUpdateCCTimeline={doUpdateCCTimeline}
           setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+          isMoving={isMoving}
+          setIsMoving={setIsMoving}
         />
         <Form.Button
           color='violet'
