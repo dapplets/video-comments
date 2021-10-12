@@ -120,6 +120,8 @@ export default (props: IProps) => {
           onPageChange(back);
           changeCheckedSticker(undefined);
           setIsMoving(true);
+          setDoUpdateCCTimeline(true);
+          setMessage('');
           bridge.addSticker();
         }}>
           Back
