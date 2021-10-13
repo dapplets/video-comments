@@ -30,3 +30,9 @@ export interface ISendingData {
   to: number
   sticker: ISticker
 }
+
+export enum SortTypes {
+  Timeline = 'Timeline',
+  Popular = 'Popular',
+  Latest = 'Latest',
+}

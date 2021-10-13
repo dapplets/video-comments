@@ -4,7 +4,7 @@ import Comments from './Comments';
 import CommentCreation from './CommentCreation';
 import Authorization from './Authorization';
 import PublicationNotice from './PublicationNotice';
-import { IData } from './types';
+import { IData, SortTypes } from './types';
 import { getUserInfo } from './utils';
 
 enum Pages {
@@ -33,6 +33,7 @@ export default () => {
   const [currentUser, setCurrentUser] = useState<string | undefined>();
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const [nextPage, setNextPage] = useState<number>(Pages.CommentsList)
+  const [sortType, setSortType] = useState(SortTypes.Timeline);
 
   const refs: any = {};
 
@@ -101,6 +102,8 @@ export default () => {
       expandedComments={expandedComments}
       setExpandedComments={setExpandedComments}
       setNextPage={setNextPage}
+      sortType={sortType}
+      setSortType={setSortType}
     />
   );
 

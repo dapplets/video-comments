@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Container, Dimmer, Form, Header, Icon, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
+import { Button, Container, Dimmer, Dropdown, Form, Header, Icon, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
 import VideoComment from './VideoComment';
 import Timeline from './Timeline';
 import { bridge } from './dappletBridge';
-import { IData } from './types';
+import { IData, SortTypes } from './types';
 import { deleteComment } from './utils';
 
 interface ICommentsProps {
@@ -27,6 +27,8 @@ interface ICommentsProps {
   expandedComments: string[]
   setExpandedComments: any
   setNextPage: any
+  sortType: SortTypes
+  setSortType: any
 }
 
 enum CommentBlock {
@@ -62,11 +64,13 @@ export default (props: ICommentsProps) => {
     expandedComments,
     setExpandedComments,
     setNextPage,
+    sortType,
+    setSortType
   } = props;
+
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   const [commentUrlToDelete, setCommentUrlToDelete] = useState('');
-
   const [accountEthId, getAccountEthId] = useState<string | undefined>();
 
   useEffect(() => {
@@ -176,6 +180,22 @@ export default (props: ICommentsProps) => {
               </Header>
             </Container>
             : <Container className='overlay-card'>
+              <div className='comments-sort'>
+                <div>
+                  Sort by:
+                </div>
+                <Dropdown
+                  defaultValue={SortTypes[sortType]}
+                  selection
+                  compact
+                  className='dp-dropdown'
+                  onChange={(e, data: any) => setSortType(data.value)}
+                  options={[
+                    { key: SortTypes.Timeline, text: 'Timeline', value: SortTypes.Timeline },
+                    { key: SortTypes.Popular, text: 'Popular', value: SortTypes.Popular },
+                    { key: SortTypes.Latest, text: 'Latest', value: SortTypes.Latest },
+                  ]}/>
+              </div>
               {data
                 .filter((commentData) => {
                   const { from, to, hidden = false } = commentData;
@@ -194,7 +214,12 @@ export default (props: ICommentsProps) => {
                       return false;
                   }
                 })
-                .sort((a, b) => a.from - b.from)
+                .sort((a, b) => {
+                  if (sortType === SortTypes.Timeline) return a.from - b.from;
+                  if (sortType === SortTypes.Popular) return b.vote - a.vote;
+                  if (sortType === SortTypes.Latest) return Date.parse(b.time) - Date.parse(a.time);
+                  return 0;
+                })
                 .map((commentData) =>
                   <VideoComment
                     commentsList={commentsList}
