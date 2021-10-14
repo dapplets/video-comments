@@ -17,11 +17,10 @@ interface ICommentsProps {
   currentTime: number
   updateCurrentTime: any
   isAdmin: boolean
-  isAuthorized: boolean
-  setIsAuthorized: any
   selectedCommentId?: string
   setSelectedCommentId: any
   refs: any
+  accountEthId?: string
   currentUser?: string
   videoId: string
   expandedComments: string[]
@@ -54,11 +53,10 @@ export default (props: ICommentsProps) => {
     currentTime,
     updateCurrentTime,
     isAdmin,
-    isAuthorized,
-    setIsAuthorized,
     selectedCommentId,
     setSelectedCommentId,
     refs,
+    accountEthId,
     currentUser,
     videoId,
     expandedComments,
@@ -71,17 +69,6 @@ export default (props: ICommentsProps) => {
   const [activeTab, changeActiveTab] = useState(CommentBlock.All);
   const [commentIdToDelete, setCommentIdToDelete] = useState('');
   const [commentUrlToDelete, setCommentUrlToDelete] = useState('');
-  const [accountEthId, getAccountEthId] = useState<string | undefined>();
-
-  useEffect(() => {
-    bridge.isWalletConnected()
-      .then(async (isWalletConnected) => {
-        if (isWalletConnected) {
-          const currentEthAccount = await bridge.getCurrentEthereumAccount();
-          getAccountEthId(currentEthAccount);
-        }
-      });
-  }, []);
 
   const handleItemClick = (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>, data: MenuItemProps ) => {
     const group = data.name!;
@@ -98,17 +85,11 @@ export default (props: ICommentsProps) => {
     data!.filter((comment) => comment.from <= currentTime && (comment.to === undefined || comment.to >= currentTime)).length;
 
   const handleGoToCCPage = async () => {
-    try {
-      const isWalletConnected = await bridge.isWalletConnected();
-      isAuthorized !== isWalletConnected && setIsAuthorized(isWalletConnected);
-      if (isWalletConnected) {
-        onPageChange(createComment);
-      } else {
-        setNextPage(createComment);
-        onPageChange(authorization);
-      }
-    } catch (err) {
-      console.log('Error connecting to the wallet.', err);
+    if (currentUser !== undefined) {
+      onPageChange(createComment);
+    } else {
+      setNextPage(createComment);
+      onPageChange(authorization);
     }
   };
 

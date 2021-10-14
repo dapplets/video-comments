@@ -48,6 +48,16 @@ export default class VideoFeature implements IFeature {
   private _ctx: any;
   private _selectedCommentId: string;
 
+  /*
+  constructor() {
+    Core.onData((data: { commentId: string, contextId: string }) => {
+      // find and scroll to video
+      // open overlay
+      // select comment
+    })
+  }
+  */
+
   async activate(): Promise<void> {
     if (!this._overlay) {
       this._overlay = Core
@@ -60,6 +70,15 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('connectWallet_done', '');
             } catch (err) {
               this._overlay.send('connectWallet_undone', err);
+            }
+          },
+          disconnectWallet: async () => {
+            try {
+              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+              await wallet.disconnect();
+              this._overlay.send('disconnectWallet_done', '');
+            } catch (err) {
+              this._overlay.send('disconnectWallet_undone', err);
             }
           },
           isWalletConnected: async () => {
@@ -122,27 +141,27 @@ export default class VideoFeature implements IFeature {
               console.log('Cannot set new currentTime.', err);
             }
           },
-          updateData: (op: any, { type, message }: { type?: any, message?: { props: any } }) => {
-            if (message && message.props && message.props.itemToHideId) {
-              const id = message.props.itemToHideId
-              if (localStorage.getItem(id) === 'hidden') {
-                localStorage.removeItem(id);
-                const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
-                this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
-                this._$(this._ctx, id).hidden = false;
-              } else {
-                localStorage.setItem(id, 'hidden');
-                const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
-                this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: true } } });
-                this._$(this._ctx, id).hidden = true;
-              }
-              this.openOverlay({
-                commentsData: this._commentsData,
-                duration: this._duration,
-                videoId: this._videoId,
-              });
-              return;
+          hideItem: (op: any, { type, message }: { type?: any, message?: { props: any } }) => {
+            const id = message.props.itemToHideId
+            if (localStorage.getItem(id) === 'hidden') {
+              localStorage.removeItem(id);
+              const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+              this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
+              this._$(this._ctx, id).state = 'DEFAULT';
+            } else {
+              localStorage.setItem(id, 'hidden');
+              const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+              this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: true } } });
+              this._$(this._ctx, id).state = 'HIDDEN';
             }
+            this.openOverlay({
+              commentsData: this._commentsData,
+              duration: this._duration,
+              videoId: this._videoId,
+            });
+            return;
+          },
+          updateData: () => {
             this.adapter.detachConfig(this._config);
             this._addingStickerId = undefined;
             const { $ } = this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
@@ -267,10 +286,10 @@ export default class VideoFeature implements IFeature {
           });
 
           const displayedStickersData = commentsData.filter((commentData) => !commentData.hidden);
-          const stickers = displayedStickersData
+          const stickers = commentsData
             .map((commentData) => sticker({
               id: commentData.id,
-              initial: props && props.stickerName ? 'MUTED' : 'DEFAULT',
+              initial: commentData.hidden ? 'HIDDEN' : (props && props.stickerName ? 'MUTED' : 'DEFAULT'),
               DEFAULT: {
                 img: allStickers[commentData.sticker.id],
                 vertical: commentData.sticker.vertical,
@@ -342,6 +361,16 @@ export default class VideoFeature implements IFeature {
                 to: commentData.to,
                 mutable: false,
                 opacity: '.3',
+              },
+              HIDDEN: {
+                img: allStickers[commentData.sticker.id],
+                vertical: commentData.sticker.vertical,
+                horizontal: commentData.sticker.horizontal,
+                transform: commentData.sticker.transform,
+                from: commentData.from,
+                to: commentData.to,
+                mutable: false,
+                opacity: '0',
               },
             }));
 

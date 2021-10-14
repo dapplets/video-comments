@@ -37,7 +37,6 @@ export default (props: IVideoCommentProps) => {
     selectedCommentId,
     setSelectedCommentId,
     refs,
-    currentUser,
     videoId,
     accountEthId,
     onPageChange,
@@ -71,6 +70,7 @@ export default (props: IVideoCommentProps) => {
     if (id !== selectedCommentId) {
       setSelectedCommentId(id);
       if (isCollapsed) setExpandedComments([...expandedComments, id]);
+      if (hidden === true) bridge.hideItem({ itemToHideId: id });
       updateCurrentTime(Math.ceil(from));
       bridge.highlightSticker(id);
       bridge.setCurrentTime(Math.ceil(from));
@@ -136,21 +136,21 @@ export default (props: IVideoCommentProps) => {
                       <ReactTimeAgo date={new Date(time)} locale="en-US" />
                     </div>
                   </Comment.Metadata>
-                  {name === currentUser && (
+                  {name === accountEthId && (
                     <>
                       <Icon 
                         name='trash alternate'
-                        className={(id === selectedCommentId || !isCollapsed) && !hidden? 'trash-icon-selected' : 'trash-icon'}
+                        className={(id === selectedCommentId || !isCollapsed) && !hidden ? 'trash-icon-selected' : 'trash-icon'}
                         onClick={(e: any) => {
                           e.preventDefault();
                           e.stopPropagation();
                           toggleOpenDimmer(true);
                         }}
-                      />        
+                      />
                       <Confirm
                         open={openDimmer}
-                        content='This comment will be deleted for all users.'
-                        confirmButton='Delete Comment'
+                        content='Delete this comment?'
+                        confirmButton='Delete'
                         onCancel={(e: any) => {
                           e.preventDefault();
                           e.stopPropagation();

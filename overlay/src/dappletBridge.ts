@@ -23,6 +23,10 @@ class Bridge extends GeneralBridge {
     return this.call('connectWallet', null, 'connectWallet_done', 'connectWallet_undone');
   }
 
+  async disconnectWallet(): Promise<string> {
+    return this.call('disconnectWallet', null, 'disconnectWallet_done', 'disconnectWallet_undone');
+  }
+
   async isWalletConnected(): Promise<boolean> {
     return this.call(
       'isWalletConnected',
@@ -104,10 +108,19 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  updateData(props?: any) {
+  hideItem(props?: any) {
+    return this.call(
+      'hideItem',
+      { props },
+      'hideItem_done',
+      'hideItem_undone',
+    );
+  }
+
+  updateData() {
     return this.call(
       'updateData',
-      { props },
+      null,
       'updateData_done',
       'updateData_undone',
     );

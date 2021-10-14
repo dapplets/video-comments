@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardProps, Checkbox, Container, Divider, Form, Icon, Image } from 'semantic-ui-react';
+import { Card, CardProps, Checkbox, Confirm, Container, Divider, Form, Icon, Image, Modal } from 'semantic-ui-react';
 import CCTimeline from './CCTimeline';
 import { ISendingData, ISticker } from './types';
 import { bridge } from './dappletBridge';
@@ -25,6 +25,7 @@ interface IProps {
   changeCheckedSticker: any
   message: string
   setMessage: any
+  setNextPage: any
 }
 
 export default (props: IProps) => {
@@ -48,10 +49,12 @@ export default (props: IProps) => {
     changeCheckedSticker,
     message,
     setMessage,
+    setNextPage,
   } = props;
 
   const [accountId, getAccountId] = useState<string | undefined>();
   const [isMoving, setIsMoving] = useState(false);
+  const [openDimmer, toggleOpenDimmer] = useState(false);
 
   useEffect(() => {
     setIsCommentPublished(false);
@@ -116,16 +119,46 @@ export default (props: IProps) => {
     <div className='authorisation-page'>
       <div className='button-back'>
         <Icon name='arrow left' />
-        <button onClick={() => {
-          onPageChange(back);
-          changeCheckedSticker(undefined);
-          setIsMoving(true);
-          setDoUpdateCCTimeline(true);
-          setMessage('');
-          bridge.addSticker();
+        <button onClick={(e: any) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (message !== '' || checkedSticker !== undefined) {
+            toggleOpenDimmer(true);
+          } else {
+            setNextPage(back);
+            onPageChange(back);
+            changeCheckedSticker(undefined);
+            setIsMoving(true);
+            setDoUpdateCCTimeline(true);
+            setMessage('');
+            bridge.addSticker();
+          }
         }}>
           Back
         </button>
+        <Confirm
+          open={openDimmer}
+          header='Quit creating the comment?'
+          content='Changes you made so far will not be saved'
+          confirmButton='Yes, quit'
+          cancelButton='Keep creating'
+          onCancel={(e: any) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleOpenDimmer(false);
+          }}
+          onConfirm={async (e: any) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setNextPage(back);
+            onPageChange(back);
+            changeCheckedSticker(undefined);
+            setIsMoving(true);
+            setDoUpdateCCTimeline(true);
+            setMessage('');
+            bridge.addSticker();
+          }}
+        />
       </div>
       <Divider />
       <Form className='authorisation-form' onSubmit={handleSubmit}>

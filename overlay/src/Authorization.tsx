@@ -1,21 +1,34 @@
 import React from 'react';
 import { Button, Divider, Icon } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
+import { getUserInfo } from './utils';
 
 interface IAuthorizationProps {
   back: number
   onPageChange: any
-  setIsAuthorized: any
   nextPage: number
+  setNextPage: any
+  accountEthId?: string
+  getAccountEthId: any
+  setCurrentUser: any
+  setIsAdmin: any
+  setAvatar: any
+  setIsConnectingWallet: any
+  isConnectingWallet: boolean
 }
 
 export default (props: IAuthorizationProps) => {
-  const { back, onPageChange, setIsAuthorized, nextPage } = props;
+  const { back, onPageChange, nextPage, setNextPage, getAccountEthId, setCurrentUser, setIsAdmin, setAvatar, setIsConnectingWallet, isConnectingWallet } = props;
+
   return (
     <div className='authorisation-page'>
       <div className='button-back'>
         <Icon name='arrow left' />
-        <button onClick={() => onPageChange(back)}>
+        <button onClick={() => {
+          setNextPage(back);
+          if (isConnectingWallet) setIsConnectingWallet(false);
+          onPageChange(back);
+        }}>
           Back
         </button>
       </div>
@@ -26,16 +39,32 @@ export default (props: IAuthorizationProps) => {
       </div>
       <Button 
         color='violet'
+        loading={isConnectingWallet}
         className='action-button exact'
-        onClick={() => bridge.connectWallet()
-          .then(() => {
-            setIsAuthorized(true);
-            bridge.updateData();
-            onPageChange(nextPage);
-          })
-          .catch((err) => console.log('Error connecting to the wallet.', err))}
+        onClick={() => {
+          if(isConnectingWallet) return;
+          setIsConnectingWallet(true);
+          bridge.connectWallet()
+            .then(async() => {
+              const accountId = await bridge.getCurrentEthereumAccount();
+              getAccountEthId(accountId);
+              const userInfo = await getUserInfo(accountId);
+              setIsAdmin(userInfo.admin);
+              setAvatar(userInfo.picture);
+              const ensNames = await bridge.getEnsNames(accountId);
+              const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+              setCurrentUser(name);
+
+              bridge.updateData();
+              onPageChange(nextPage);
+            })
+            .catch((err) => {
+              setIsConnectingWallet(false);
+              console.log('Error connecting to the wallet.', err);
+            });
+        }}
       >
-        Authorization
+        {isConnectingWallet ? 'Loading' : 'Log in'}
       </Button>
     </div>
   );

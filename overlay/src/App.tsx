@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Button } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
 import Comments from './Comments';
 import CommentCreation from './CommentCreation';
@@ -6,6 +7,7 @@ import Authorization from './Authorization';
 import PublicationNotice from './PublicationNotice';
 import { IData, SortTypes } from './types';
 import { getUserInfo } from './utils';
+import cn from 'classnames';
 
 enum Pages {
   CommentsList,
@@ -25,15 +27,17 @@ export default () => {
   const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
   const [videoId, setVideoId] = useState('');
   const [isCommentPublished, setIsCommentPublished] = useState(false);
-  const [isAuthorized, setIsAuthorized] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkedSticker, changeCheckedSticker] = useState<string>();
   const [message, setMessage] = useState('');
   const [selectedCommentId, setSelectedCommentId] = useState<string | undefined>();
+  const [accountEthId, getAccountEthId] = useState<string | undefined>();
   const [currentUser, setCurrentUser] = useState<string | undefined>();
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
   const [nextPage, setNextPage] = useState<number>(Pages.CommentsList)
   const [sortType, setSortType] = useState(SortTypes.Timeline);
+  const [avatar, setAvatar] = useState<string | undefined>();
+  const [isConnectingWallet, setIsConnectingWallet] = useState(false);
 
   const refs: any = {};
 
@@ -49,17 +53,19 @@ export default () => {
   }, []);
 
   useEffect(() => {
-    bridge.isWalletConnected().then(async (res) => {
+    bridge.isWalletConnected().then(async (res: boolean) => {
       if (res) {
         const accountId = await bridge.getCurrentEthereumAccount();
+        getAccountEthId(accountId);
         const userInfo = await getUserInfo(accountId);
         setIsAdmin(userInfo.admin);
+        setAvatar(userInfo.picture);
         const ensNames = await bridge.getEnsNames(accountId);
         const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
         setCurrentUser(name);
       }
     });
-  }, [isAuthorized]);
+  }, [currentUser]);
 
   useEffect(() => {
     if (data && selectedCommentId) {
@@ -71,10 +77,27 @@ export default () => {
         block: 'center',
       });
     }
+    bridge.isWalletConnected().then(async (res: boolean) => {
+      if (res) {
+        const accountId = await bridge.getCurrentEthereumAccount();
+        getAccountEthId(accountId);
+        const userInfo = await getUserInfo(accountId);
+        setIsAdmin(userInfo.admin);
+        setAvatar(userInfo.picture);
+        const ensNames = await bridge.getEnsNames(accountId);
+        const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+        setCurrentUser(name);
+      }
+    });
+    setIsConnectingWallet(false);
   }, [data, selectedCommentId]);
 
   const toggleCommentHidden = (id: string) => {
-    bridge.updateData({ itemToHideId: id });
+    if (selectedCommentId === id) {
+      setSelectedCommentId(undefined);
+      bridge.highlightSticker();
+    }
+    bridge.hideItem({ itemToHideId: id });
   };
 
   const openPage: Map<Pages, React.ReactElement> = new Map();
@@ -92,11 +115,10 @@ export default () => {
       currentTime={typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime}
       updateCurrentTime={updateCurrentTime}
       isAdmin={isAdmin}
-      isAuthorized={isAuthorized}
-      setIsAuthorized={setIsAuthorized}
       selectedCommentId={selectedCommentId}
       setSelectedCommentId={setSelectedCommentId}
       refs={refs}
+      accountEthId={accountEthId}
       currentUser={currentUser}
       videoId={videoId}
       expandedComments={expandedComments}
@@ -109,7 +131,21 @@ export default () => {
 
   openPage.set(
     Pages.CreateComment,
-    <CommentCreation
+    currentUser === undefined
+    ? <Authorization
+      back={Pages.CommentsList}
+      nextPage={nextPage}
+      setNextPage={setNextPage}
+      onPageChange={setPage}
+      accountEthId={accountEthId}
+      getAccountEthId={getAccountEthId}
+      setCurrentUser={setCurrentUser}
+      setIsAdmin={setIsAdmin}
+      setAvatar={setAvatar}
+      setIsConnectingWallet={setIsConnectingWallet}
+      isConnectingWallet={isConnectingWallet}
+    />
+    : <CommentCreation
       back={Pages.CommentsList}
       publicationNotice={Pages.PublicationNotice}
       images={images}
@@ -129,6 +165,7 @@ export default () => {
       changeCheckedSticker={changeCheckedSticker}
       message={message}
       setMessage={setMessage}
+      setNextPage={setNextPage}
     />
   );
 
@@ -137,8 +174,15 @@ export default () => {
     <Authorization
       back={Pages.CommentsList}
       nextPage={nextPage}
+      setNextPage={setNextPage}
       onPageChange={setPage}
-      setIsAuthorized={setIsAuthorized}
+      accountEthId={accountEthId}
+      getAccountEthId={getAccountEthId}
+      setCurrentUser={setCurrentUser}
+      setIsAdmin={setIsAdmin}
+      setAvatar={setAvatar}
+      setIsConnectingWallet={setIsConnectingWallet}
+      isConnectingWallet={isConnectingWallet}
     />
   );
 
@@ -156,5 +200,73 @@ export default () => {
     />
   );
 
-  return openPage.get(page) ?? <></>;
+  return (
+    <>
+      <div className='dp-header'>
+        {accountEthId === undefined || currentUser === undefined ? (
+          <>
+            <div className='user-info unlogged'>
+              <div className='user-image' />
+            </div>
+            <h3 className='dp-title'>Video Comments</h3>
+            <div style={{ flexGrow: 1 }} />
+            <Button 
+              className={cn('login-button', { 'bt-loading': isConnectingWallet })}
+              loading={isConnectingWallet}
+              onClick={() => {
+                if (isConnectingWallet) return;
+                setIsConnectingWallet(true);
+                bridge.connectWallet()
+                  .then(async() => {
+                    const accountId = await bridge.getCurrentEthereumAccount();
+                    getAccountEthId(accountId);
+                    const userInfo = await getUserInfo(accountId);
+                    setIsAdmin(userInfo.admin);
+                    setAvatar(userInfo.picture);
+                    const ensNames = await bridge.getEnsNames(accountId);
+                    const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+                    setCurrentUser(name);
+                    bridge.updateData();
+                    setPage(nextPage);
+                  })
+                  .catch((err) => {
+                    setIsConnectingWallet(false);
+                    console.log('Error connecting to the wallet.', err);
+                  });
+              }}
+            >
+              {isConnectingWallet ? 'Loading' : 'Log in'}
+            </Button>          
+          </>
+        ) : (
+          <>
+            <div className='user-info'>
+              <div
+                className='user-image'
+                style={{ background: `left 0 / 24px no-repeat url("${avatar!}")` }}
+              />
+              {currentUser!.length > 28 ? `${currentUser!.slice(0, 6)}...${currentUser!.slice(-4)}` : currentUser}
+            </div>
+            <Button 
+              className='logout-button'
+              onClick={() => bridge.disconnectWallet()
+                .then(() => {
+                  setIsAdmin(false);
+                  setAvatar(undefined);
+                  getAccountEthId(undefined);
+                  setCurrentUser(undefined);
+                  bridge.updateData();
+                })
+                .catch((err) => console.log('Error connecting to the wallet.', err))
+              }
+            >
+              Log out
+            </Button>
+          </>
+        )}
+
+      </div>
+      {openPage.get(page) ?? <></>}
+    </>
+  );
 };
