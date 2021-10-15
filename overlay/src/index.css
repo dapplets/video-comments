@@ -16,7 +16,7 @@ body {
   padding: 4px 16px !important;
   width: auto !important;
   overflow-y: overlay;
-  max-height: calc(100vh - 259px);
+  max-height: calc(100vh - 299px);
 }
 
 @media only screen and (max-width: 767px) {
@@ -582,6 +582,7 @@ a.ui.card:hover {
   display: flex;
   align-items: baseline;
   font-family: 'Roboto';
+  margin: 0 19px 10px;
 }
 
 .comments-sort > div:first-child {

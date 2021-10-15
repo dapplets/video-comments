@@ -1,5 +1,5 @@
 import { IFeature } from '@dapplets/dapplet-extension';
-import { IData, ISticker, IRemarkComment, IVideoCtx } from './types';
+import { IData, ISticker, IRemarkComment, IVideoCtx, ISharedData } from './types';
 import abi from './abi';
 import update from 'immutability-helper';
 import MENU_ICON from './icons/white-menu-icon.svg';
@@ -48,17 +48,8 @@ export default class VideoFeature implements IFeature {
   private _ctx: any;
   private _selectedCommentId: string;
 
-  /*
-  constructor() {
-    Core.onData((data: { commentId: string, contextId: string }) => {
-      // find and scroll to video
-      // open overlay
-      // select comment
-    })
-  }
-  */
-
   async activate(): Promise<void> {
+
     if (!this._overlay) {
       this._overlay = Core
         .overlay({ name: 'video-comments-overlay', title: 'Video Comments' })
@@ -415,6 +406,35 @@ export default class VideoFeature implements IFeature {
     }
     const { $ } = this.adapter.attachConfig(this._setConfig());
     this._$ = $;
+
+    /* Core.onShareLink((sharedData: ISharedData) => {
+      console.log('sharedData', sharedData);
+      const { ctxId, commentId } = sharedData;
+
+      if (ctxId === this._ctx) {
+        if (this._commentsData.map((commentData) => commentData.id).includes(commentId)) {
+          const id = this._selectedCommentId = commentId;
+          this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+            this._$(this._ctx, commentData.id).state = commentData.id === id ? 'ACTIVE' : 'MUTED';
+          });
+          if (localStorage.getItem(id) === 'hidden') {
+            localStorage.removeItem(id);
+            const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+            this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
+            this._$(this._ctx, id).hidden = false;
+          }
+          this.openOverlay({
+            commentsData: this._commentsData,
+            duration: this._duration,
+            videoId: this._videoId,
+            selectedCommentId: id,
+          });
+        } else {
+          console.log('There is no such commentary on this video. ID:', commentId);
+        }
+      }
+
+    }); */
   }
 
   openOverlay(props?: any): void {

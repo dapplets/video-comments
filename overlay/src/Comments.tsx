@@ -153,30 +153,30 @@ export default (props: ICommentsProps) => {
             className={activeTab === CommentBlock.Admin ? 'menu-active-tab' : 'menu-tab'}
           />}
         </Menu>
+        <div className='comments-sort'>
+          <div>
+            Sort by:
+          </div>
+          <Dropdown
+            defaultValue={SortTypes[sortType]}
+            selection
+            compact
+            className='dp-dropdown'
+            onChange={(e, data: any) => setSortType(data.value)}
+            options={[
+              { key: SortTypes.Timeline, text: 'Timeline', value: SortTypes.Timeline },
+              { key: SortTypes.Popular, text: 'Popular', value: SortTypes.Popular },
+              { key: SortTypes.Latest, text: 'Latest', value: SortTypes.Latest },
+            ]}/>
+        </div>
         {data
           ? (data.length === 0
-            ? <Container textAlign='center' className='no-comments'>
+            ? (<Container textAlign='center' className='no-comments'>
               <Header as='h3' style={{ color: '#acacac' }}>
                 There are no comments yet
               </Header>
-            </Container>
-            : <Container className='overlay-card'>
-              <div className='comments-sort'>
-                <div>
-                  Sort by:
-                </div>
-                <Dropdown
-                  defaultValue={SortTypes[sortType]}
-                  selection
-                  compact
-                  className='dp-dropdown'
-                  onChange={(e, data: any) => setSortType(data.value)}
-                  options={[
-                    { key: SortTypes.Timeline, text: 'Timeline', value: SortTypes.Timeline },
-                    { key: SortTypes.Popular, text: 'Popular', value: SortTypes.Popular },
-                    { key: SortTypes.Latest, text: 'Latest', value: SortTypes.Latest },
-                  ]}/>
-              </div>
+            </Container>)
+            : (<Container className='overlay-card'>
               {data
                 .filter((commentData) => {
                   const { from, to, hidden = false } = commentData;
@@ -197,7 +197,7 @@ export default (props: ICommentsProps) => {
                 })
                 .sort((a, b) => {
                   if (sortType === SortTypes.Timeline) return a.from - b.from;
-                  if (sortType === SortTypes.Popular) return b.vote - a.vote;
+                  if (sortType === SortTypes.Popular) return b.score - a.score;
                   if (sortType === SortTypes.Latest) return Date.parse(b.time) - Date.parse(a.time);
                   return 0;
                 })
@@ -221,7 +221,7 @@ export default (props: ICommentsProps) => {
                     onPageChange={onPageChange}
                     setNextPage={setNextPage}
                   />)}
-            </Container>)
+            </Container>))
           : <Dimmer active inverted><Loader inverted>Loading</Loader></Dimmer>}
         {activeTab === CommentBlock.Admin && (
           <Container>

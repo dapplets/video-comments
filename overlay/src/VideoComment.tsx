@@ -209,6 +209,16 @@ export default (props: IVideoCommentProps) => {
                   >
                     {score}
                   </Comment.Metadata>
+                  {/* <Comment.Action
+                    index={id}
+                    style={{ marginRight: 24 }}
+                    onClick={(e: any) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Icon name='share' />
+                  </Comment.Action> */}
                   <Comment.Action
                     index={id}
                     onClick={handleToggleAdditionalInfo}

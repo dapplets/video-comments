@@ -44,6 +44,11 @@ export interface IData {
   vote: number
 }
 
+export interface ISharedData {
+  ctxId: string
+  commentId: string
+}
+
 export interface IRemarkUser {
   id: string         //  ID
   name: string       //  Name
