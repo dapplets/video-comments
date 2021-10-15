@@ -272,7 +272,7 @@ export default (props: ICommentsProps) => {
             <Button 
               icon
               style={{
-                fontFamily: 'Roboto, sans-serif',
+                fontFamily: '"Roboto", sans-serif',
                 width: 'fit-content',
                 alignSelf: 'center',
                 marginTop: '21px',

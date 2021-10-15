@@ -1,10 +1,20 @@
-@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@font-face {
+  font-family: 'Roboto';
+  src: url('./Roboto-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Roboto';
+  src: url('./Roboto-Bold.ttf') format('truetype');
+  font-weight: 700;
+}
 
 body {
   background-color: #F4F4F4 !important;
   height: auto;
   max-height: 100px;
-  font-family: Roboto, sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
 }
 
 .overlay-container {
@@ -45,7 +55,7 @@ body {
 
 .dapplet-comments-menu > .item {
   margin-top: 1em;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-style: normal;
   font-weight: normal !important;
   font-size: 14px;
@@ -402,7 +412,7 @@ body {
 }
 
 .button-back > button {
-  font-family: Roboto;
+  font-family: 'Roboto';
   font-style: normal;
   font-weight: bold;
   font-size: 14px;
@@ -424,7 +434,7 @@ body {
 }
 
 .action-button {
-  font-family: Roboto, sans-serif !important;
+  font-family: 'Roboto', sans-serif !important;
   width: fit-content;
   align-self: center;
   margin-top: 21px !important;
@@ -459,12 +469,12 @@ body {
 }
 
 .authorisation-page-text h1 {
-  font-family: Roboto;
+  font-family: 'Roboto';
   color: #2A2A2A;
 }
 
 .authorisation-page-text p {
-  font-family: Roboto;
+  font-family: 'Roboto';
   font-style: normal;
   font-weight: normal;
   font-size: 16px;
@@ -616,7 +626,7 @@ a.ui.card:hover {
   background: #FFFFFF;
   box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
   border-radius: 99em;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #2A2A2A;
   font-style: normal;
   font-weight: normal;
@@ -650,7 +660,7 @@ a.ui.card:hover {
 
 .ui.button.logout-button {
   background: none;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #2A2A2A;
   font-style: normal;
   font-weight: normal;
@@ -676,7 +686,7 @@ a.ui.card:hover {
   background: #FFFFFF;
   box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
   border-radius: 99em;
-  font-family: Roboto, sans-serif;
+  font-family: 'Roboto', sans-serif;
   color: #2A2A2A;
   font-style: normal;
   font-weight: normal;
