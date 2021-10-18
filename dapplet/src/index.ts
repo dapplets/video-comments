@@ -291,7 +291,7 @@ export default class VideoFeature implements IFeature {
           if (this._sharedData) {
             if (commentsData.map((commentData) => commentData.id).includes(this._sharedData.commentId)) {
               const selectedCommentData = commentsData.find((commentData) => commentData.id === this._sharedData.commentId);
-              this._videoEl.currentTime = selectedCommentData.from;
+              this._videoEl.currentTime = selectedCommentData.from + 0.1; // +0.1 sec to make sure the sticker is shown
               this._wasPaused = this._videoEl.paused;
               if (!this._videoEl.paused) this._videoEl.pause();
 
