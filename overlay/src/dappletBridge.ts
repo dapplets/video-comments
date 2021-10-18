@@ -81,6 +81,15 @@ class Bridge extends GeneralBridge {
     );
   }
 
+  async createShareLink(stickerID: string) {
+    return this.call(
+      'createShareLink',
+      stickerID,
+      'createShareLink_done',
+      'createShareLink_undone',
+    );
+  }
+
   getAddingStickerParams() {
     return this.call(
       'getAddingStickerParams',

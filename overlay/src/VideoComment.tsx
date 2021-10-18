@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Card, Comment, Confirm, Icon, Ref } from 'semantic-ui-react';
+import { Card, Comment, Confirm, Icon, Popup, Ref } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
 import { IData } from './types';
 import { formatTime, setCommentDeleted, voteForComment } from './utils';
@@ -47,6 +47,8 @@ export default (props: IVideoCommentProps) => {
   const { id, name, ensName, time, text, image, from, to, hidden, score, vote } = data;
 
   const [openDimmer, toggleOpenDimmer] = useState(false);
+  const [shared, setShared] = useState(false);
+  const [isCopyPopupOpen, setIsCopyPopupOpen] = useState(false);
 
   const handleToggleIsHidden = (event: any) => {
     event.preventDefault();
@@ -192,40 +194,57 @@ export default (props: IVideoCommentProps) => {
                   dangerouslySetInnerHTML={{ __html: text.length > 103 && isCollapsed
                     ? `${text.substring(0, 99)}...`
                     : text }}/>
-                <Comment.Actions
-                  hidden={hidden}
-                  style={{ display: 'flex', alignItems: 'center' }}
-                >
-                  <Comment.Action
-                    index={id}
-                    className={cn('comment-button-like', { liked: vote === 1, disabled: name === accountEthId })}
-                    onClick={name !== accountEthId ? handleVoteForComment : (e: any) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                  />
-                  <Comment.Metadata
-                    style={{ margin: '0 24px 0 6px' }}
+                {!hidden && (
+                  <Comment.Actions
+                    style={{ display: 'flex', alignItems: 'center' }}
                   >
-                    {score}
-                  </Comment.Metadata>
-                  {/* <Comment.Action
-                    index={id}
-                    style={{ marginRight: 24 }}
-                    onClick={(e: any) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                    }}
-                  >
-                    <Icon name='share' />
-                  </Comment.Action> */}
-                  <Comment.Action
-                    index={id}
-                    onClick={handleToggleAdditionalInfo}
-                  >
-                    {isCollapsed ? 'More' : 'Less'}
-                  </Comment.Action>
-                </Comment.Actions>
+                    <Comment.Action
+                      index={id}
+                      className={cn('comment-button-like', { liked: vote === 1, disabled: name === accountEthId })}
+                      onClick={name !== accountEthId ? handleVoteForComment : (e: any) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                      }}
+                    />
+                    <Comment.Metadata
+                      style={{ margin: '0 24px 0 6px' }}
+                    >
+                      {score}
+                    </Comment.Metadata>
+                    <Popup
+                      content='Link copied!'
+                      on='click'
+                      hideOnScroll
+                      open={isCopyPopupOpen}
+                      onClose={() => setIsCopyPopupOpen(false)}
+                      onOpen={() => {
+                        setIsCopyPopupOpen(true);
+                        setTimeout(() => {
+                          setIsCopyPopupOpen(false);
+                          setShared(false);
+                        }, 4000);
+                      }}
+                      trigger={(
+                        <Comment.Action
+                          index={id}
+                          className={cn('comment-button-share', { shared })}
+                          onClick={(e: any) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setShared(true);
+                            bridge.createShareLink(id);
+                          }}
+                        />
+                      )}
+                    />
+                    <Comment.Action
+                      index={id}
+                      onClick={handleToggleAdditionalInfo}
+                    >
+                      {isCollapsed ? 'More' : 'Less'}
+                    </Comment.Action>
+                  </Comment.Actions>
+                )}
               </Comment.Content>
             </Comment>
           </Comment.Group>

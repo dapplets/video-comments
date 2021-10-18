@@ -32,23 +32,27 @@ interface ISetConfigProps {
 export default class VideoFeature implements IFeature {
 
   @Inject('video-adapter.dapplet-base.eth')
-  public adapter: any;
+  public adapter: any
 
-  private _overlay: any;
-  private _videoEl: any;
-  private _wasPaused: boolean;
-  private _config: any;
-  private _setConfig: any;
-  private _addingStickerId: number;
-  private _currentTime: number;
-  private _commentsData: any;
-  private _duration: number;
-  private _videoId: string;
-  private _$: any;
-  private _ctx: any;
-  private _selectedCommentId: string;
+  private _overlay: any
+  private _videoEl: any
+  private _wasPaused: boolean
+  private _config: any
+  private _setConfig: any
+  private _addingStickerId: number
+  private _currentTime: number
+  private _commentsData: any
+  private _duration: number
+  private _videoId: string
+  private _$: any
+  private _ctx: any
+  private _selectedCommentId: string
+  private _sharedData: any
 
   async activate(): Promise<void> {
+
+    const core: any = Core;
+    core.onShareLink((sharedData: ISharedData) => this._sharedData = sharedData);
 
     if (!this._overlay) {
       this._overlay = Core
@@ -197,6 +201,14 @@ export default class VideoFeature implements IFeature {
               });
             }
           },
+          createShareLink: async (op: any, { type, message }: { type?: any, message: string }) => {
+            const core: any = Core;
+            const url = document.location.href;
+            const sharedData: ISharedData = { ctxId: this._ctx.id, commentId: message };
+            const link = core.createShareLink(url, sharedData);
+            await navigator.clipboard.writeText(link);
+            this._overlay.send('createShareLink_done', '');
+          },
         });
     }
 
@@ -276,6 +288,29 @@ export default class VideoFeature implements IFeature {
             this._currentTime = ctx.currentTime;
           });
 
+          if (this._sharedData) {
+            if (commentsData.map((commentData) => commentData.id).includes(this._sharedData.commentId)) {
+              const selectedCommentData = commentsData.find((commentData) => commentData.id === this._sharedData.commentId);
+              this._videoEl.currentTime = selectedCommentData.from;
+              this._wasPaused = this._videoEl.paused;
+              if (!this._videoEl.paused) this._videoEl.pause();
+
+              const id = this._selectedCommentId = this._sharedData.commentId;
+              if (localStorage.getItem(id) === 'hidden') {
+                localStorage.removeItem(id);
+                const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
+                this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
+              }
+
+              this.openOverlay({
+                commentsData: this._commentsData,
+                duration: this._duration,
+                videoId: this._videoId,
+                selectedCommentId: id,
+              });
+            }
+          }
+
           const displayedStickersData = commentsData.filter((commentData) => !commentData.hidden);
           const stickers = commentsData
             .map((commentData) => sticker({
@@ -290,6 +325,11 @@ export default class VideoFeature implements IFeature {
                 to: commentData.to,
                 mutable: false,
                 opacity: '1',
+                init: (_, me) => {
+                  if (this._sharedData && this._sharedData.ctxId === ctx.id) {
+                    me.state = commentData.id !== this._sharedData.commentId ? 'MUTED' : 'ACTIVE';
+                  }
+                },
                 exec: () => {
                   displayedStickersData.forEach((dispStDt) => {
                     this._$(ctx, dispStDt.id).state = dispStDt.id === commentData.id ? 'ACTIVE' : 'MUTED';
@@ -406,35 +446,6 @@ export default class VideoFeature implements IFeature {
     }
     const { $ } = this.adapter.attachConfig(this._setConfig());
     this._$ = $;
-
-    /* Core.onShareLink((sharedData: ISharedData) => {
-      console.log('sharedData', sharedData);
-      const { ctxId, commentId } = sharedData;
-
-      if (ctxId === this._ctx) {
-        if (this._commentsData.map((commentData) => commentData.id).includes(commentId)) {
-          const id = this._selectedCommentId = commentId;
-          this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
-            this._$(this._ctx, commentData.id).state = commentData.id === id ? 'ACTIVE' : 'MUTED';
-          });
-          if (localStorage.getItem(id) === 'hidden') {
-            localStorage.removeItem(id);
-            const commentIndex = this._commentsData.findIndex((comment) => comment.id === id);
-            this._commentsData = update(this._commentsData, { [commentIndex]: { hidden: { $set: false } } });
-            this._$(this._ctx, id).hidden = false;
-          }
-          this.openOverlay({
-            commentsData: this._commentsData,
-            duration: this._duration,
-            videoId: this._videoId,
-            selectedCommentId: id,
-          });
-        } else {
-          console.log('There is no such commentary on this video. ID:', commentId);
-        }
-      }
-
-    }); */
   }
 
   openOverlay(props?: any): void {
