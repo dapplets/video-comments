@@ -123,7 +123,7 @@ export default (props: IVideoCommentProps) => {
               <Comment.Avatar src={image} />
               {!image && (
                 <div className='default-badge'>
-                  {(ensName || name)[0].toUpperCase()}
+                  {(ensName || name.slice(2, 3))[0].toUpperCase()}
                 </div>)}
               <Comment.Content>
                 <div className='comment-header'>
@@ -131,7 +131,7 @@ export default (props: IVideoCommentProps) => {
                     as='a'
                     className={hidden ? 'comment-hidden' : ''}
                   >
-                    {ensName || name}
+                    {ensName || `${name.slice(0, 6)}...${name.slice(-4)}`}
                   </Comment.Author>
                   <Comment.Metadata style={{ flexGrow: 1 }}>
                     <div>
