@@ -457,13 +457,13 @@ export default class VideoFeature implements IFeature {
     if (isWalletConnected) {
       const accountId = await this.getAccountId();
       try {
-        const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+        const res = await fetch(`https://videocomments.mooo.com/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
         const token = res.headers.get('X-Jwt');
         const headers: HeadersInit = new Headers();
         if (token) {
           headers.set('X-Jwt', token!);
           try {
-            const response = await fetch(`https://comments.dapplets.org/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`, {
+            const response = await fetch(`https://videocomments.mooo.com/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`, {
               method: 'GET',
               headers,
             });
@@ -478,7 +478,7 @@ export default class VideoFeature implements IFeature {
       }
     } else {
       try {
-        const response = await fetch(`https://comments.dapplets.org/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`);
+        const response = await fetch(`https://videocomments.mooo.com/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`);
         return await response.json();
       } catch (e) {
         console.log('Error in getData():', e);

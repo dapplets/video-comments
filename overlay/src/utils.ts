@@ -3,7 +3,7 @@ import { ISendingData } from './types';
 export const addComment = async (props: ISendingData) => {
   try {
     const { accountId, videoId, text, from, to, sticker } = props;
-    const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+    const res = await fetch(`https://videocomments.mooo.com/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
     const token = res.headers.get('X-Jwt');
     const headers: HeadersInit = new Headers();
     if (token) {
@@ -22,7 +22,7 @@ export const addComment = async (props: ISendingData) => {
       };
       const strData = JSON.stringify(data);
       //console.log('strData=', strData)
-      const response = await fetch('https://comments.dapplets.org/api/v1/comment', {
+      const response = await fetch('https://videocomments.mooo.com/api/v1/comment', {
         method: 'POST',
         headers,
         body: strData,
@@ -39,13 +39,13 @@ export const addComment = async (props: ISendingData) => {
 
 export const deleteComment = async (commentId: string, url: string, accountId: string) => {
   try {
-    const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+    const res = await fetch(`https://videocomments.mooo.com/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
     const token = res.headers.get('X-Jwt');
     const headers: HeadersInit = new Headers();
     if (token) {
       headers.set('X-Jwt', token!);
       try {
-        const response = await fetch(`https://comments.dapplets.org/api/v1/admin/comment/${commentId}?site=remark&url=${url}`, {
+        const response = await fetch(`https://videocomments.mooo.com/api/v1/admin/comment/${commentId}?site=remark&url=${url}`, {
           method: 'DELETE',
           headers,
         });
@@ -63,7 +63,7 @@ export const deleteComment = async (commentId: string, url: string, accountId: s
 
 export const setCommentDeleted = async (commentId: string, url: string, accountId: string) => {
   try {
-    const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+    const res = await fetch(`https://videocomments.mooo.com/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
     const token = res.headers.get('X-Jwt');
     const headers: HeadersInit = new Headers();
     if (token) {
@@ -75,7 +75,7 @@ export const setCommentDeleted = async (commentId: string, url: string, accountI
         const strData = JSON.stringify(data);
 
         // /api/v1/comment/{id}?site=site-id&url=post-url
-        const response = await fetch(`https://comments.dapplets.org/api/v1/comment/${commentId}?site=remark&url=${url}`, {
+        const response = await fetch(`https://videocomments.mooo.com/api/v1/comment/${commentId}?site=remark&url=${url}`, {
           method: 'PUT',
           headers,
           body: strData,
@@ -95,14 +95,14 @@ export const setCommentDeleted = async (commentId: string, url: string, accountI
 
 export const voteForComment = async (commentId: string, url: string, accountId: string, vote: number) => {
   try {
-    const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+    const res = await fetch(`https://videocomments.mooo.com/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
     const token = res.headers.get('X-Jwt');
     const headers: HeadersInit = new Headers();
     if (token) {
       headers.set('X-Jwt', token!);
       try {
         // /api/v1/vote/{id}?site=site-id&url=post-url&vote=1
-        fetch(`https://comments.dapplets.org/api/v1/vote/${commentId}?site=remark&url=${url}&vote=${vote === 1 ? -1 : 1}`, {
+        fetch(`https://videocomments.mooo.com/api/v1/vote/${commentId}?site=remark&url=${url}&vote=${vote === 1 ? -1 : 1}`, {
           method: 'PUT',
           headers,
         });
@@ -117,13 +117,13 @@ export const voteForComment = async (commentId: string, url: string, accountId: 
 
 export const getUserInfo = async (accountId: string) => {
   try {
-    const res = await fetch(`https://comments.dapplets.org/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
+    const res = await fetch(`https://videocomments.mooo.com/auth/anonymous/login?user=${accountId}&site=remark&aud=remark`);
     const token = res.headers.get('X-Jwt');
     const headers: HeadersInit = new Headers();
     if (token) {
       headers.set('X-Jwt', token!);
       try {
-        const response = await fetch(`https://comments.dapplets.org/api/v1/user`, {
+        const response = await fetch(`https://videocomments.mooo.com/api/v1/user`, {
           method: 'GET',
           headers,
         });
