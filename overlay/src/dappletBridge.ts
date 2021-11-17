@@ -1,11 +1,13 @@
 import GeneralBridge from '@dapplets/dapplet-overlay-bridge';
+import { IStickerTransform, IChangeAddingStickerImageProps } from './types';
+import { getRandomInt } from './utils';
 
 class Bridge extends GeneralBridge {
   _subId: number = 0;
 
   onData(callback: (data: any) => void) {
     this.subscribe('data', (data: any) => {
-      this._subId = Math.trunc(Math.random() * 1_000_000_000);
+      this._subId = getRandomInt();
       callback(data);
       return this._subId.toString();
     });
@@ -13,8 +15,16 @@ class Bridge extends GeneralBridge {
 
   onTime(callback: (time: any) => void) {
     this.subscribe('time', (time: any) => {
-      this._subId = Math.trunc(Math.random() * 1_000_000_000);
+      this._subId = getRandomInt();
       callback(time);
+      return this._subId.toString();
+    });
+  }
+
+  onTransform(callback: (transform: IStickerTransform) => void) {
+    this.subscribe('transform', (transform: IStickerTransform) => {
+      this._subId = getRandomInt();
+      callback(transform);
       return this._subId.toString();
     });
   }
@@ -63,12 +73,84 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  addSticker(stickerName?: string) {
+  addSticker(from: number, to: number) {
     return this.call(
       'addSticker',
-      stickerName ? { stickerName } : null,
+      { from, to },
       'addSticker_done',
       'addSticker_undone',
+    );
+  }
+
+  removeAddingSticker() {
+    return this.call(
+      'removeAddingSticker',
+      null,
+      'removeAddingSticker_done',
+      'removeAddingSticker_undone',
+    );
+  }
+
+  getAddingStickerParams() {
+    return this.call(
+      'getAddingStickerParams',
+      null,
+      'getAddingStickerParams_done',
+      'getAddingStickerParams_undone',
+    );
+  }
+
+  changeAddingStickerImage(props?: IChangeAddingStickerImageProps) {
+    return this.call(
+      'changeAddingStickerImage',
+      props,
+      'changeAddingStickerImage_done',
+      'changeAddingStickerImage_undone',
+    );
+  }
+
+  changeStickerTransformPointTime(transformPointId: string, time: number) {
+    return this.call(
+      'changeStickerTransformPointTime',
+      { transformPointId, time },
+      'changeStickerTransformPointTime_done',
+      'changeStickerTransformPointTime_undone',
+    );
+  }
+
+  changeFrom(time: number) {
+     return this.call(
+      'changeFrom',
+      { time },
+      'changeFrom_done',
+      'changeFrom_undone',
+    );
+  }
+
+  changeTo(time: number) {
+    return this.call(
+      'changeTo',
+      { time },
+      'changeTo_done',
+      'changeTo_undone',
+    );
+  }
+
+  addPoint() {
+    return this.call(
+      'addPoint',
+      null,
+      'addPoint_done',
+      'addPoint_undone',
+    );
+  }
+
+  deletePoint() {
+    return this.call(
+      'deletePoint',
+      null,
+      'deletePoint_done',
+      'deletePoint_undone',
     );
   }
 
@@ -87,15 +169,6 @@ class Bridge extends GeneralBridge {
       stickerID,
       'createShareLink_done',
       'createShareLink_undone',
-    );
-  }
-
-  getAddingStickerParams() {
-    return this.call(
-      'getAddingStickerParams',
-      null,
-      'getAddingStickerParams_done',
-      'getAddingStickerParams_undone',
     );
   }
 

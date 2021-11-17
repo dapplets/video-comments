@@ -2,7 +2,22 @@ export interface ISticker {
   id: string
   vertical?: number
   horizontal?: number
-  transform?: string
+  transform?: string | IStickerTransform
+}
+
+export interface IStickerTransform {
+  [name: string]: IStickerTransformParams
+}
+
+export interface IStickerTransformParams extends ICSSTransform {
+    time: number
+}
+
+export interface ICSSTransform {
+  scale: number
+  translateX: number
+  translateY: number
+  rotate: number
 }
 
 export interface IVideoCtx {
@@ -85,4 +100,10 @@ export interface IRemarkLocator {
 export interface IRemarkEdit {
   time: string             // Timestamp
   summary: string        // Summary
+}
+
+export interface IChangeAddingStickerImageProps {
+  stickerName: string
+  from: number
+  to: number
 }

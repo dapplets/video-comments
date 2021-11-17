@@ -8,7 +8,6 @@ interface IPublicationNoticeProps {
   authorization: number
   onPageChange: any
   isCommentPublished: boolean
-  changeCheckedSticker: any
   setMessage: any
   setDoUpdateCCTimeline: any
 }
@@ -20,14 +19,12 @@ export default (props: IPublicationNoticeProps) => {
     authorization,
     onPageChange,
     isCommentPublished,
-    changeCheckedSticker,
     setMessage,
     setDoUpdateCCTimeline,
   } = props;
 
   useEffect(() => {
     bridge.updateData();
-    changeCheckedSticker();
     setMessage('');
     setDoUpdateCCTimeline(true);
   }, []);
@@ -42,8 +39,8 @@ export default (props: IPublicationNoticeProps) => {
   };
 
   return (
-    <div className='authorisation-page'>
-      <div className='authorisation-page-text' style={{ height: '40vh' }}>
+    <div className='second-level-page'>
+      <div className='second-level-page-text' style={{ height: '40vh' }}>
         {isCommentPublished
             ? <h2 style={{ textAlign: 'center' }}>Your comment has been posted</h2>
             : (

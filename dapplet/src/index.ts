@@ -1,6 +1,16 @@
 import { IFeature } from '@dapplets/dapplet-extension';
-import { IData, ISticker, IRemarkComment, IVideoCtx, ISharedData } from './types';
+import {
+  IData,
+  ISticker,
+  IRemarkComment,
+  IVideoCtx,
+  ISharedData,
+  IStickerTransform,
+  IStickerTransformParams,
+  IChangeAddingStickerImageProps,
+} from './types';
 import abi from './abi';
+import { getRandomInt, parseCSS, roundToMultiple } from './utils';
 import update from 'immutability-helper';
 import MENU_ICON from './icons/white-menu-icon.svg';
 import ORANGE_ARROW from './icons/arrow_001.png';
@@ -39,7 +49,6 @@ export default class VideoFeature implements IFeature {
   private _wasPaused: boolean
   private _config: any
   private _setConfig: any
-  private _addingStickerId: number
   private _currentTime: number
   private _commentsData: any
   private _duration: number
@@ -48,6 +57,11 @@ export default class VideoFeature implements IFeature {
   private _ctx: any
   private _selectedCommentId: string
   private _sharedData: any
+
+  private _addingStickerId: string
+  private _addingStickerTransform: IStickerTransform
+  private _from: number
+  private _to: number
 
   async activate(): Promise<void> {
 
@@ -107,13 +121,6 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('getEnsNames_undone', err);
             }
           },
-          getAddingStickerParams: () => {
-            const stickerElement: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
-            const width = stickerElement!.style.width;
-            const height = stickerElement!.style.height;
-            const transform = stickerElement!.style.transform;
-            this._overlay.send('getAddingStickerParams_done', { width, height, transform });
-          },
           pauseVideo: () => {
             try {
               this._wasPaused = this._videoEl.paused;
@@ -159,22 +166,109 @@ export default class VideoFeature implements IFeature {
           updateData: () => {
             this.adapter.detachConfig(this._config);
             this._addingStickerId = undefined;
+            this._addingStickerTransform = undefined;
+            this._from = undefined;
+            this._to = undefined;
             const { $ } = this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
             this._$ = $;
           },
-          addSticker: (op: any, { type, message }: { type?: any, message: { stickerName: string } }) => {
-            if (message) {
-              this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
-                this._$(this._ctx, commentData.id).state = 'INACTIVE';
-              });
-              this._$(this._ctx, this._addingStickerId).newState = 'ACTIVE';
-              this._$(this._ctx, this._addingStickerId).img = allStickers[message.stickerName];
-            } else {
-              this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
-                this._$(this._ctx, commentData.id).state = 'DEFAULT';
-              });
+          addSticker: (op: any, { type, message }: { type?: any, message: { from: number, to: number } }) => {
+            this._from = message.from;
+            this._to = message.to;
+            this._overlay.send('addSticker_done');
+          },
+          removeAddingSticker: () => {
+            this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+              this._$(this._ctx, commentData.id).state = 'DEFAULT';
+            });
+            this._$(this._ctx, this._addingStickerId).state = 'HIDDEN';
+            this._$(this._ctx, this._addingStickerId).transform = this._addingStickerTransform = undefined;
+            this._from = undefined;
+            this._to = undefined;
+            this._overlay.send('removeAddingSticker_done');
+          },
+          getAddingStickerParams: () => {
+            this._overlay.send('getAddingStickerParams_done', { transform: this._addingStickerTransform });
+          },
+          changeAddingStickerImage: (op: any, { message }: { type?: any, message?: IChangeAddingStickerImageProps }) => {
+            if (message === undefined) {
               this._$(this._ctx, this._addingStickerId).state = 'HIDDEN';
+            } else {
+              if (this._$(this._ctx, this._addingStickerId).state === 'HIDDEN') {
+                this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
+                  this._$(this._ctx, commentData.id).state = 'INACTIVE';
+                });
+                this._$(this._ctx, this._addingStickerId).state = 'ACTIVE';
+              }
+              this.updateFromTo(message.from, message.to);
+              this._$(this._ctx, this._addingStickerId).img = allStickers[message.stickerName];
             }
+            this._overlay.send('changeAddingStickerImage_done');
+          },
+          changeStickerTransformPointTime: (
+            op: any,
+            { type, message }: { type?: any, message: { transformPointId: string, time: number } }
+          ) => {
+            const { transformPointId, time } = message;
+            this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
+              ...this._addingStickerTransform,
+              [transformPointId]: { ...this._addingStickerTransform[transformPointId], time },
+            };
+            this._overlay.send('changeStickerTransformPointTime_done', this._addingStickerTransform);
+          },
+          changeFrom: (op: any, { type, message }: { type?: any, message: { time: number } }) => {
+            this._from = this._$(this._ctx, this._addingStickerId).from = message.time;
+            this._overlay.send('changeFrom_done', '');
+          },
+          changeTo: (op: any, { type, message }: { type?: any, message: { time: number } }) => {
+            this._to = this._$(this._ctx, this._addingStickerId).to = message.time;
+            this._overlay.send('changeTo_done', '');
+          },
+          addPoint: () => {
+            // console.log('here')
+            const sticker: HTMLElement = document.querySelector(`dapplet-sticker-${this._addingStickerId}`);
+            const currentCSSTransform = sticker
+              ? parseCSS('transform', sticker.style.transform)
+              : {
+                scale: 1,
+                translateX: 0, 
+                translateY: 0,
+                rotate: 0,
+              };
+            const time = roundToMultiple(this._ctx.currentTime);
+            if (!this._addingStickerTransform) {
+              this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
+                [String(getRandomInt())]: { ...currentCSSTransform, time },
+              };
+            } else {
+              const sortedPoints = Object.entries(this._addingStickerTransform).sort((a, b) => a[1].time - b[1].time);
+              const oldAnimationPointAtSameTime = sortedPoints
+                .find(([key, value]: [a: string, b: IStickerTransformParams]) => value.time === time);
+              if (oldAnimationPointAtSameTime) return;
+              this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
+                ...this._addingStickerTransform,
+                [String(getRandomInt())]: { ...currentCSSTransform, time },
+              };
+            }
+            // console.log('this._addingStickerTransform', this._addingStickerTransform)
+            this._overlay.send('transform', this._addingStickerTransform);
+          },
+          deletePoint: () => {
+            const time = roundToMultiple(this._ctx.currentTime);
+            if (Object.keys(this._addingStickerTransform).length === 1) {
+              this._addingStickerTransform = undefined;
+              this._$(this._ctx, this._addingStickerId).transform = 'scale(1) translate(0%, 0%) rotate(0rad)';
+              this._$(this._ctx, this._addingStickerId).reset = true;
+            } else {
+              const sortedPoints = Object.entries(this._addingStickerTransform).sort((a, b) => a[1].time - b[1].time);
+              const oldAnimationPointAtSameTime = sortedPoints
+                .find(([key, value]: [a: string, b: IStickerTransformParams]) => value.time === time);
+              if (!oldAnimationPointAtSameTime) return;
+              delete this._addingStickerTransform[oldAnimationPointAtSameTime[0]];
+              this._$(this._ctx, this._addingStickerId).transform = this._addingStickerTransform;
+            }
+            // console.log('this._addingStickerTransform', this._addingStickerTransform)
+            this._overlay.send('transform', this._addingStickerTransform);
           },
           highlightSticker: (op: any, { type, message }: { type?: any, message: { stickerID: string } }) => {
             if (message) {
@@ -200,6 +294,7 @@ export default class VideoFeature implements IFeature {
                 this._selectedCommentId = undefined;
               });
             }
+            this._overlay.send('highlightSticker_done');
           },
           createShareLink: async (op: any, { type, message }: { type?: any, message: string }) => {
             const core: any = Core;
@@ -266,6 +361,8 @@ export default class VideoFeature implements IFeature {
               return structuredComment;
             });
           const commentsData = await Promise.all(structuredComments);
+
+          // console.log('commentsData', commentsData)
 
           this._commentsData = commentsData;
           this._duration = ctx.duration;
@@ -405,19 +502,43 @@ export default class VideoFeature implements IFeature {
               },
             }));
 
-          this._addingStickerId = Math.trunc(Math.random() * 1_000_000_000);
+          this._addingStickerId = String(Math.trunc(Math.random() * 1_000_000_000));
           stickers.push(sticker({
             id: this._addingStickerId,
             initial: 'HIDDEN',
             ACTIVE: {
               stickerId: this._addingStickerId,
               reset: false,
-              hidden: false,
+              opacity: '1',
+              disabled: false,
+              onChange: (e: any) => {
+                const movingStickerElement = e.target
+                if (!movingStickerElement) return;
+                const currentCSSTransform = parseCSS('transform', movingStickerElement.style.transform);
+                const time = roundToMultiple(this._ctx.currentTime);
+  
+                if (!this._addingStickerTransform) {
+                  this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
+                    [String(getRandomInt())]: { ...currentCSSTransform, time },
+                  };
+                } else {
+                  const sortedPoints = Object.entries(this._addingStickerTransform).sort((a, b) => a[1].time - b[1].time);
+                  const oldAnimationPointAtSameTime = sortedPoints
+                    .find(([key, value]: [a: string, b: IStickerTransformParams]) => value.time >= time - 0.03 && value.time < time + 0.03);
+                  this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
+                    ...this._addingStickerTransform,
+                    [oldAnimationPointAtSameTime ? oldAnimationPointAtSameTime[0] : String(getRandomInt())]: { ...currentCSSTransform, time },
+                  };
+                }
+
+                this._overlay.send('transform', this._addingStickerTransform);
+              }
             },
             HIDDEN: {
               stickerId: this._addingStickerId,
               reset: true,
-              hidden: true,
+              opacity: '0',
+              disabled: true,
             },
           }));
 
@@ -508,5 +629,10 @@ export default class VideoFeature implements IFeature {
     } catch (err) {
       console.log('Error getting ens names.', err)
     }
+  }
+
+  updateFromTo = (from = this._from, to = this._to) => {
+    this._$(this._ctx, this._addingStickerId).from = this._from = from;
+    this._$(this._ctx, this._addingStickerId).to = this._to = to;
   }
 }

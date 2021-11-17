@@ -5,7 +5,7 @@ import { formatTime } from './utils';
 
 interface ITimelineProps {
   currentTime: number
-  videoLength: number
+  videoLength?: number
   activeCommentCount: number
   updateCurrentTime: any
 };
@@ -20,69 +20,73 @@ export default (props: ITimelineProps) => {
   });
 
   return (
-    <div className='dapplet-double-timeline'>
-      <div className='time-labels'>
-        <div>00:00</div>
-        <div>{formatTime(videoLength)}</div>
-      </div>
-      <Progress 
-        className='dapplet-timeline-comments activecomments'
-        percent={100 * currentTime / videoLength}
-        size='tiny'
-      />
-      <Progress 
-        className='dapplet-timeline-comments timestamp'
-        percent={100 * currentTime / videoLength}
-        size='tiny'
-      />
-      <Progress 
-        className='dapplet-timeline-comments progressbar'
-        percent={100 * currentTime / videoLength}
-        size='tiny'
-      />
-      <Progress 
-        className='dapplet-timeline-comments progressbar touch'
-        percent={100 * currentTime / videoLength}
-        onMouseDown={(e: any) => {
-          const el: any = document.querySelector('.timeline-touch-area');
-          if (el === null) return;
-          el.style.display = 'block';
-          bridge.pauseVideo();
-          const newCurrentTime = (e.pageX - 20) <= 0 ? 0 : (e.pageX - 20) * videoLength / (e.target.parentElement.offsetWidth - 2);
-          updateCurrentTime(newCurrentTime);
-          bridge.setCurrentTime(newCurrentTime);
-          setIsMoving(true);
-        }}
-      />
-      <div
-        className='timeline-touch-area'
-        onMouseMove={(ev: any) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          if (!isMoving || ev.pageX < 20 || ev.pageX > ev.target.parentElement.offsetWidth + 20) return;
-          const newTime = (ev.pageX - 20) * videoLength / ev.target.parentElement.offsetWidth;
-          const newCurrentTime = newTime < 0 ? 0 : newTime > videoLength ? videoLength : newTime;
-          updateCurrentTime(newCurrentTime);
-          bridge.setCurrentTime(newCurrentTime);
-        }}
-        onMouseUp={async (ev: any) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          if (!isMoving) return;
-          ev.target.style.display = 'none';
-          await bridge.playVideoIfWasPlayed();
-          setIsMoving(false);
-        }}
-        onMouseLeave={async (ev: any) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          if (!isMoving) return;
-          ev.target.style.display = 'none';
-          await bridge.playVideoIfWasPlayed();
-          setIsMoving(false);
-        }}
-      />
-    </div>
+    <>
+      {videoLength && (
+        <div className='dapplet-double-timeline'>
+          <div className='time-labels'>
+            <div>00:00</div>
+            <div>{formatTime(videoLength)}</div>
+          </div>
+          <Progress 
+            className='dapplet-timeline-comments activecomments'
+            percent={100 * currentTime / videoLength}
+            size='tiny'
+          />
+          <Progress 
+            className='dapplet-timeline-comments timestamp'
+            percent={100 * currentTime / videoLength}
+            size='tiny'
+          />
+          <Progress 
+            className='dapplet-timeline-comments progressbar'
+            percent={100 * currentTime / videoLength}
+            size='tiny'
+          />
+          <Progress 
+            className='dapplet-timeline-comments progressbar touch'
+            percent={100 * currentTime / videoLength}
+            onMouseDown={(e: any) => {
+              const el: any = document.querySelector('.timeline-touch-area');
+              if (el === null) return;
+              el.style.display = 'block';
+              bridge.pauseVideo();
+              const newCurrentTime = (e.pageX - 20) <= 0 ? 0 : (e.pageX - 20) * videoLength / (e.target.parentElement.offsetWidth - 2);
+              updateCurrentTime(newCurrentTime);
+              bridge.setCurrentTime(newCurrentTime);
+              setIsMoving(true);
+            }}
+          />
+          <div
+            className='timeline-touch-area'
+            onMouseMove={(ev: any) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              if (!isMoving || ev.pageX < 20 || ev.pageX > ev.target.parentElement.offsetWidth + 20) return;
+              const newTime = (ev.pageX - 20) * videoLength / ev.target.parentElement.offsetWidth;
+              const newCurrentTime = newTime < 0 ? 0 : newTime > videoLength ? videoLength : newTime;
+              updateCurrentTime(newCurrentTime);
+              bridge.setCurrentTime(newCurrentTime);
+            }}
+            onMouseUp={async (ev: any) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              if (!isMoving) return;
+              ev.target.style.display = 'none';
+              await bridge.playVideoIfWasPlayed();
+              setIsMoving(false);
+            }}
+            onMouseLeave={async (ev: any) => {
+              ev.preventDefault();
+              ev.stopPropagation();
+              if (!isMoving) return;
+              ev.target.style.display = 'none';
+              await bridge.playVideoIfWasPlayed();
+              setIsMoving(false);
+            }}
+          />
+        </div>
+      )}
+    </>
   );
 };
 

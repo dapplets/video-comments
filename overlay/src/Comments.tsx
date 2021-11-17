@@ -13,7 +13,7 @@ interface ICommentsProps {
   commentsList: number
   onPageChange: any
   toggleCommentHidden: any
-  videoLength: number
+  videoLength?: number
   currentTime: number
   updateCurrentTime: any
   isAdmin: boolean

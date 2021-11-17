@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
-import { formatTime } from './utils';
+import CCTimelinePoint from './CCTimelinePoint';
+import { formatTime, roundToMultiple } from './utils';
+import { IPoint, IStickerTransform } from './types';
 
 interface ICCTimelineProps {
   videoLength: number
   currentTime: number
   updateCurrentTime: any
-  startTime: number
-  setStartTime: any
-  finishTime: number
-  setFinishTime: any
+  from: number
+  setFrom: any
+  to: number
+  setTo: any
   doUpdateCCTimeline: boolean
   setDoUpdateCCTimeline: any
   isMoving: boolean
   setIsMoving: any
+  addingStickerTransform?: IStickerTransform
+  updateAddingStickerTransform: any
 };
 
 export default (props: ICCTimelineProps) => {
@@ -22,27 +26,45 @@ export default (props: ICCTimelineProps) => {
     videoLength,
     currentTime,
     updateCurrentTime,
-    startTime,
-    setStartTime,
-    finishTime,
-    setFinishTime,
+    from,
+    setFrom,
+    to,
+    setTo,
     doUpdateCCTimeline,
     setDoUpdateCCTimeline,
     isMoving,
     setIsMoving,
+    addingStickerTransform,
+    updateAddingStickerTransform,
   } = props;
 
-  useEffect(() => {
-    if (doUpdateCCTimeline) {
-      setStartTime(currentTime);
-      setFinishTime(currentTime + 30 > videoLength ? videoLength : currentTime + 30);
-    }
-  }, [currentTime]);
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const isMouseDownRef = useRef(isMouseDown);
+  isMouseDownRef.current = isMouseDown;
+
+  // console.log('currentTime***', currentTime)
+  // console.log('addingStickerTransform***', addingStickerTransform)
 
   useEffect(() => {
-    addPropTimestampFinish(formatTime(finishTime));
-    addPropTimestampStart(formatTime(startTime));
+    addPropTimestampPoint('start', formatTime(from));
+    addPropTimestampPoint('finish', formatTime(to));
+    addingStickerTransform && Object.entries(addingStickerTransform)
+      .map(([transformPointId, transformPointParams]) => {
+        addPropTimestampPoint(transformPointId, formatTime(transformPointParams.time));
+      });
   });
+
+  useEffect(() => {
+    setTimeout(() => {
+      if (isMouseDownRef.current) {
+        // console.log('inside of setTimeout!')
+        const el: any = document.querySelector('.timeline-touch-area.cc-current');
+        if (el === null) return;
+        el.style.display = 'block';
+        setIsMoving(true);
+      }
+    }, 300);
+  }, [isMouseDown])
 
   const stopTimeChanging = async (ev: any) => {
     ev.preventDefault();
@@ -53,10 +75,10 @@ export default (props: ICCTimelineProps) => {
   };
 
   return (
-    <div className='dapplet-double-timeline cc'>
+    <div className='dapplet-double-timeline cc current'>
       <div className='time-labels cc'>
-        <div>00:00</div>
-        <div>{formatTime(videoLength)}</div>
+        <div>{formatTime(from)}</div>
+        <div>{formatTime(to)}</div>
       </div>
       <Progress
         className='dapplet-timeline-comments progressbar cc-base'
@@ -64,101 +86,116 @@ export default (props: ICCTimelineProps) => {
         size='tiny'
       />
       <Progress
-        className='dapplet-timeline-comments point cc cc-finish'
-        percent={100 * finishTime / videoLength}
+        className='dapplet-timeline-comments point cc cc-finish timescope top-2'
+        percent={100}
         size='tiny'
-        onMouseDown={(e: any) => {
-          const el: any = document.querySelector('.timeline-touch-area.cc-finish');
-          if (el === null) return;
+        onClick={(e: any) => {
+          e.preventDefault();
+          e.stopPropagation();
           doUpdateCCTimeline && setDoUpdateCCTimeline(false);
-          el.style.display = 'block';
           bridge.pauseVideo();
-          const newTime = e.target.offsetWidth * videoLength / (e.target.parentElement.offsetWidth - 2);
-          const newCurrentTime = newTime > videoLength - 1 ? videoLength - 1 : newTime;
-          setFinishTime(newCurrentTime);
-          updateCurrentTime(newCurrentTime);
-          bridge.setCurrentTime(newCurrentTime);
-          setIsMoving(true);
+          updateCurrentTime(to);
+          bridge.setCurrentTime(to);
         }}
       />
       <Progress
-        className='dapplet-timeline-comments point cc cc-start'
-        percent={100 * startTime / videoLength}
+        className='dapplet-timeline-comments point cc cc-start timescope top-2'
+        percent={0}
         size='tiny'
-        onMouseDown={(e: any) => {
-          const el: any = document.querySelector('.timeline-touch-area.cc-start');
-          if (el === null) return;
+        onClick={(e: any) => {
+          e.preventDefault();
+          e.stopPropagation();
           doUpdateCCTimeline && setDoUpdateCCTimeline(false);
-          el.style.display = 'block';
           bridge.pauseVideo();
-          const newTime = e.target.offsetWidth * videoLength / (e.target.parentElement.offsetWidth - 2);
-          const newCurrentTime = newTime > videoLength - 1 ? videoLength - 1 : newTime;
-          setStartTime(newCurrentTime);
-          updateCurrentTime(newCurrentTime);
-          bridge.setCurrentTime(newCurrentTime);
-          setIsMoving(true);
+          updateCurrentTime(from);
+          bridge.setCurrentTime(from);
         }}
       />
-      <Progress
-        className='dapplet-timeline-comments timestamp cc cc-finish'
-        percent={100 * finishTime / videoLength}
+      {addingStickerTransform && Object.entries(addingStickerTransform)
+        .sort((a, b) => b[1].time - a[1].time)
+        .map(([transformPointId, transformPointParams]) => {
+          return <CCTimelinePoint
+            key={transformPointId}
+            cCPoint={{ id: transformPointId, time: transformPointParams.time }}
+            videoLength={videoLength}
+            currentTime={currentTime}
+            updateCurrentTime={updateCurrentTime}
+            from={from}
+            to={to}
+            doUpdateCCTimeline={doUpdateCCTimeline}
+            setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+            isMoving={isMoving}
+            setIsMoving={setIsMoving}
+            updateAddingStickerTransform={updateAddingStickerTransform}
+            stopTimeChanging={stopTimeChanging}
+            addingStickerTransform={addingStickerTransform}
+          />;
+        })}
+      <Progress 
+        className={`dapplet-timeline-comments cc cc-finish current-time ${isMoving ? 'empty' : (addingStickerTransform && Object.values(addingStickerTransform).map((stParam) => stParam.time).includes(roundToMultiple(currentTime))) ? 'delete' : ''}`}
+        percent={100 * (currentTime - from) / (to - from)}
         size='tiny'
+        onMouseDown={async (e: any) => {
+          e.stopPropagation();
+          e.preventDefault();
+          doUpdateCCTimeline && setDoUpdateCCTimeline(false);
+          bridge.pauseVideo();
+          setIsMouseDown(true);
+          // const t = new Date()
+          // console.log(t.getMilliseconds())
+        }}
+        onClick={(e: any) => {
+          e.stopPropagation();
+          e.preventDefault();
+          if (isMouseDown) {
+            // const t = new Date()
+            // console.log(t.getMilliseconds())
+            doUpdateCCTimeline && setDoUpdateCCTimeline(false);
+            bridge.pauseVideo();
+            if (addingStickerTransform && Object.values(addingStickerTransform).map((stParam) => stParam.time).includes(roundToMultiple(currentTime))) {
+              bridge.deletePoint();
+            } else {
+              bridge.addPoint();
+            }
+            setIsMouseDown(false);
+          }
+        }}
       />
-      <Progress
-        className='dapplet-timeline-comments progressbar cc-finish'
-        percent={100 * finishTime / videoLength}
-        size='tiny'
-      />
-      <Progress
-        className='dapplet-timeline-comments timestamp cc cc-start'
-        percent={100 * startTime / videoLength}
-        size='tiny'
-      />
-      <Progress
-        className='dapplet-timeline-comments progressbar cc-start'
-        percent={100 * startTime / videoLength}
+      <Progress 
+        className='dapplet-timeline-comments cc cc-finish current-time point-cc'
+        percent={100 * (currentTime - from) / (to - from)}
         size='tiny'
       />
       <div
-        className='timeline-touch-area cc-finish'
+        className='timeline-touch-area cc-current'
         onMouseMove={(ev: any) => {
           ev.preventDefault();
           ev.stopPropagation();
-          if (!isMoving || ev.pageX < 52 || ev.pageX > ev.target.parentElement.offsetWidth + 52) return;
-          const newTime = (ev.pageX - 52) * videoLength / ev.target.parentElement.offsetWidth;
-          const newCurrentTime = newTime <= startTime + 1 ? startTime + 1 : newTime > videoLength ? videoLength : newTime;
-          setFinishTime(newCurrentTime);
+          if (!isMoving || ev.pageX < 57 || ev.pageX > ev.target.parentElement.offsetWidth + 57) return;
+          const newTime = (ev.pageX - 57) * (to - from) / ev.target.parentElement.offsetWidth + from;
+          const roundedTime = roundToMultiple(newTime);
+          const newCurrentTime = roundedTime < from ? from : roundedTime > to ? to : roundedTime;
           updateCurrentTime(newCurrentTime);
           bridge.setCurrentTime(newCurrentTime);
         }}
-        onMouseUp={stopTimeChanging}
-        onMouseLeave={stopTimeChanging}
-      />
-      <div
-        className='timeline-touch-area cc-start'
-        onMouseMove={(ev: any) => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          if (!isMoving || ev.pageX < 52 || ev.pageX > ev.target.parentElement.offsetWidth + 52) return;
-          const newTime = (ev.pageX - 52) * videoLength / ev.target.parentElement.offsetWidth;
-          const newCurrentTime = newTime >= finishTime - 1 ? finishTime - 1 : newTime < 0 ? 0 : newTime;
-          setStartTime(newCurrentTime);
-          updateCurrentTime(newCurrentTime);
-          bridge.setCurrentTime(newCurrentTime);
+        onMouseUp={(e) => {
+          stopTimeChanging(e);
+          setIsMouseDown(false);
+          // const t = new Date()
+          // console.log(t.getMilliseconds())
         }}
-        onMouseUp={stopTimeChanging}
-        onMouseLeave={stopTimeChanging}
+        onMouseLeave={(e) => {
+          stopTimeChanging(e);
+          setIsMouseDown(false);
+          // const t = new Date()
+          // console.log(t.getMilliseconds())
+        }}
       />
     </div>
   );
 };
 
-const addPropTimestampFinish = (value: string) => {
-  const el = document.querySelector('.dapplet-timeline-comments.timestamp.cc-finish >.bar');
-  el?.setAttribute('data-timestamp', value);
-};
-
-const addPropTimestampStart = (value: string) => {
-  const el = document.querySelector('.dapplet-timeline-comments.timestamp.cc-start >.bar');
+const addPropTimestampPoint = (id: string, value: string) => {
+  const el = document.querySelector(`.dapplet-timeline-comments.timestamp.cc-${id} >.bar`);
   el?.setAttribute('data-timestamp', value);
 };

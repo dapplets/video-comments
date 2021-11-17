@@ -6,7 +6,7 @@ import CommentCreation from './CommentCreation';
 import Authorization from './Authorization';
 import PublicationNotice from './PublicationNotice';
 import { IData, SortTypes } from './types';
-import { getUserInfo } from './utils';
+import { getUserInfo, roundToMultiple } from './utils';
 import cn from 'classnames';
 
 enum Pages {
@@ -19,16 +19,13 @@ enum Pages {
 export default () => {
   const [data, setData] = useState<IData[] | undefined>();
   const [page, setPage] = useState(Pages.CommentsList);
-  const [duration, addDuration] = useState(60);
+  const [duration, addDuration] = useState<number>();
   const [images, addImages] = useState<any | undefined>();
   const [currentTime, updateCurrentTime] = useState(0);
-  const [startTime, setStartTime] = useState(currentTime);
-  const [finishTime, setFinishTime] = useState(currentTime + 30 > duration ? duration : currentTime + 30);
   const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
   const [videoId, setVideoId] = useState('');
   const [isCommentPublished, setIsCommentPublished] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [checkedSticker, changeCheckedSticker] = useState<string>();
   const [message, setMessage] = useState('');
   const [selectedCommentId, setSelectedCommentId] = useState<string | undefined>();
   const [accountEthId, getAccountEthId] = useState<string | undefined>();
@@ -49,7 +46,7 @@ export default () => {
       setVideoId(data.videoId);
       setSelectedCommentId(data.selectedCommentId);
     });
-    bridge.onTime((data) => updateCurrentTime(Math.trunc(data.time)));
+    bridge.onTime((data) => updateCurrentTime(roundToMultiple(data.time)));
   }, []);
 
   useEffect(() => {
@@ -145,7 +142,7 @@ export default () => {
       setIsConnectingWallet={setIsConnectingWallet}
       isConnectingWallet={isConnectingWallet}
     />
-    : <CommentCreation
+    : <>{duration !== undefined && <CommentCreation
       back={Pages.CommentsList}
       publicationNotice={Pages.PublicationNotice}
       images={images}
@@ -153,20 +150,14 @@ export default () => {
       videoLength={duration}
       updateCurrentTime={updateCurrentTime}
       currentTime={typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime}
-      startTime={startTime}
-      setStartTime={setStartTime}
-      finishTime={finishTime}
-      setFinishTime={setFinishTime}
       doUpdateCCTimeline={doUpdateCCTimeline}
       setDoUpdateCCTimeline={setDoUpdateCCTimeline}
       videoId={videoId}
       setIsCommentPublished={setIsCommentPublished}
-      checkedSticker={checkedSticker}
-      changeCheckedSticker={changeCheckedSticker}
       message={message}
       setMessage={setMessage}
       setNextPage={setNextPage}
-    />
+    />}</>
   );
 
   openPage.set(
@@ -194,7 +185,6 @@ export default () => {
       authorization={Pages.Authorization}
       onPageChange={setPage}
       isCommentPublished={isCommentPublished}
-      changeCheckedSticker={changeCheckedSticker}
       setMessage={setMessage}
       setDoUpdateCCTimeline={setDoUpdateCCTimeline}
     />

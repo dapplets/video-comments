@@ -21,7 +21,7 @@ export default (props: IAuthorizationProps) => {
   const { back, onPageChange, nextPage, setNextPage, getAccountEthId, setCurrentUser, setIsAdmin, setAvatar, setIsConnectingWallet, isConnectingWallet } = props;
 
   return (
-    <div className='authorisation-page'>
+    <div className='second-level-page'>
       <div className='button-back'>
         <Icon name='arrow left' />
         <button onClick={() => {
@@ -33,7 +33,7 @@ export default (props: IAuthorizationProps) => {
         </button>
       </div>
       <Divider />
-      <div className='authorisation-page-text'>
+      <div className='second-level-page-text'>
         <h1>You are not authorized</h1>
         <p>log in to comment</p>
       </div>

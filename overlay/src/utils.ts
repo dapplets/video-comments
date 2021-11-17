@@ -150,3 +150,10 @@ export const formatTime = (time?: number) => {
     ? `${h.padStart(2,'0')}:${m.padStart(2,'0')}:${s.padStart(2,'0')}`
     : `${m.padStart(2,'0')}:${s.padStart(2,'0')}`;
 };
+
+export const getRandomInt = () => Math.trunc(Math.random() * 1_000_000_000);
+
+export const roundToMultiple = (num: number, m: number = 2) => {
+  const a = Math.pow(10, m);
+  return Math.round(num * a) / a;
+};

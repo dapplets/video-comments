@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardProps, Checkbox, Confirm, Container, Divider, Form, Icon, Image, Modal } from 'semantic-ui-react';
 import CCTimeline from './CCTimeline';
-import { ISendingData, ISticker } from './types';
+import CCTimelineTimeScope from './CCTimelineTimeScope';
+import { IPoint, ISendingData, ISticker, IStickerTransform } from './types';
 import { bridge } from './dappletBridge';
-import { addComment } from './utils';
+import { addComment, getRandomInt, roundToMultiple } from './utils';
 
 interface IProps {
-  images?: any
+  images: any
   back: number
   publicationNotice: number
   onPageChange: any
   videoLength: number
   currentTime: number
   updateCurrentTime: any
-  startTime: number
-  setStartTime: any
-  finishTime: number
-  setFinishTime: any
   doUpdateCCTimeline: boolean
   setDoUpdateCCTimeline: any
   videoId: string
   setIsCommentPublished: any
-  checkedSticker?: string 
-  changeCheckedSticker: any
   message: string
   setMessage: any
   setNextPage: any
@@ -37,61 +32,66 @@ export default (props: IProps) => {
     videoLength,
     currentTime,
     updateCurrentTime,
-    startTime,
-    setStartTime,
-    finishTime,
-    setFinishTime,
     doUpdateCCTimeline,
     setDoUpdateCCTimeline,
     videoId,
     setIsCommentPublished,
-    checkedSticker,
-    changeCheckedSticker,
     message,
     setMessage,
     setNextPage,
   } = props;
 
-  const [accountId, getAccountId] = useState<string | undefined>();
+  const defaultAddingStickerDuration = 30
+
+  const [from, setFrom] = useState(currentTime);
+  const [to, setTo] = useState(currentTime + defaultAddingStickerDuration > videoLength ? videoLength : currentTime + defaultAddingStickerDuration);
+  const [checkedStickerImage, changeCheckedStickerImage] = useState<string>();
+  const [accountId, getAccountId] = useState<string>();
   const [isMoving, setIsMoving] = useState(false);
   const [openDimmer, toggleOpenDimmer] = useState(false);
+  const [addingStickerTransform, updateAddingStickerTransform] = useState<IStickerTransform>();
+
+  useEffect(() => {
+    if (doUpdateCCTimeline) {
+      setFrom(roundToMultiple(currentTime));
+      setTo(roundToMultiple(currentTime + defaultAddingStickerDuration > videoLength ? videoLength : currentTime + defaultAddingStickerDuration));
+    }
+  }, [currentTime]);
 
   useEffect(() => {
     setIsCommentPublished(false);
-    bridge.isWalletConnected()
-      .then(async (isWalletConnected) => {
-        if (!isWalletConnected) await bridge.connectWallet();
-        const currentEthAccount = await bridge.getCurrentEthereumAccount();
-        getAccountId(currentEthAccount);
-      });
+    bridge.isWalletConnected().then(async (isWalletConnected) => {
+      if (!isWalletConnected) await bridge.connectWallet();
+      const currentEthAccount = await bridge.getCurrentEthereumAccount();
+      await bridge.addSticker(from, to);
+      await bridge.onTransform(async (transform: IStickerTransform) => {
+        // console.log('transform from overlay', transform)
+        updateAddingStickerTransform(transform);
+      })
+      getAccountId(currentEthAccount);
+    });
   }, []);
 
-  const handleChangeCheckedSticker = (
+  const handleChangeCheckedStickerImage = (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     data: CardProps
   ) => {
     bridge.pauseVideo();
-    if (checkedSticker !== data['data-name']) {
-      changeCheckedSticker(data['data-name']);
-      bridge.addSticker(data['data-name'])
+    setDoUpdateCCTimeline(false);
+    if (checkedStickerImage === data['data-name']) {
+      changeCheckedStickerImage(undefined);
+      bridge.changeAddingStickerImage(undefined)
     } else {
-      changeCheckedSticker(undefined);
-      bridge.addSticker();
+      changeCheckedStickerImage(data['data-name']);
+      bridge.changeAddingStickerImage({ stickerName: data['data-name'], from, to });
     }
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    const addingStickerParams: { transform: string } = await bridge.getAddingStickerParams();
-    /*console.log('accountId:', accountId)
-    console.log('videoId:', videoId)
-    console.log('message:', message)
-    console.log('from:', startTime)
-    console.log('to:', finishTime)
-    console.log('checkedSticker:', checkedSticker)*/
-    Object.entries(addingStickerParams).forEach(([key, value]) => console.log(key + ': ' + value))
+    const addingStickerParams: { transform: IStickerTransform } = await bridge.getAddingStickerParams();
     const currentSticker: ISticker = {
-      id: checkedSticker!,
+      id: checkedStickerImage!,
       widthCo: 1,
       heightCo: 1,
       transform: addingStickerParams.transform,
@@ -100,8 +100,8 @@ export default (props: IProps) => {
       accountId: accountId!,
       videoId,
       text: message,
-      from: startTime,
-      to: finishTime,
+      from,
+      to,
       sticker: currentSticker,
     };
     try {
@@ -110,28 +110,29 @@ export default (props: IProps) => {
     } catch (err) {
       console.log('Error in the comment engine.', err);
     }
-    updateCurrentTime(Math.ceil(startTime));
-    bridge.setCurrentTime(Math.ceil(startTime));
+    updateCurrentTime(from);
+    bridge.setCurrentTime(from);
     onPageChange(publicationNotice);
   };
 
   return (
-    <div className='authorisation-page'>
+    <div className='second-level-page'>
       <div className='button-back'>
         <Icon name='arrow left' />
         <button onClick={(e: any) => {
           e.preventDefault();
           e.stopPropagation();
-          if (message !== '' || checkedSticker !== undefined) {
+          if (message !== '' || checkedStickerImage !== undefined || addingStickerTransform !== undefined) {
             toggleOpenDimmer(true);
           } else {
             setNextPage(back);
             onPageChange(back);
-            changeCheckedSticker(undefined);
+            changeCheckedStickerImage(undefined);
+            setMessage('');
+            updateAddingStickerTransform(undefined);
             setIsMoving(true);
             setDoUpdateCCTimeline(true);
-            setMessage('');
-            bridge.addSticker();
+            bridge.removeAddingSticker();
           }
         }}>
           Back
@@ -152,11 +153,12 @@ export default (props: IProps) => {
             e.stopPropagation();
             setNextPage(back);
             onPageChange(back);
-            changeCheckedSticker(undefined);
+            changeCheckedStickerImage(undefined);
+            setMessage('');
+            updateAddingStickerTransform(undefined);
             setIsMoving(true);
             setDoUpdateCCTimeline(true);
-            setMessage('');
-            bridge.addSticker();
+            bridge.removeAddingSticker();
           }}
         />
       </div>
@@ -170,11 +172,11 @@ export default (props: IProps) => {
                 data-name={imageName}
                 key={index}
                 className='sticker-card'
-                style={{ opacity: checkedSticker === undefined || checkedSticker === imageName ? '1' : '.5' }}
-                onClick={handleChangeCheckedSticker}
+                style={{ opacity: checkedStickerImage === undefined || checkedStickerImage === imageName ? '1' : '.5' }}
+                onClick={handleChangeCheckedStickerImage}
               >
                 <Image src={image} />
-                <Checkbox checked={checkedSticker === imageName} />
+                <Checkbox checked={checkedStickerImage === imageName} />
               </Card>
             ))}
           </Card.Group>}
@@ -188,24 +190,44 @@ export default (props: IProps) => {
             onChange={(e) => setMessage(e.target.value)}
           />
         </Container>
-        <CCTimeline
-          videoLength={videoLength}
-          currentTime={currentTime}
-          updateCurrentTime={updateCurrentTime}
-          startTime={startTime}
-          setStartTime={setStartTime}
-          finishTime={finishTime}
-          setFinishTime={setFinishTime}
-          doUpdateCCTimeline={doUpdateCCTimeline}
-          setDoUpdateCCTimeline={setDoUpdateCCTimeline}
-          isMoving={isMoving}
-          setIsMoving={setIsMoving}
-        />
+        {videoLength !== undefined && (
+          <>
+            <CCTimelineTimeScope
+              videoLength={videoLength}
+              currentTime={currentTime}
+              updateCurrentTime={updateCurrentTime}
+              from={from}
+              setFrom={setFrom}
+              to={to}
+              setTo={setTo}
+              doUpdateCCTimeline={doUpdateCCTimeline}
+              setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+              isMoving={isMoving}
+              setIsMoving={setIsMoving}
+              addingStickerTransform={addingStickerTransform}
+            />
+            <CCTimeline
+              videoLength={videoLength}
+              currentTime={currentTime}
+              updateCurrentTime={updateCurrentTime}
+              from={from}
+              setFrom={setFrom}
+              to={to}
+              setTo={setTo}
+              doUpdateCCTimeline={doUpdateCCTimeline}
+              setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+              isMoving={isMoving}
+              setIsMoving={setIsMoving}
+              addingStickerTransform={addingStickerTransform}
+              updateAddingStickerTransform={updateAddingStickerTransform}
+            />
+          </>
+        )}
         <Form.Button
           color='violet'
           className='action-button'
           type='submit'
-          disabled={message.trim() === '' || checkedSticker === undefined}
+          disabled={message.trim() === '' || checkedStickerImage === undefined}
         >
           Publish
         </Form.Button>
