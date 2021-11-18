@@ -972,26 +972,82 @@ a.ui.card:hover {
   background-image: url('./angle_to_from.svg');
 }
 
+.dp-arrow-to-from:hover {
+  background-image: url('./angle_to_from_hover.svg');
+}
+
+.dp-arrow-to-from:active {
+  background-image: url('./angle_to_from_active.svg');
+}
+
 .dp-arrow-to-prev {
   background-image: url('./angle_to_prev.svg');
+}
+
+.dp-arrow-to-prev:hover {
+  background-image: url('./angle_to_prev_hover.svg');
+}
+
+.dp-arrow-to-prev:active {
+  background-image: url('./angle_to_prev_active.svg');
 }
 
 .dp-pause {
   background-image: url('./pause.svg');
 }
 
+.dp-pause:hover {
+  background-image: url('./pause_hover.svg');
+}
+
+.dp-pause:active {
+  background-image: url('./pause_active.svg');
+}
+
 .dp-play {
   background-image: url('./play.svg');
+}
+
+.dp-play:hover {
+  background-image: url('./play_hover.svg');
+}
+
+.dp-play:active {
+  background-image: url('./play_active.svg');
 }
 
 .dp-repeat {
   background-image: url('./repeat.svg');
 }
 
+.dp-repeat:hover {
+  background-image: url('./repeat_hover.svg');
+}
+
+.dp-repeat:active {
+  background-image: url('./repeat_active.svg');
+}
+
 .dp-arrow-to-next {
   background-image: url('./angle_to_next.svg');
 }
 
+.dp-arrow-to-next:hover {
+  background-image: url('./angle_to_next_hover.svg');
+}
+
+.dp-arrow-to-next:active {
+  background-image: url('./angle_to_next_active.svg');
+}
+
 .dp-arrow-to-to {
   background-image: url('./angle_to_to.svg');
+}
+
+.dp-arrow-to-to:hover {
+  background-image: url('./angle_to_to_hover.svg');
+}
+
+.dp-arrow-to-to:active {
+  background-image: url('./angle_to_to_active.svg');
 }
