@@ -135,10 +135,10 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('pauseVideo_undone')
             }
           },
-          playVideo: () => {
+          playVideo: async () => {
             try {
               this._wasPaused = this._videoEl.paused;
-              if (this._videoEl.paused) this._videoEl.play();
+              if (this._videoEl.paused) await this._videoEl.play();
               this._overlay.send('playVideo_done')
             } catch (err) {
               console.log('Cannot play the video.', err);
@@ -148,8 +148,10 @@ export default class VideoFeature implements IFeature {
           playVideoIfWasPlayed: async () => {
             try {
               if (!this._wasPaused) await this._videoEl.play();
+              this._overlay.send('playVideoIfWasPlayed_done')
             } catch (err) {
               console.log('Cannot start to play the video.', err);
+              this._overlay.send('playVideoIfWasPlayed_undone')
             }
           },
           setCurrentTime: (op: any, { type, message }: { type?: any, message: { time: number } }) => {

@@ -190,7 +190,7 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  playVideo() {
+  async playVideo() {
     return this.call(
       'playVideo',
       null,

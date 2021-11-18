@@ -66,7 +66,7 @@ export default (props: IPlayerProps) => {
         />
         <div
           className={cn(isPlaying ? 'dp-pause' : currentTime >= to ? 'dp-repeat' : 'dp-play')}
-          onClick={(e) => {
+          onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
             setActive(true);
@@ -75,7 +75,7 @@ export default (props: IPlayerProps) => {
               bridge.pauseVideo();
             } else {
               if (currentTime >= to) bridge.setCurrentTime(from);
-              bridge.playVideo();
+              const a = await bridge.playVideo();
             }
           }}
         />
