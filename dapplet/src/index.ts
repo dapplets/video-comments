@@ -45,7 +45,7 @@ export default class VideoFeature implements IFeature {
   public adapter: any
 
   private _overlay: any
-  private _videoEl: any
+  private _videoEl: HTMLMediaElement
   private _wasPaused: boolean
   private _config: any
   private _setConfig: any
@@ -121,12 +121,28 @@ export default class VideoFeature implements IFeature {
               this._overlay.send('getEnsNames_undone', err);
             }
           },
+          isVideoPlaying: () => {
+            const video: HTMLMediaElement = this._videoEl;
+            this._overlay.send('isVideoPlaying_done', !video.paused)
+          },
           pauseVideo: () => {
             try {
               this._wasPaused = this._videoEl.paused;
               if (!this._videoEl.paused) this._videoEl.pause();
+              this._overlay.send('pauseVideo_done')
             } catch (err) {
               console.log('Cannot pause the video.', err);
+              this._overlay.send('pauseVideo_undone')
+            }
+          },
+          playVideo: () => {
+            try {
+              this._wasPaused = this._videoEl.paused;
+              if (this._videoEl.paused) this._videoEl.play();
+              this._overlay.send('playVideo_done')
+            } catch (err) {
+              console.log('Cannot play the video.', err);
+              this._overlay.send('playVideo_undone')
             }
           },
           playVideoIfWasPlayed: async () => {
@@ -313,7 +329,7 @@ export default class VideoFeature implements IFeature {
       this._config = {
         VIDEO: async (ctx: IVideoCtx ) => {
           if (!ctx.element) return;
-          this._videoEl = ctx.element;
+          this._videoEl = <HTMLMediaElement>ctx.element;
           const videoId = ctx.id;
 
           const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });

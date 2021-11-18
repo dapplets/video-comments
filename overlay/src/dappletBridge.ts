@@ -172,12 +172,30 @@ class Bridge extends GeneralBridge {
     );
   }
 
+  async isVideoPlaying(): Promise<boolean> {
+    return this.call(
+      'isVideoPlaying',
+      null,
+      'isVideoPlaying_done',
+      'isVideoPlaying_undone',
+    );
+  }
+
   pauseVideo() {
     return this.call(
       'pauseVideo',
       null,
       'pauseVideo_done',
       'pauseVideo_undone',
+    );
+  }
+
+  playVideo() {
+    return this.call(
+      'playVideo',
+      null,
+      'playVideo_done',
+      'playVideo_undone',
     );
   }
 

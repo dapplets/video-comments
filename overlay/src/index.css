@@ -920,3 +920,78 @@ a.ui.card:hover {
   color: #a5a5a5;
   font-variant-caps: all-small-caps;
 }
+
+/* PLAYER */
+
+.dp-player-container {
+  display: flex;
+  justify-content: center;
+}
+
+.dp-player {
+  display: flex;
+  width: 209px;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.dp-arrow-to-from,
+.dp-arrow-to-prev,
+.dp-pause,
+.dp-play,
+.dp-repeat,
+.dp-arrow-to-next,
+.dp-arrow-to-to {
+  display: block;
+  background-position: 0 0;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  transition: all .1s ease-in-out;
+}
+
+.dp-arrow-to-from,
+.dp-arrow-to-to {
+  width: 22px;
+  height: 19px;  
+}
+
+.dp-arrow-to-prev,
+.dp-arrow-to-next {
+  width: 19px;
+  height: 19px;
+}
+
+.dp-pause,
+.dp-repeat,
+.dp-play {
+  width: 53px;
+  height: 53px;
+}
+
+.dp-arrow-to-from {
+  background-image: url('./angle_to_from.svg');
+}
+
+.dp-arrow-to-prev {
+  background-image: url('./angle_to_prev.svg');
+}
+
+.dp-pause {
+  background-image: url('./pause.svg');
+}
+
+.dp-play {
+  background-image: url('./play.svg');
+}
+
+.dp-repeat {
+  background-image: url('./repeat.svg');
+}
+
+.dp-arrow-to-next {
+  background-image: url('./angle_to_next.svg');
+}
+
+.dp-arrow-to-to {
+  background-image: url('./angle_to_to.svg');
+}

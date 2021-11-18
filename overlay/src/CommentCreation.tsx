@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardProps, Checkbox, Confirm, Container, Divider, Form, Icon, Image, Modal } from 'semantic-ui-react';
 import CCTimeline from './CCTimeline';
 import CCTimelineTimeScope from './CCTimelineTimeScope';
+import Player from './Player';
 import { IPoint, ISendingData, ISticker, IStickerTransform } from './types';
 import { bridge } from './dappletBridge';
 import { addComment, getRandomInt, roundToMultiple } from './utils';
@@ -223,6 +224,14 @@ export default (props: IProps) => {
             />
           </>
         )}
+        <Player
+          from={from}
+          to={to}
+          currentTime={currentTime}
+          addingStickerTransform={addingStickerTransform}
+          doUpdateCCTimeline={doUpdateCCTimeline}
+          setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+        />
         <Form.Button
           color='violet'
           className='action-button'
