@@ -85,6 +85,7 @@ export default (props: ICommentsProps) => {
     data!.filter((comment) => comment.from <= currentTime && (comment.to === undefined || comment.to >= currentTime)).length;
 
   const handleGoToCCPage = async () => {
+    bridge.removeAddingSticker();
     if (currentUser !== undefined) {
       onPageChange(createComment);
     } else {
