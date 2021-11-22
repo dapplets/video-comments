@@ -37,7 +37,7 @@ export default (props: ITimeInputProps) => {
     e.preventDefault();
     e.stopPropagation();
     let newTime = newCurrentTimeByInput;
-    if (/^[0-5]?\d?:[0-5]?\d?$/.test(e.target.value)) {
+    if (/^(\d*:)?[0-5]?\d?:[0-5]?\d?$/.test(e.target.value)) {
       newTime = e.target.value;
     }
     setNewCurrentTimeByInput(newTime);
@@ -100,5 +100,7 @@ export default (props: ITimeInputProps) => {
 
 const parseTime = (t: string): number => {
   const arr = t.split(':');
-  return +arr[0] * 60 + (+arr[1]);
+  return arr.length === 2
+    ? +arr[0] * 60 + (+arr[1])
+    : +arr[0] * 3600 + (+arr[1]) * 60 + (+arr[2]);
 };

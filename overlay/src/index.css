@@ -488,6 +488,7 @@ body {
 .dapplet-timeline-comments.cc.current-time.point-cc form {
   display: flex;
   justify-content: flex-end;
+  margin-top: 8px !important;
 }
 
 .dapplet-timeline-comments.timestamp.cc.cc-start form {
@@ -503,7 +504,6 @@ body {
 .dapplet-timeline-comments.cc.current-time.point-cc input {
   font-family: 'Roboto', sans-serif !important;
   text-align: center;
-  width: 53px;
   background: #D9304F !important;
   border: 1px solid #D9304F;
   border-color: #D9304F !important;
@@ -512,33 +512,51 @@ body {
   color: white !important;
   font-size: 14px;
   padding: 4px 7px 3px;
-  margin-right: -27px;
   margin-top: 3px;
+}
+
+.dapplet-timeline-comments.cc.current-time.point-cc.dp-small input {
+  width: 53px;
+  margin-right: -26px;
+}
+
+.dapplet-timeline-comments.cc.current-time.point-cc.dp-big input {
+  width: 72px;
+  margin-right: -36px;
 }
 
 .dapplet-timeline-comments.timestamp.cc.cc-start input,
 .dapplet-timeline-comments.timestamp.cc.cc-finish input {
-  width: 38px;
   font-size: 10px !important;
   padding: 3px 5px 2px !important;
   border-radius: 9em !important;
 }
 
 .dapplet-timeline-comments.timestamp.cc.cc-finish input {
-  margin-right: -11px !important;
+  margin-right: -12px !important;
 }
 
-.dapplet-timeline-comments.cc.current-time.point-cc.small > .bar::before {
-  right: -26px;
+.dapplet-timeline-comments.timestamp.cc.cc-start.dp-small input {
+  margin-right: -27px;
 }
 
-.dapplet-timeline-comments.cc.current-time.point-cc.big > .bar::before {
-  right: -36px;
+.dapplet-timeline-comments.timestamp.cc.cc-start.dp-big input{
+  margin-right: -40px;
 }
 
-.dapplet-timeline-comments.cc.current-time.point-cc.pointer > .bar::after {
+.dapplet-timeline-comments.timestamp.cc.cc-start.dp-small input,
+.dapplet-timeline-comments.timestamp.cc.cc-finish.dp-small input {
+  width: 38px;
+}
+
+.dapplet-timeline-comments.timestamp.cc.cc-start.dp-big input,
+.dapplet-timeline-comments.timestamp.cc.cc-finish.dp-big input {
+  width: 52px;
+}
+
+/* .dapplet-timeline-comments.cc.current-time.point-cc.pointer > .bar::after {
   cursor: pointer;
-}
+} */
 
 .trash-icon,
 .trash-icon-selected {

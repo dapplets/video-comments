@@ -113,7 +113,7 @@ export default (props: ICCTimelineTimeScopeProps) => {
         }}
       />
       <Progress
-        className='dapplet-timeline-comments timestamp cc cc-finish'
+        className={`dapplet-timeline-comments timestamp cc cc-finish ${to >= 3600 ? 'dp-big' : 'dp-small'}`}
         percent={100 * to / videoLength}
         size='tiny'
       >
@@ -134,7 +134,7 @@ export default (props: ICCTimelineTimeScopeProps) => {
         size='tiny'
       />
       <Progress
-        className='dapplet-timeline-comments timestamp cc cc-start'
+        className={`dapplet-timeline-comments timestamp cc cc-start ${from >= 3600 ? 'dp-big' : 'dp-small'}`}
         percent={100 * from / videoLength}
         size='tiny'
       >

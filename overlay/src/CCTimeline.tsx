@@ -164,7 +164,7 @@ export default (props: ICCTimelineProps) => {
         }}
       />
       <Progress 
-        className={cn('dapplet-timeline-comments', 'cc', 'cc-finish current-time', 'point-cc', currentTime >= 3600 ? 'big' : 'small')}
+        className={`dapplet-timeline-comments cc cc-finish current-time point-cc ${currentTime >= 3600 ? 'dp-big' : 'dp-small'}`}
         percent={100 * (currentTime - from) / (to - from)}
         size='tiny'
       >
