@@ -89,6 +89,7 @@ export default (props: IProps) => {
   };
 
   const handleSubmit = async (e: any) => {
+    e.stopPropagation();
     e.preventDefault();
     const addingStickerParams: { transform: IStickerTransform } = await bridge.getAddingStickerParams();
     const currentSticker: ISticker = {
@@ -183,11 +184,11 @@ export default (props: IProps) => {
           </Card.Group>}
         </Container>
         <Divider />
-        <Container style={{  margin: '1em 0' }}>
+        <Container style={{ margin: '1em 0' }}>
           <Form.TextArea
             value={message}
             placeholder='Add text message'
-            style={{ minHeight: 120, maxHeight: 'calc(70vh - 158px)' }}
+            style={{ minHeight: 42, maxHeight: 'calc(70vh - 158px)' }}
             onChange={(e) => setMessage(e.target.value)}
           />
         </Container>

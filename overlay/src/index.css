@@ -258,11 +258,12 @@ body {
   z-index: 5038;
 }
 
+.dapplet-timeline-comments.timestamp.cc-finish > .bar::before,
 .dapplet-timeline-comments.timestamp.cc-start > .bar::before {
   content: none;
 }
 
-.dapplet-timeline-comments.timestamp.cc-finish > .bar::before {
+/* .dapplet-timeline-comments.timestamp.cc-finish > .bar::before {
   color: #FFFFFF;
   font-size: 10px;
   top: 16px;
@@ -280,14 +281,14 @@ body {
   color: #FFFFFF;
   font-size: 10px;
   top: -25px;
-  left: auto;
-  right: -23px;
+  left: calc(100% - 12px);
+  right: auto;
   padding: 3px 5px;
   background: #D9304F !important;
   border: none !important;
   border-radius: 9em;
   z-index: 5039;
-}
+} */
 
 .dapplet-timeline-comments.activecomments > .bar::before {
   position: absolute;
@@ -464,6 +465,75 @@ body {
   cursor: default;
   background: 0 0 no-repeat url("./cc_current_time_point.svg");
   z-index: 10000;
+}
+
+/* .dapplet-timeline-comments.cc.current-time.point-cc > .bar::before {
+  display: block;
+  position: absolute;
+  content: attr(data-timestamp);
+  color: white;
+  font-size: 14px;
+  padding: 5px 7px;
+  top: 19px;
+  cursor: default;
+  background: #D9304F;
+  border: 1px solid #D9304F;
+  box-sizing: border-box;
+  border-radius: 11px;
+  z-index: 10000;
+} */
+
+.dapplet-timeline-comments.timestamp.cc.cc-start form,
+.dapplet-timeline-comments.timestamp.cc.cc-finish form,
+.dapplet-timeline-comments.cc.current-time.point-cc form {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dapplet-timeline-comments.timestamp.cc.cc-start form {
+  margin-top: -40px !important;
+}
+
+.dapplet-timeline-comments.timestamp.cc.cc-finish form {
+  margin-top: 4px !important;
+}
+
+.dapplet-timeline-comments.timestamp.cc.cc-start input,
+.dapplet-timeline-comments.timestamp.cc.cc-finish input,
+.dapplet-timeline-comments.cc.current-time.point-cc input {
+  font-family: 'Roboto', sans-serif !important;
+  text-align: center;
+  width: 53px;
+  background: #D9304F !important;
+  border: 1px solid #D9304F;
+  border-color: #D9304F !important;
+  box-sizing: border-box;
+  border-radius: 11px !important;
+  color: white !important;
+  font-size: 14px;
+  padding: 4px 7px 3px;
+  margin-right: -27px;
+  margin-top: 3px;
+}
+
+.dapplet-timeline-comments.timestamp.cc.cc-start input,
+.dapplet-timeline-comments.timestamp.cc.cc-finish input {
+  width: 38px;
+  font-size: 10px !important;
+  padding: 3px 5px 2px !important;
+  border-radius: 9em !important;
+}
+
+.dapplet-timeline-comments.timestamp.cc.cc-finish input {
+  margin-right: -11px !important;
+}
+
+.dapplet-timeline-comments.cc.current-time.point-cc.small > .bar::before {
+  right: -26px;
+}
+
+.dapplet-timeline-comments.cc.current-time.point-cc.big > .bar::before {
+  right: -36px;
 }
 
 .dapplet-timeline-comments.cc.current-time.point-cc.pointer > .bar::after {
@@ -920,65 +990,3 @@ a.ui.card:hover {
   color: #a5a5a5;
   font-variant-caps: all-small-caps;
 }
-
-/* PLAYER */
-
-.dp-player-container {
-  display: flex;
-  justify-content: center;
-}
-
-.dp-player {
-  display: flex;
-  width: 209px;
-  justify-content: space-around;
-  align-items: center;
-}
-
-.dp-arrow-to-from,
-.dp-arrow-to-prev,
-.dp-pause,
-.dp-play,
-.dp-repeat,
-.dp-arrow-to-next,
-.dp-arrow-to-to {
-  display: block;
-  border: 0;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all .1s ease-in-out;
-}
-
-.dp-arrow-to-from,
-.dp-arrow-to-to {
-  width: 22px;
-  height: 19px;  
-}
-
-.dp-arrow-to-prev,
-.dp-arrow-to-next {
-  width: 19px;
-  height: 19px;
-}
-
-.dp-pause,
-.dp-repeat,
-.dp-play {
-  width: 53px;
-  height: 53px;
-}
-
-.central-first-color,
-.central-back-color,
-.arrays-color { transition: all .15s ease-in-out; }
-
-.central-first-color { fill: #D9304F; }
-.central-back-color { fill: #E3E3E3; }
-.player-svg:hover .central-first-color { fill: #EC193F; }
-.player-svg:hover .central-back-color { fill: #FFFFFF; }
-.player-svg:active .central-first-color { fill: #FF002F; }
-.player-svg:active .central-back-color { fill: #FFFFFF; }
-.arrays-color { fill: #747376; }
-.player-svg:hover .arrays-color { fill: #494453; }
-.player-svg:active .arrays-color { fill: #EC193F; }

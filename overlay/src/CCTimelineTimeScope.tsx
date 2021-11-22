@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
 import { bridge } from './dappletBridge';
-import { formatTime, roundToMultiple } from './utils';
 import { IPoint, IStickerTransform } from './types';
+import { formatTime, roundToMultiple } from './utils';
+import TimeInput from './TimeInput'; 
 
 interface ICCTimelineTimeScopeProps {
   videoLength: number
@@ -48,6 +49,16 @@ export default (props: ICCTimelineTimeScopeProps) => {
     setIsMoving(false);
   };
 
+  const nearestLowerPointTime = addingStickerTransform
+  && Object.entries(addingStickerTransform)
+    .map(([transformPointId, transformPointParams]) => transformPointParams.time)
+    .sort((a, b) => b - a)[0];
+
+  const nearestHigherPointTime = addingStickerTransform
+    && Object.entries(addingStickerTransform)
+      .map(([transformPointId, transformPointParams]) => transformPointParams.time)
+      .sort((a, b) => a - b)[0];
+
   return (
     <div className='dapplet-double-timeline cc'>
       <div className='time-labels cc timescope'>
@@ -70,10 +81,6 @@ export default (props: ICCTimelineTimeScopeProps) => {
           el.style.display = 'block';
           bridge.pauseVideo();
           const newTime = e.target.offsetWidth * videoLength / (e.target.parentElement.offsetWidth - 2);
-          const nearestLowerPointTime = addingStickerTransform
-            && Object.entries(addingStickerTransform)
-              .map(([transformPointId, transformPointParams]) => transformPointParams.time)
-              .sort((a, b) => b - a)[0];
           const roundedTime = roundToMultiple(newTime);
           const newCurrentTime = nearestLowerPointTime
             ? roundedTime < nearestLowerPointTime ? nearestLowerPointTime : roundedTime > videoLength ? videoLength : roundedTime
@@ -95,10 +102,6 @@ export default (props: ICCTimelineTimeScopeProps) => {
           el.style.display = 'block';
           bridge.pauseVideo();
           const newTime = e.target.offsetWidth * videoLength / (e.target.parentElement.offsetWidth - 2);
-          const nearestHigherPointTime = addingStickerTransform
-            && Object.entries(addingStickerTransform)
-              .map(([transformPointId, transformPointParams]) => transformPointParams.time)
-              .sort((a, b) => a - b)[0];
           const roundedTime = roundToMultiple(newTime);
           const newCurrentTime = nearestHigherPointTime
             ? roundedTime >= nearestHigherPointTime ? nearestHigherPointTime : roundedTime < 0 ? 0 : roundedTime
@@ -113,7 +116,18 @@ export default (props: ICCTimelineTimeScopeProps) => {
         className='dapplet-timeline-comments timestamp cc cc-finish'
         percent={100 * to / videoLength}
         size='tiny'
-      />
+      >
+        <TimeInput
+          time={to}
+          updateCurrentTime={updateCurrentTime}
+          doUpdateCCTimeline={doUpdateCCTimeline}
+          setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+          min={nearestLowerPointTime ?? from + 1}
+          max={videoLength}
+          percent={100 * to / videoLength}
+          changeTimestamp={setTo}
+        />
+      </Progress>
       <Progress
         className='dapplet-timeline-comments progressbar cc-finish'
         percent={100 * to / videoLength}
@@ -123,7 +137,18 @@ export default (props: ICCTimelineTimeScopeProps) => {
         className='dapplet-timeline-comments timestamp cc cc-start'
         percent={100 * from / videoLength}
         size='tiny'
-      />
+      >
+        <TimeInput
+          time={from}
+          updateCurrentTime={updateCurrentTime}
+          doUpdateCCTimeline={doUpdateCCTimeline}
+          setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+          min={0}
+          max={nearestHigherPointTime ?? to - 1}
+          percent={100 * from / videoLength}
+          changeTimestamp={setFrom}
+        />
+      </Progress>
       <Progress
         className='dapplet-timeline-comments progressbar cc-start timescope'
         percent={100 * from / videoLength}
@@ -136,10 +161,6 @@ export default (props: ICCTimelineTimeScopeProps) => {
           ev.stopPropagation();
           if (!isMoving || ev.pageX < 52 || ev.pageX > ev.target.parentElement.offsetWidth + 52) return;
           const newTime = (ev.pageX - 52) * videoLength / ev.target.parentElement.offsetWidth;
-          const nearestLowerPointTime = addingStickerTransform
-            && Object.entries(addingStickerTransform)
-              .map(([transformPointId, transformPointParams]) => transformPointParams.time)
-              .sort((a, b) => b - a)[0];
           const roundedTime = roundToMultiple(newTime);
           const newCurrentTime = nearestLowerPointTime
             ? roundedTime <= nearestLowerPointTime ? nearestLowerPointTime : roundedTime > videoLength ? videoLength : roundedTime
@@ -159,10 +180,6 @@ export default (props: ICCTimelineTimeScopeProps) => {
           ev.stopPropagation();
           if (!isMoving || ev.pageX < 52 || ev.pageX > ev.target.parentElement.offsetWidth + 52) return;
           const newTime = (ev.pageX - 52) * videoLength / ev.target.parentElement.offsetWidth;
-          const nearestHigherPointTime = addingStickerTransform
-            && Object.entries(addingStickerTransform)
-              .map(([transformPointId, transformPointParams]) => transformPointParams.time)
-              .sort((a, b) => a - b)[0];
           const roundedTime = roundToMultiple(newTime);
           const newCurrentTime = nearestHigherPointTime
             ? roundedTime >= nearestHigherPointTime ? nearestHigherPointTime : roundedTime < 0 ? 0 : roundedTime

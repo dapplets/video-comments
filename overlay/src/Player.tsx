@@ -78,6 +78,7 @@ export default (props: IPlayerProps) => {
           </svg>
         </button>
         <button
+          autoFocus
           className={cn(isPlaying ? 'dp-pause' : currentTime >= to ? 'dp-repeat' : 'dp-play')}
           onClick={async (e) => {
             e.preventDefault();

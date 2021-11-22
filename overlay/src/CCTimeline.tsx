@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
+import cn from 'classnames';
 import { bridge } from './dappletBridge';
-import CCTimelinePoint from './CCTimelinePoint';
-import { formatTime, roundToMultiple } from './utils';
 import { IPoint, IStickerTransform } from './types';
+import { formatTime, roundToMultiple } from './utils';
+import CCTimelinePoint from './CCTimelinePoint';
+import TimeInput from './TimeInput'; 
 
 interface ICCTimelineProps {
   videoLength: number
   currentTime: number
-  updateCurrentTime: any
+  updateCurrentTime: React.Dispatch<React.SetStateAction<number>>
   from: number
   setFrom: any
   to: number
@@ -46,12 +48,12 @@ export default (props: ICCTimelineProps) => {
   // console.log('addingStickerTransform***', addingStickerTransform)
 
   useEffect(() => {
-    addPropTimestampPoint('start', formatTime(from));
-    addPropTimestampPoint('finish', formatTime(to));
-    addingStickerTransform && Object.entries(addingStickerTransform)
-      .map(([transformPointId, transformPointParams]) => {
-        addPropTimestampPoint(transformPointId, formatTime(transformPointParams.time));
-      });
+    addPropTimestampPoint('start.timestamp', formatTime(from));
+    addPropTimestampPoint('finish.timestamp', formatTime(to));
+    // addingStickerTransform && Object.entries(addingStickerTransform)
+    //   .map(([transformPointId, transformPointParams]) => {
+    //     addPropTimestampPoint(transformPointId, formatTime(transformPointParams.time));
+    //   });
   });
 
   useEffect(() => {
@@ -64,7 +66,7 @@ export default (props: ICCTimelineProps) => {
         setIsMoving(true);
       }
     }, 300);
-  }, [isMouseDown])
+  }, [isMouseDown]);
 
   const stopTimeChanging = async (ev: any) => {
     ev.preventDefault();
@@ -162,10 +164,20 @@ export default (props: ICCTimelineProps) => {
         }}
       />
       <Progress 
-        className='dapplet-timeline-comments cc cc-finish current-time point-cc'
+        className={cn('dapplet-timeline-comments', 'cc', 'cc-finish current-time', 'point-cc', currentTime >= 3600 ? 'big' : 'small')}
         percent={100 * (currentTime - from) / (to - from)}
         size='tiny'
-      />
+      >
+        <TimeInput
+          time={currentTime}
+          updateCurrentTime={updateCurrentTime}
+          doUpdateCCTimeline={doUpdateCCTimeline}
+          setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+          min={from}
+          max={to}
+          percent={100 * (currentTime - from) / (to - from)}
+        />
+      </Progress>
       <div
         className='timeline-touch-area cc-current'
         onMouseMove={(ev: any) => {
@@ -181,14 +193,10 @@ export default (props: ICCTimelineProps) => {
         onMouseUp={(e) => {
           stopTimeChanging(e);
           setIsMouseDown(false);
-          // const t = new Date()
-          // console.log(t.getMilliseconds())
         }}
         onMouseLeave={(e) => {
           stopTimeChanging(e);
           setIsMouseDown(false);
-          // const t = new Date()
-          // console.log(t.getMilliseconds())
         }}
       />
     </div>
@@ -196,6 +204,6 @@ export default (props: ICCTimelineProps) => {
 };
 
 const addPropTimestampPoint = (id: string, value: string) => {
-  const el = document.querySelector(`.dapplet-timeline-comments.timestamp.cc-${id} >.bar`);
+  const el = document.querySelector(`.dapplet-timeline-comments.cc-${id} >.bar`);
   el?.setAttribute('data-timestamp', value);
 };

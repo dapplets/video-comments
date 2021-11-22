@@ -1,0 +1,72 @@
+.dp-player-container {
+  display: flex;
+  justify-content: center;
+}
+
+.dp-player {
+  display: flex;
+  width: 209px;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.dp-player button:focus,
+.dp-player svg:focus {
+  outline: none !important;
+}
+
+.dp-arrow-to-from,
+.dp-arrow-to-prev,
+.dp-pause,
+.dp-play,
+.dp-repeat,
+.dp-arrow-to-next,
+.dp-arrow-to-to {
+  display: block;
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all .1s ease-in-out;
+}
+
+.dp-arrow-to-from,
+.dp-arrow-to-to {
+  width: 22px;
+  height: 19px;  
+}
+
+.dp-arrow-to-prev,
+.dp-arrow-to-next {
+  width: 19px;
+  height: 19px;
+}
+
+.dp-pause,
+.dp-repeat,
+.dp-play {
+  width: 53px;
+  height: 53px;
+}
+
+.central-first-color,
+.central-back-color,
+.arrays-color { transition: all .15s ease-in-out; }
+
+.central-first-color { fill: #D9304F; }
+.central-back-color { fill: #E3E3E3; }
+.player-svg:hover .central-first-color,
+.dp-play:focus .central-first-color,
+.dp-pause:focus .central-first-color,
+.dp-repeat:focus .central-first-color { fill: #EC193F; }
+.player-svg:hover .central-back-color,
+.player-svg:focus .central-back-color { fill: #FFFFFF; }
+.player-svg:active .central-first-color { fill: #FF002F; }
+.player-svg:active .central-back-color { fill: #FFFFFF; }
+.arrays-color { fill: #747376; }
+.player-svg:hover .arrays-color,
+.dp-arrow-to-from:focus .arrays-color,
+.dp-arrow-to-prev:focus .arrays-color,
+.dp-arrow-to-next:focus .arrays-color,
+.dp-arrow-to-to:focus .arrays-color { fill: #494453; }
+.player-svg:active .arrays-color { fill: #EC193F; }
