@@ -74,7 +74,7 @@ export default class VideoFeature implements IFeature {
         .listen({
           connectWallet: async () => {
             try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
               await wallet.connect();
               this._overlay.send('connectWallet_done', '');
             } catch (err) {
@@ -83,7 +83,7 @@ export default class VideoFeature implements IFeature {
           },
           disconnectWallet: async () => {
             try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
               await wallet.disconnect();
               this._overlay.send('disconnectWallet_done', '');
             } catch (err) {
@@ -92,7 +92,7 @@ export default class VideoFeature implements IFeature {
           },
           isWalletConnected: async () => {
             try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
               const isWalletConnected = await wallet.isConnected();
               this._overlay.send('isWalletConnected_done', isWalletConnected);
             } catch (err) {
@@ -101,7 +101,7 @@ export default class VideoFeature implements IFeature {
           },
           getCurrentEthereumAccount: async () => {
             try {
-              const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
               wallet.sendAndListen('eth_accounts', [], {
                 result: (op, { data }) => {
                   const currentAddress = data[0];
@@ -334,7 +334,7 @@ export default class VideoFeature implements IFeature {
           this._videoEl = <HTMLMediaElement>ctx.element;
           const videoId = ctx.id;
 
-          const wallet = await Core.wallet({ type: "ethereum", network: "rinkeby" });
+          const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
           const isWalletConnected = await wallet.isConnected();
 
           let commentsRemarkData: any;
@@ -626,8 +626,9 @@ export default class VideoFeature implements IFeature {
   }
   
   async getAccountId(): Promise<string> {
+    const core: any = Core;
     return new Promise((res, rej) => 
-      Core.wallet({ type: "ethereum", network: "rinkeby" })
+      core.wallet({ type: "ethereum", network: "goerli" })
         .then(w => w.sendAndListen('eth_accounts', [], {
           result: (op, { data }) => {
             const accountId =  data[0];
@@ -640,7 +641,7 @@ export default class VideoFeature implements IFeature {
   }
 
   getEnsNames = async ( eths: string[] ): Promise<string[] | undefined> => {
-    const contract = Core.contract('ethereum', '0x196eC7109e127A353B709a20da25052617295F6f', abi);
+    const contract = await Core.contract('ethereum', '0x3f3d7dc7f0ad3878de67079e07df06b150ac7421', abi);
     try {
       const ensNames = await contract.getNames(eths);
       return ensNames;

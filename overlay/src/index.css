@@ -998,7 +998,7 @@ a.ui.card:hover {
 }
 
 .user-info.unlogged > .user-image {
-  background: left 0 / 24px no-repeat url('./purple-logo-icon.svg');
+  background: left 0 / 24px no-repeat url('./video-comments-icon.png');
   opacity: .7;
 }
 

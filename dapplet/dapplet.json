@@ -6,7 +6,7 @@
   "title": "Video Comments",
   "description": { "$ref": "package.json#/description" },
   "main": { "$ref": "package.json#/main" },
-  "icon": "src/icons/Purple_Icon.png",
+  "icon": "src/icons/video-comments-icon.png",
   "contextIds": [
     "twitter-adapter.dapplet-base.eth",
     "video-adapter.dapplet-base.eth"
