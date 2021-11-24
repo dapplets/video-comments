@@ -774,6 +774,7 @@ body {
 
 .stickers-container {
   margin: 10px 0 0 !important;
+  min-height: 83px;
   height: 300px;
   resize: vertical;
   overflow-x: hidden;

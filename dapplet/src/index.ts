@@ -195,16 +195,6 @@ export default class VideoFeature implements IFeature {
             this._to = message.to;
             this._overlay.send('addSticker_done');
           },
-          removeAddingSticker: () => {
-            this._commentsData.filter((commentData) => !commentData.hidden).forEach((commentData) => {
-              this._$(this._ctx, commentData.id).state = 'DEFAULT';
-            });
-            this._$(this._ctx, this._addingStickerId).state = 'HIDDEN';
-            this._$(this._ctx, this._addingStickerId).transform = this._addingStickerTransform = undefined;
-            this._from = undefined;
-            this._to = undefined;
-            this._overlay.send('removeAddingSticker_done');
-          },
           getAddingStickerParams: () => {
             this._overlay.send('getAddingStickerParams_done', { transform: this._addingStickerTransform });
           },
@@ -244,7 +234,9 @@ export default class VideoFeature implements IFeature {
           },
           addPoint: () => {
             // console.log('here')
-            const sticker: HTMLElement = document.querySelector(`dapplet-sticker-${this._addingStickerId}`);
+            const sticker: HTMLElement = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
+            console.log('this._addingStickerId', this._addingStickerId)
+            console.log('sticker', sticker)
             const currentCSSTransform = sticker
               ? parseCSS('transform', sticker.style.transform)
               : {

@@ -134,7 +134,7 @@ export default (props: IProps) => {
             updateAddingStickerTransform(undefined);
             setIsMoving(true);
             setDoUpdateCCTimeline(true);
-            bridge.removeAddingSticker();
+            bridge.updateData();
           }
         }}>
           Back
@@ -160,7 +160,7 @@ export default (props: IProps) => {
             updateAddingStickerTransform(undefined);
             setIsMoving(true);
             setDoUpdateCCTimeline(true);
-            bridge.removeAddingSticker();
+            bridge.updateData();
           }}
         />
       </div>

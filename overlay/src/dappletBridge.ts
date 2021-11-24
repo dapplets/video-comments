@@ -82,15 +82,6 @@ class Bridge extends GeneralBridge {
     );
   }
 
-  removeAddingSticker() {
-    return this.call(
-      'removeAddingSticker',
-      null,
-      'removeAddingSticker_done',
-      'removeAddingSticker_undone',
-    );
-  }
-
   getAddingStickerParams() {
     return this.call(
       'getAddingStickerParams',
