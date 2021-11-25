@@ -193,8 +193,8 @@ export default class VideoFeature implements IFeature {
               this.updateFromTo(message.from, message.to);
               this._$(this._ctx, this._addingStickerId).img = allStickers[message.stickerName];
             }
-            console.log('message.from', message.from)
-            console.log('this._currentTime', this._currentTime)
+            // console.log('message.from', message.from)
+            // console.log('this._currentTime', this._currentTime)
             this._overlay.send('changeAddingStickerImage_done');
           },
           changeStickerTransformPointTime: (
@@ -219,8 +219,8 @@ export default class VideoFeature implements IFeature {
           addPoint: () => {
             // console.log('here')
             const sticker: HTMLElement = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
-            console.log('this._addingStickerId', this._addingStickerId)
-            console.log('sticker', sticker)
+            // console.log('this._addingStickerId', this._addingStickerId)
+            // console.log('sticker', sticker)
             const currentCSSTransform = sticker
               ? parseCSS('transform', sticker.style.transform)
               : {
@@ -506,11 +506,11 @@ export default class VideoFeature implements IFeature {
               opacity: '1',
               disabled: false,
               onChange: (e: any) => {
-                const movingStickerElement = e.target
+                const time = roundToMultiple(this._ctx.currentTime);
+                if (time > this._to) return;
+                const movingStickerElement = e.target;
                 if (!movingStickerElement) return;
                 const currentCSSTransform = parseCSS('transform', movingStickerElement.style.transform);
-                const time = roundToMultiple(this._ctx.currentTime);
-  
                 if (!this._addingStickerTransform) {
                   this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
                     [String(getRandomInt())]: { ...currentCSSTransform, time },
@@ -518,13 +518,14 @@ export default class VideoFeature implements IFeature {
                 } else {
                   const sortedPoints = Object.entries(this._addingStickerTransform).sort((a, b) => a[1].time - b[1].time);
                   const oldAnimationPointAtSameTime = sortedPoints
-                    .find(([key, value]: [a: string, b: IStickerTransformParams]) => value.time >= time - 0.03 && value.time < time + 0.03);
-                  this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
-                    ...this._addingStickerTransform,
-                    [oldAnimationPointAtSameTime ? oldAnimationPointAtSameTime[0] : String(getRandomInt())]: { ...currentCSSTransform, time },
-                  };
+                    .find(([key, value]: [a: string, b: IStickerTransformParams]) => value.time >= time - 0.2 && value.time < time + 0.2);
+                  if (oldAnimationPointAtSameTime) {
+                    this._addingStickerTransform[oldAnimationPointAtSameTime[0]] = { ...currentCSSTransform, time: oldAnimationPointAtSameTime[1].time };
+                  } else {
+                    this._addingStickerTransform[String(getRandomInt())] = { ...currentCSSTransform, time };
+                  }
+                  this._$(this._ctx, this._addingStickerId).transform = this._addingStickerTransform;
                 }
-
                 this._overlay.send('transform', this._addingStickerTransform);
               }
             },

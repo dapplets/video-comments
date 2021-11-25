@@ -29,7 +29,7 @@ export default (props: IPlayerProps) => {
     if (active && isPlaying) {
       if (currentTime >= to) {
         bridge.pauseVideo();
-        bridge.setCurrentTime(currentTime);
+        bridge.setCurrentTime(to);
       }
     }
   });
