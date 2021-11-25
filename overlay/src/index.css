@@ -792,7 +792,7 @@ body {
 .ui.four.cards>.card {
   display: flex !important;
   align-items: center !important;
-  width: 78px !important;
+  /* width: 78px !important; */
   height: 78px !important;
 }
 

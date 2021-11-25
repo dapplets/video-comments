@@ -153,7 +153,7 @@ export const formatTime = (time?: number) => {
 
 export const getRandomInt = () => Math.trunc(Math.random() * 1_000_000_000);
 
-export const roundToMultiple = (num: number, m: number = 2) => {
+export const roundToMultiple = (num: number, m: number = 3) => {
   const a = Math.pow(10, m);
-  return Math.round(num * a) / a;
+  return Math.trunc(num * a) / a;
 };

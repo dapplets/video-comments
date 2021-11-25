@@ -10,7 +10,7 @@ export interface IStickerTransform {
 }
 
 export interface IStickerTransformParams extends ICSSTransform {
-    time: number
+  time: number
 }
 
 export interface ICSSTransform {
@@ -64,14 +64,10 @@ export interface ISharedData {
   commentId: string
 }
 
-export interface IRemarkUser {
-  id: string         //  ID
-  name: string       //  Name
-  picture: string    //  Picture
-  admin: boolean     //  Admin
-  site_id?: string   //  
-  block?: boolean    //  Blocked
-  verified?: boolean //  Verified
+export interface IChangeAddingStickerImageProps {
+  stickerName: string
+  from: number
+  to: number
 }
 
 export interface IRemarkComment {
@@ -92,18 +88,22 @@ export interface IRemarkComment {
   title?: string          // PostTitle: post title
 }
 
-export interface IRemarkLocator {
+interface IRemarkUser {
+  id: string         //  ID
+  name: string       //  Name
+  picture: string    //  Picture
+  admin: boolean     //  Admin
+  site_id?: string   //  
+  block?: boolean    //  Blocked
+  verified?: boolean //  Verified
+}
+
+interface IRemarkLocator {
   site: string           // SiteID: site id
   url: string            // URL: post url
 }
 
-export interface IRemarkEdit {
+interface IRemarkEdit {
   time: string             // Timestamp
   summary: string        // Summary
-}
-
-export interface IChangeAddingStickerImageProps {
-  stickerName: string
-  from: number
-  to: number
 }
