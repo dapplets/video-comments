@@ -517,6 +517,7 @@ export default class VideoFeature implements IFeature {
                   };
                 } else {
                   const sortedPoints = Object.entries(this._addingStickerTransform).sort((a, b) => a[1].time - b[1].time);
+                  if (sortedPoints.find((point) => point[1].time > time) && !this._videoEl.paused) this._videoEl.pause();
                   const oldAnimationPointAtSameTime = sortedPoints
                     .find(([key, value]: [a: string, b: IStickerTransformParams]) => value.time >= time - 0.2 && value.time < time + 0.2);
                   if (oldAnimationPointAtSameTime) {
