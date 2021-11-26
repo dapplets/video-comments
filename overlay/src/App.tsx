@@ -22,7 +22,6 @@ export default () => {
   const [duration, addDuration] = useState<number>();
   const [images, addImages] = useState<any | undefined>();
   const [currentTime, updateCurrentTime] = useState(0);
-  const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
   const [videoId, setVideoId] = useState('');
   const [isCommentPublished, setIsCommentPublished] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -150,8 +149,6 @@ export default () => {
       videoLength={duration}
       updateCurrentTime={updateCurrentTime}
       currentTime={typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime}
-      doUpdateCCTimeline={doUpdateCCTimeline}
-      setDoUpdateCCTimeline={setDoUpdateCCTimeline}
       videoId={videoId}
       setIsCommentPublished={setIsCommentPublished}
       message={message}
@@ -186,7 +183,6 @@ export default () => {
       onPageChange={setPage}
       isCommentPublished={isCommentPublished}
       setMessage={setMessage}
-      setDoUpdateCCTimeline={setDoUpdateCCTimeline}
     />
   );
 

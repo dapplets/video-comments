@@ -15,8 +15,6 @@ interface IProps {
   videoLength: number
   currentTime: number
   updateCurrentTime: any
-  doUpdateCCTimeline: boolean
-  setDoUpdateCCTimeline: any
   videoId: string
   setIsCommentPublished: any
   message: string
@@ -33,8 +31,6 @@ export default (props: IProps) => {
     videoLength,
     currentTime,
     updateCurrentTime,
-    doUpdateCCTimeline,
-    setDoUpdateCCTimeline,
     videoId,
     setIsCommentPublished,
     message,
@@ -51,6 +47,17 @@ export default (props: IProps) => {
   const [isMoving, setIsMoving] = useState(false);
   const [openDimmer, toggleOpenDimmer] = useState(false);
   const [addingStickerTransform, updateAddingStickerTransform] = useState<IStickerTransform>();
+  const [doUpdateCCTimeline, setDoUpdateCCTimeline] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!doUpdateCCTimeline && isPlaying) {
+      if (currentTime >= to) {
+        bridge.pauseVideo();
+        bridge.setCurrentTime(to);
+      }
+    }
+  });
 
   useEffect(() => {
     if (doUpdateCCTimeline) {
@@ -232,6 +239,8 @@ export default (props: IProps) => {
           addingStickerTransform={addingStickerTransform}
           doUpdateCCTimeline={doUpdateCCTimeline}
           setDoUpdateCCTimeline={setDoUpdateCCTimeline}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
         />
         <Form.Button
           color='violet'

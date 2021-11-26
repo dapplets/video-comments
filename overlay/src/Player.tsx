@@ -10,6 +10,8 @@ interface IPlayerProps {
   addingStickerTransform?: IStickerTransform
   doUpdateCCTimeline: boolean
   setDoUpdateCCTimeline: any
+  isPlaying: boolean
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 export default (props: IPlayerProps) => {
@@ -20,19 +22,9 @@ export default (props: IPlayerProps) => {
     addingStickerTransform,
     doUpdateCCTimeline,
     setDoUpdateCCTimeline,
+    isPlaying,
+    setIsPlaying,
   } = props;
-
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [active, setActive] = useState(false);
-
-  useEffect(() => {
-    if (active && isPlaying) {
-      if (currentTime >= to) {
-        bridge.pauseVideo();
-        bridge.setCurrentTime(to);
-      }
-    }
-  });
   
   useEffect(() => {
     bridge.isVideoPlaying().then(setIsPlaying);
@@ -46,7 +38,6 @@ export default (props: IPlayerProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setActive(true);
             if (isPlaying) bridge.pauseVideo();
             doUpdateCCTimeline && setDoUpdateCCTimeline(false);
             bridge.setCurrentTime(from);
@@ -64,7 +55,6 @@ export default (props: IPlayerProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setActive(true);
             if (isPlaying) bridge.pauseVideo();
             doUpdateCCTimeline && setDoUpdateCCTimeline(false);
             const nearestLowerPointTime = addingStickerTransform && Object.values(addingStickerTransform).map(({ time }) => time).sort((a, b) => b - a).find((trTime) => trTime < currentTime);
@@ -83,7 +73,6 @@ export default (props: IPlayerProps) => {
           onClick={async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            setActive(true);
             doUpdateCCTimeline && setDoUpdateCCTimeline(false);
             if (isPlaying) {
               bridge.pauseVideo();
@@ -127,7 +116,6 @@ export default (props: IPlayerProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setActive(true);
             if (isPlaying) bridge.pauseVideo();
             doUpdateCCTimeline && setDoUpdateCCTimeline(false);
             const nearestHigherPointTime = addingStickerTransform && Object.values(addingStickerTransform).map(({ time }) => time).sort((a, b) => a - b).find((trTime) => trTime > currentTime);
@@ -145,7 +133,6 @@ export default (props: IPlayerProps) => {
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
-            setActive(true);
             if (isPlaying) bridge.pauseVideo();
             doUpdateCCTimeline && setDoUpdateCCTimeline(false);
             bridge.setCurrentTime(to);

@@ -9,7 +9,6 @@ interface IPublicationNoticeProps {
   onPageChange: any
   isCommentPublished: boolean
   setMessage: any
-  setDoUpdateCCTimeline: any
 }
 
 export default (props: IPublicationNoticeProps) => {
@@ -20,13 +19,11 @@ export default (props: IPublicationNoticeProps) => {
     onPageChange,
     isCommentPublished,
     setMessage,
-    setDoUpdateCCTimeline,
   } = props;
 
   useEffect(() => {
     bridge.updateData();
     setMessage('');
-    setDoUpdateCCTimeline(true);
   }, []);
 
   const handleGoToCCPage = async () => {
