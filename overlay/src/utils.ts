@@ -142,7 +142,7 @@ export const getUserInfo = async (accountId: string) => {
 
 export const formatTime = (time?: number) => {
   if (time === undefined) return 'Infinity';
-  const seconds = Math.ceil(time);
+  const seconds = Math.floor(time);
   const s = (seconds % 60).toString();
   const m = Math.floor(seconds / 60 % 60).toString();
   const h = Math.floor(seconds / 60 / 60 % 60).toString();

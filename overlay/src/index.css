@@ -246,9 +246,9 @@ body {
 
 .dapplet-timeline-comments.timestamp > .bar::before {
   position: absolute;
-  color: #747376;
+  color: white;
   padding: 3px 8px;
-  background: white;
+  background: #D9304F;
   border: 1px solid #D9304F;
   top: -6px;
   right: -2em;
