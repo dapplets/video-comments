@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
-import cn from 'classnames';
-import { bridge } from './dappletBridge';
-import { IPoint, IStickerTransform } from './types';
-import { formatTime, roundToMultiple } from './utils';
+import { bridge } from '../dappletBridge';
+import { IPoint, IStickerTransform } from '../types';
+import { formatTime, roundToMultiple } from '../utils';
 import CCTimelinePoint from './CCTimelinePoint';
 import TimeInput from './TimeInput'; 
 

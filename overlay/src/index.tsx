@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import './player.css';
-import App from './App';
+import './styles/index.css';
+import './styles/player.css';
+import App from './components/App';
 import 'semantic-ui-css/semantic.min.css';
 import TimeAgo from 'javascript-time-ago'
 

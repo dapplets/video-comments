@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Divider, Icon } from 'semantic-ui-react';
-import { bridge } from './dappletBridge';
-import { getUserInfo } from './utils';
+import { bridge } from '../dappletBridge';
+import { getUserInfo } from '../utils';
 
 interface IAuthorizationProps {
   back: number

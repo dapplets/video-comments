@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Container, Dimmer, Dropdown, Form, Header, Icon, Loader, Menu, MenuItemProps } from 'semantic-ui-react';
+import { bridge } from '../dappletBridge';
+import { IData, SortTypes } from '../types';
+import { deleteComment } from '../utils';
 import VideoComment from './VideoComment';
 import Timeline from './Timeline';
-import { bridge } from './dappletBridge';
-import { IData, SortTypes } from './types';
-import { deleteComment } from './utils';
 
 interface ICommentsProps {
   data?: IData[]

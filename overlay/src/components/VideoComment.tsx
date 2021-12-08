@@ -1,10 +1,10 @@
 import React, { useRef, useState } from 'react';
 import { Card, Comment, Confirm, Icon, Popup, Ref } from 'semantic-ui-react';
 import ReactTimeAgo from 'react-time-ago';
-import { IData } from './types';
-import { formatTime, setCommentDeleted, voteForComment } from './utils';
-import { bridge } from './dappletBridge';
 import cn from 'classnames';
+import { bridge } from '../dappletBridge';
+import { IData } from '../types';
+import { formatTime, setCommentDeleted, voteForComment } from '../utils';
 
 interface IVideoCommentProps {
   commentsList: number

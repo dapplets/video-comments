@@ -1,5 +1,6 @@
 import { IFeature } from '@dapplets/dapplet-extension';
 import update from 'immutability-helper';
+import abi from './abi';
 import {
   IData,
   ISticker,
@@ -10,7 +11,6 @@ import {
   IStickerTransformParams,
   IChangeAddingStickerImageProps,
 } from './types';
-import abi from './abi';
 import { getRandomInt, parseCSS, roundToMultiple } from './utils';
 import MENU_ICON from './icons/white-menu-icon.svg';
 import { allStickers } from './stickerPack';
@@ -35,10 +35,11 @@ export default class VideoFeature implements IFeature {
   private _commentsData: any
   private _duration: number
   private _videoId: string
+  private _isStableId: boolean
   private _$: any
   private _ctx: any
   private _selectedCommentId: string
-  private _sharedData: any
+  private _sharedData: ISharedData
 
   private _addingStickerId: string
   private _addingStickerTransform: IStickerTransform
@@ -293,29 +294,67 @@ export default class VideoFeature implements IFeature {
           createShareLink: async (op: any, { type, message }: { type?: any, message: string }) => {
             const core: any = Core;
             const url = document.location.href;
-            const sharedData: ISharedData = { ctxId: this._ctx.id, commentId: message };
+            const sharedData: ISharedData = { ctxId: this._videoId, commentId: message };
             const link = core.createShareLink(url, sharedData);
             await navigator.clipboard.writeText(link);
             this._overlay.send('createShareLink_done', '');
           },
+          copyTopicId: async (op: any, { type, message }: { type?: any, message: string }) => {
+            await navigator.clipboard.writeText(message);
+            this._overlay.send('copyTopicId_done', '');
+          },
+          changeTopicId: async (op: any, { type, message }: { type?: any, message: string }) => {
+            this.adapter.detachConfig(this._config);
+            this._addingStickerId = undefined;
+            this._addingStickerTransform = undefined;
+            this._from = undefined;
+            this._to = undefined;
+            this._videoId = message;
+            const { $ } = this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
+            this._$ = $;
+            this._overlay.send('changeTopicId_done', '');
+          },
+          createShareTopicLink: async (op: any, { type, message }: { type?: any, message: string }) => {
+            const core: any = Core;
+            const url = document.location.href;
+            const sharedData: ISharedData = { ctxId: message };
+            console.log('sharedData', sharedData)
+            const link = core.createShareLink(url, sharedData);
+            await navigator.clipboard.writeText(link);
+            this._overlay.send('createShareTopicLink_done', '');
+          },
         });
     }
 
-    const { sticker, control } = this.adapter.exports;
+    const { sticker, control, label } = this.adapter.exports;
 
     this._setConfig = (props: ISetConfigProps | undefined) => {
       this._config = {
         VIDEO: async (ctx: IVideoCtx ) => {
           if (!ctx.element) return;
           this._videoEl = <HTMLMediaElement>ctx.element;
-          const videoId = ctx.id;
+          console.log('ctx', ctx)
+          console.log('ctx.id', ctx.id)
+          console.log('ctx.isStableLink', ctx.isStableLink)
+          const isStableId = !!ctx.parent || ctx.isStableLink;
+          console.log('isStableId', isStableId)
+          const videoId = isStableId
+            ? ctx.id
+            : this._videoId  // ToDo: may be bugs associated with video change
+              ? this._videoId
+              : [...crypto.getRandomValues(new Uint8Array(15))].map(m=>('0'+m.toString(16)).slice(-2)).join('');
+          console.log('videoId', videoId)
 
           const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
           const isWalletConnected = await wallet.isConnected();
 
           let commentsRemarkData: any;
           try {
-            commentsRemarkData = await this.getData(videoId, isWalletConnected);
+            // if (this._sharedData && this._sharedData.topicId) {
+            //   commentsRemarkData = await this.getData(this._sharedData.topicId, isWalletConnected);
+            // } else {
+              commentsRemarkData = await this.getData(videoId, isWalletConnected);
+            // }
           } catch (err) {
             console.log('Error getting data from Remark.', err);
           }
@@ -357,10 +396,12 @@ export default class VideoFeature implements IFeature {
           const commentsData = await Promise.all(structuredComments);
 
           // console.log('commentsData', commentsData)
+          console.log('this._sharedData', this._sharedData)
 
           this._commentsData = commentsData;
           this._duration = ctx.duration;
           this._videoId = videoId;
+          this._isStableId = isStableId;
           this._ctx = ctx;
 
           if ((props && props.forceOpenOverlay) || this._overlay.isOpen()) {
@@ -380,7 +421,17 @@ export default class VideoFeature implements IFeature {
           });
 
           if (this._sharedData) {
-            if (commentsData.map((commentData) => commentData.id).includes(this._sharedData.commentId)) {
+            if (this._sharedData.ctxId !== this._videoId) {
+              this.adapter.detachConfig(this._config);
+              this._addingStickerId = undefined;
+              this._addingStickerTransform = undefined;
+              this._from = undefined;
+              this._to = undefined;
+              this._videoId = this._sharedData.ctxId;
+              const { $ } = this.adapter.attachConfig(this._setConfig({ forceOpenOverlay: true }));
+              this._$ = $;
+            }
+            if (this._sharedData.commentId && commentsData.map((commentData) => commentData.id).includes(this._sharedData.commentId)) {
               const selectedCommentData = commentsData.find((commentData) => commentData.id === this._sharedData.commentId);
               this._videoEl.currentTime = selectedCommentData.from + 0.1; // +0.1 sec to make sure the sticker is shown
               this._wasPaused = this._videoEl.paused;
@@ -538,6 +589,31 @@ export default class VideoFeature implements IFeature {
             },
           }));
 
+          if (!ctx.parent) {
+            stickers.push(
+              label({
+                DEFAULT: {
+                  img: MENU_ICON,
+                  top: 20,
+                  left: 20,
+                  width: 48,
+                  height: 48,
+                  exec: () => {
+                    if (this._overlay.isOpen()) {
+                      this._overlay.close();
+                    } else {
+                      this.openOverlay({
+                        commentsData: this._commentsData,
+                        duration: this._duration,
+                        videoId: this._videoId,
+                      });
+                    }
+                  },
+                },
+              })
+            );
+          }
+
           return stickers;
         },
         RIGHT_CONTROLS: () =>
@@ -566,11 +642,11 @@ export default class VideoFeature implements IFeature {
   }
 
   openOverlay(props?: any): void {
-    this._overlay.send('data', { ...props, images: allStickers });
+    this._overlay.send('data', { ...props, isStableId: this._isStableId, images: allStickers });
     this._overlay.send('time', { time: this._currentTime });
   }
 
-  async getData(uri: string, isWalletConnected: boolean) {
+  async getData(topicId: string, isWalletConnected: boolean) {
     if (isWalletConnected) {
       const accountId = await this.getAccountId();
       try {
@@ -580,7 +656,7 @@ export default class VideoFeature implements IFeature {
         if (token) {
           headers.set('X-Jwt', token!);
           try {
-            const response = await fetch(`https://videocomments.mooo.com/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`, {
+            const response = await fetch(`https://videocomments.mooo.com/api/v1/find?site=remark&url=${topicId}&sort=fld&format=tree`, {
               method: 'GET',
               headers,
             });
@@ -595,7 +671,7 @@ export default class VideoFeature implements IFeature {
       }
     } else {
       try {
-        const response = await fetch(`https://videocomments.mooo.com/api/v1/find?site=remark&url=${uri}&sort=fld&format=tree`);
+        const response = await fetch(`https://videocomments.mooo.com/api/v1/find?site=remark&url=${topicId}&sort=fld&format=tree`);
         return await response.json();
       } catch (e) {
         console.log('Error in getData():', e);

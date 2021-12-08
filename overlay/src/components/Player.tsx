@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { bridge } from './dappletBridge';
-import { IStickerTransform } from './types';
+import React, { useEffect } from 'react';
 import cn from 'classnames';
+import { bridge } from '../dappletBridge';
+import { IStickerTransform } from '../types';
 
 interface IPlayerProps {
   from: number

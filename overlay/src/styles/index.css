@@ -1,12 +1,12 @@
 @font-face {
   font-family: 'Roboto';
-  src: url('./Roboto-Regular.ttf') format('truetype');
+  src: url('../fonts/Roboto-Regular.ttf') format('truetype');
   font-weight: 400;
 }
 
 @font-face {
   font-family: 'Roboto';
-  src: url('./Roboto-Bold.ttf') format('truetype');
+  src: url('../fonts/Roboto-Bold.ttf') format('truetype');
   font-weight: 700;
 }
 
@@ -296,7 +296,7 @@ body {
   top: -42px;
   right: -17px;
   left: auto;
-  content: url("./point.svg");
+  content: url("../icons/point.svg");
   z-index: 5040;
 }
 
@@ -339,12 +339,12 @@ body {
 
 .dapplet-timeline-comments.point.cc-start > .bar::before,
 .dapplet-timeline-comments.point.cc-finish > .bar::before {
-  content: url("./cc_pointer.svg");
+  content: url("../icons/cc_pointer.svg");
 }
 
 .dapplet-timeline-comments.point.cc-start.active > .bar::before,
 .dapplet-timeline-comments.point.cc-finish.active > .bar::before {
-  content: url("./cc_pointer_active.svg");
+  content: url("../icons/cc_pointer_active.svg");
 }
 
 .dapplet-timeline-comments.point.cc-start > .bar::after,
@@ -396,12 +396,12 @@ body {
 }
 
 .dapplet-timeline-comments.point.cc-start.timescope > .bar::after {
-  background: 0 0 no-repeat url("./cc_point_start.svg");
+  background: 0 0 no-repeat url("../icons/cc_point_start.svg");
   right: 0 !important;
 }
 
 .dapplet-timeline-comments.point.cc-finish.timescope > .bar::after {
-  background: 0 0 no-repeat url("./cc_point_finish.svg");
+  background: 0 0 no-repeat url("../icons/cc_point_finish.svg");
   right: -12px !important;
 }
 
@@ -445,16 +445,16 @@ body {
   width: 35px;
   height: 42px;
   cursor: pointer;
-  background: 0 0 no-repeat url("./cc_current_time_plus.svg");
+  background: 0 0 no-repeat url("../icons/cc_current_time_plus.svg");
   transition: all .1s ease-in-out !important;
 }
 
 .dapplet-timeline-comments.cc.current-time.delete > .bar::after {
-  background: 0 0 no-repeat url("./cc_current_time_minus.svg");
+  background: 0 0 no-repeat url("../icons/cc_current_time_minus.svg");
 }
 
 .dapplet-timeline-comments.cc.current-time.empty > .bar::after {
-  background: 0 0 no-repeat url("./cc_current_time.svg");
+  background: 0 0 no-repeat url("../icons/cc_current_time.svg");
 }
 
 .dapplet-timeline-comments.cc.current-time.point-cc > .bar::after {
@@ -463,7 +463,7 @@ body {
   width: 18px;
   height: 18px;
   cursor: default;
-  background: 0 0 no-repeat url("./cc_current_time_point.svg");
+  background: 0 0 no-repeat url("../icons/cc_current_time_point.svg");
   z-index: 10000;
 }
 
@@ -813,7 +813,7 @@ a.ui.card:hover {
 }
 
 .comment-button-like {
-  background: center / contain no-repeat url("./heart_gray.svg");
+  background: center / contain no-repeat url("../icons/heart_gray.svg");
   width: 20px;
   height: 20px;
   margin: 0 !important;
@@ -823,30 +823,30 @@ a.ui.card:hover {
 
 .comment-button-like:hover {
   transform: scale(1);
-  background: center / contain no-repeat url("./heart.svg");
+  background: center / contain no-repeat url("../icons/heart.svg");
 }
 
 .comment-button-like.disabled:hover {
   transform: scale(1);
-  background: center / contain no-repeat url("./heart_gray.svg");
+  background: center / contain no-repeat url("../icons/heart_gray.svg");
 }
 
 .comment-button-like:active {
-  background: center / contain no-repeat url("./heart.svg");
+  background: center / contain no-repeat url("../icons/heart.svg");
   transform: scale(.7);
 }
 
 .comment-button-like.liked {
-  background: center / contain no-repeat url("./heart_filled.svg");
+  background: center / contain no-repeat url("../icons/heart_filled.svg");
 }
 
 .comment-button-like.liked:active {
-  background: center / contain no-repeat url("./heart_filled.svg");
+  background: center / contain no-repeat url("../icons/heart_filled.svg");
   transform: scale(.7);
 }
 
 .comment-button-share {
-  background: center / contain no-repeat url("./copy_gray.svg");
+  background: center / contain no-repeat url("../icons/copy_gray.svg");
   width: 20px;
   height: 20px;
   margin-right: 24px !important;
@@ -856,25 +856,25 @@ a.ui.card:hover {
 
 .comment-button-share:hover {
   transform: scale(1);
-  background: center / contain no-repeat url("./copy.svg");
+  background: center / contain no-repeat url("../icons/copy.svg");
 }
 
 .comment-button-share:active {
-  background: center / contain no-repeat url("./copy.svg");
+  background: center / contain no-repeat url("../icons/copy.svg");
   transform: scale(.7);
 }
 
 .comment-button-share.shared {
-  background: center / contain no-repeat url("./check_gray.svg");
+  background: center / contain no-repeat url("../icons/check_gray.svg");
 }
 
 .comment-button-share.shared:hover {
   transform: scale(1);
-  background: center / contain no-repeat url("./check.svg");
+  background: center / contain no-repeat url("../icons/check.svg");
 }
 
 .comment-button-share.shared:active {
-  background: center / contain no-repeat url("./check.svg");
+  background: center / contain no-repeat url("../icons/check.svg");
   transform: scale(.7);
 }
 
@@ -914,7 +914,6 @@ a.ui.card:hover {
 
 .ui.button.login-button {
   background: #FFFFFF;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
   border-radius: 99em;
   font-family: 'Roboto', sans-serif;
   color: #2A2A2A;
@@ -929,23 +928,19 @@ a.ui.card:hover {
 .ui.button.login-button:hover,
 .ui.button.login-button:focus {
   background: #EAF0F0;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
 }
 
 .ui.button.login-button:active {
   background: #D1DEDE;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
 }
 
 .ui.button.login-button.bt-loading:hover,
 .ui.button.login-button.bt-loading:focus {
   background: #FFFFFF;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
 }
 
 .ui.button.login-button.bt-loading:active {
   background: #FFFFFF;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
 }
 
 .ui.button.logout-button {
@@ -974,32 +969,33 @@ a.ui.card:hover {
 .user-info {
   position: relative;
   background: #FFFFFF;
-  box-shadow: 0px 2px 6px rgb(0 0 0 / 9%), 0px 2px 2px rgb(38 117 209 / 4%);
   border-radius: 99em;
   font-family: 'Roboto', sans-serif;
   color: #2A2A2A;
   font-style: normal;
   font-weight: normal;
   line-height: 100%;
-  padding: 7px 10px 7px 32px;
+  padding: 9px 10px 9px 38px;
   transition: all .2s ease-in-out !important;
 }
 
 .user-info > .user-image {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   position: absolute;
   left: 2px;
   top: 2px;
   border-radius: 99em;
+  border: 1px solid #e3e3e3;
 }
 
 .user-info.unlogged {
-  padding: 7px 14px;
+  padding: 16px 16px;
 }
 
 .user-info.unlogged > .user-image {
-  background: left 0 / 24px no-repeat url('./video-comments-icon.png');
+  background: left 0 / 28px no-repeat url('../icons/video-comments-icon.png');
+  border: 0;
   opacity: .7;
 }
 
@@ -1008,4 +1004,73 @@ a.ui.card:hover {
   font-family: 'Roboto', sans-serif;
   color: #a5a5a5;
   font-variant-caps: all-small-caps;
+}
+
+.topic-id {
+  margin: 10px 20px;
+  display: flex;
+  color: #747376;
+  position: relative;
+}
+
+.topic-id label {
+  position: absolute;
+  z-index: 1;
+  top: 7.5px;
+  left: 11px;
+}
+
+.topic-id input {
+  position: relative;
+  flex: 1;
+  background: #FFFFFF;
+  border: 0;
+  border-radius: 99em;
+  font-family: 'Roboto', sans-serif;
+  color: inherit;
+  font-style: normal;
+  font-weight: normal;
+  line-height: 100%;
+  padding: 8px 10px 8px 75px;
+  margin-right: 6px;
+  transition: all .2s ease-in-out !important;
+}
+
+.topic-id input:focus,
+.topic-id input:focus-visible,
+.topic-id input:active {
+  border: 0;
+  outline: none;
+}
+
+.copy-topic-id,
+.share-topic {
+  border: 0;
+  background: 0 0 / 26px 26px no-repeat url('../icons/copy_topic.svg');
+  width: 26px;
+  height: 26px;
+  margin: 4px;
+  margin-right: 0;
+  cursor: pointer;
+  transform: scale(1);
+  transition: all .1s ease-in-out !important;
+}
+
+.share-topic {
+  background-image: url('../icons/share_topic.svg');
+}
+
+.copy-topic-id.shared,
+.share-topic.shared {
+  background-image: url('../icons/check_inverted.svg');
+}
+
+.copy-topic-id:hover,
+.share-topic:hover {
+  transform: scale(1.1);
+}
+
+.copy-topic-id:active,
+.share-topic:active {
+  transform: scale(.9);
 }

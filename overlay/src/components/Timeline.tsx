@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Progress } from 'semantic-ui-react';
-import { bridge } from './dappletBridge';
-import { formatTime } from './utils';
+import { bridge } from '../dappletBridge';
+import { formatTime } from '../utils';
 
 interface ITimelineProps {
   currentTime: number

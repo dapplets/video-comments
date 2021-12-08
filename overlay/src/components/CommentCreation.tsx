@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Card, CardProps, Checkbox, Confirm, Container, Divider, Form, Icon, Image, Modal } from 'semantic-ui-react';
+import { Card, CardProps, Checkbox, Confirm, Container, Divider, Form, Icon, Image } from 'semantic-ui-react';
+import { bridge } from '../dappletBridge';
+import { ISendingData, ISticker, IStickerTransform } from '../types';
+import { addComment, roundToMultiple } from '../utils';
 import CCTimeline from './CCTimeline';
 import CCTimelineTimeScope from './CCTimelineTimeScope';
 import Player from './Player';
-import { IPoint, ISendingData, ISticker, IStickerTransform } from './types';
-import { bridge } from './dappletBridge';
-import { addComment, getRandomInt, roundToMultiple } from './utils';
 
 interface IProps {
   images: any

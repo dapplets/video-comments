@@ -22,6 +22,7 @@ export interface ICSSTransform {
 
 export interface IVideoCtx {
   id: string
+  isStableLink: boolean
   pause: any
   play: any
   setCurrentTime: any
@@ -61,7 +62,7 @@ export interface IData {
 
 export interface ISharedData {
   ctxId: string
-  commentId: string
+  commentId?: string
 }
 
 export interface IChangeAddingStickerImageProps {

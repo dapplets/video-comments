@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from 'semantic-ui-react';
-import { bridge } from './dappletBridge';
+import { Button, Comment, Popup } from 'semantic-ui-react';
+import cn from 'classnames';
+import { bridge } from '../dappletBridge';
+import { IData, SortTypes } from '../types';
+import { getUserInfo, roundToMultiple } from '../utils';
 import Comments from './Comments';
 import CommentCreation from './CommentCreation';
 import Authorization from './Authorization';
 import PublicationNotice from './PublicationNotice';
-import { IData, SortTypes } from './types';
-import { getUserInfo, roundToMultiple } from './utils';
-import cn from 'classnames';
 
 enum Pages {
   CommentsList,
@@ -23,6 +23,7 @@ export default () => {
   const [images, addImages] = useState<any | undefined>();
   const [currentTime, updateCurrentTime] = useState(0);
   const [videoId, setVideoId] = useState('');
+  const [isStableId, setIsStableId] = useState(false);
   const [isCommentPublished, setIsCommentPublished] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [message, setMessage] = useState('');
@@ -35,7 +36,15 @@ export default () => {
   const [avatar, setAvatar] = useState<string | undefined>();
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
 
+  const [isCopyTopicIdPopupOpen, setIsCopyTopicIdPopupOpen] = useState(false);
+  const [sharedTopicId, setSharedTopicId] = useState(false);
+  const [isShareTopicPopupOpen, setIsShareTopicPopupOpen] = useState(false);
+  const [sharedTopicLink, setSharedTopicLink] = useState(false);
+  const [topicInput, setTopicInput] = useState(videoId);
+
   const refs: any = {};
+
+  useEffect(() => setTopicInput(videoId), [videoId]);
 
   useEffect(() => {
     bridge.onData(async (data) => {
@@ -43,6 +52,7 @@ export default () => {
       addImages(data.images);
       addDuration(data.duration);
       setVideoId(data.videoId);
+      setIsStableId(data.isStableId);
       setSelectedCommentId(data.selectedCommentId);
     });
     bridge.onTime((data) => updateCurrentTime(roundToMultiple(data.time)));
@@ -229,7 +239,7 @@ export default () => {
             <div className='user-info'>
               <div
                 className='user-image'
-                style={{ background: `left 0 / 24px no-repeat url("${avatar!}")` }}
+                style={{ background: `left 0 / 26px no-repeat url("${avatar!}")` }}
               />
               {currentUser!.length > 28 ? `${currentUser!.slice(0, 6)}...${currentUser!.slice(-4)}` : currentUser}
             </div>
@@ -250,8 +260,78 @@ export default () => {
             </Button>
           </>
         )}
-
       </div>
+      {!isStableId && (
+        <div className='topic-id'>
+          <label htmlFor='topic'>TOPIC ID</label>
+          <input
+            type='text'
+            name='topic'
+            id='topic'
+            value={topicInput}
+            onChange={(e) => {
+              e.preventDefault();
+              console.log('e', e)
+              setTopicInput(e.target.value)
+            }}
+            onKeyPress ={(e) => {
+              e.preventDefault();
+              console.log('e', e)
+              if (e.key === 'Enter') {
+                bridge.changeTopicId(topicInput);
+              }
+            }}
+          />
+          <Popup
+            content='Topic ID copied!'
+            on='click'
+            hideOnScroll
+            open={isCopyTopicIdPopupOpen}
+            onClose={() => setIsCopyTopicIdPopupOpen(false)}
+            onOpen={() => {
+              setIsCopyTopicIdPopupOpen(true);
+              setTimeout(() => {
+                setIsCopyTopicIdPopupOpen(false);
+                setSharedTopicId(false);
+              }, 4000);
+            }}
+            trigger={(
+              <Comment.Action
+                className={cn('copy-topic-id', { shared: sharedTopicId })}
+                onClick={(e: MouseEvent) => {
+                  e.preventDefault();
+                  setSharedTopicId(true);
+                  bridge.copyTopicId(videoId);
+                }}
+              />
+            )}
+          />
+          <Popup
+            content='Topic link copied!'
+            on='click'
+            hideOnScroll
+            open={isShareTopicPopupOpen}
+            onClose={() => setIsShareTopicPopupOpen(false)}
+            onOpen={() => {
+              setIsShareTopicPopupOpen(true);
+              setTimeout(() => {
+                setIsShareTopicPopupOpen(false);
+                setSharedTopicLink(false);
+              }, 4000);
+            }}
+            trigger={(
+              <Comment.Action
+                className={cn('share-topic', { shared: sharedTopicLink })}
+                onClick={(e: MouseEvent) => {
+                  e.preventDefault();
+                  setSharedTopicLink(true);
+                  bridge.createShareTopicLink(videoId);
+                }}
+              />
+            )}
+          />
+        </div>
+      )}
       {openPage.get(page) ?? <></>}
     </>
   );

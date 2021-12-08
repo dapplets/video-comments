@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { formatTime } from './utils';
-import { bridge } from './dappletBridge';
+import { formatTime } from '../utils';
+import { bridge } from '../dappletBridge';
 
 interface ITimeInputProps {
   time: number

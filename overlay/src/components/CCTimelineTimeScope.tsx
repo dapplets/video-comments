@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { Progress } from 'semantic-ui-react';
-import { bridge } from './dappletBridge';
-import { IPoint, IStickerTransform } from './types';
-import { formatTime, roundToMultiple } from './utils';
+import { bridge } from '../dappletBridge';
+import { IStickerTransform } from '../types';
+import { formatTime, roundToMultiple } from '../utils';
 import TimeInput from './TimeInput'; 
 
 interface ICCTimelineTimeScopeProps {

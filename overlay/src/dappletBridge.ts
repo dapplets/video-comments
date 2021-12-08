@@ -163,6 +163,33 @@ class Bridge extends GeneralBridge {
     );
   }
 
+  async copyTopicId(topicID: string) {
+    return this.call(
+      'copyTopicId',
+      topicID,
+      'copyTopicId_done',
+      'copyTopicId_undone',
+    );
+  }
+
+  async createShareTopicLink(topicID: string) {
+    return this.call(
+      'createShareTopicLink',
+      topicID,
+      'createShareTopicLink_done',
+      'createShareTopicLink_undone',
+    );
+  }
+
+  async changeTopicId(topicID: string) {
+    return this.call(
+      'changeTopicId',
+      topicID,
+      'changeTopicId_done',
+      'changeTopicId_undone',
+    );
+  }
+
   async isVideoPlaying(): Promise<boolean> {
     return this.call(
       'isVideoPlaying',

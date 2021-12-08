@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Button } from 'semantic-ui-react';
-import { bridge } from './dappletBridge';
+import { bridge } from '../dappletBridge';
 
 interface IPublicationNoticeProps {
   back: number
