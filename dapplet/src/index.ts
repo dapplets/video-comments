@@ -166,6 +166,7 @@ export default class VideoFeature implements IFeature {
           },
           updateData: () => {
             this.adapter.detachConfig(this._config);
+            this._$(this._ctx, this._addingStickerId).state = 'HIDDEN';
             this._addingStickerId = undefined;
             this._addingStickerTransform = undefined;
             this._from = undefined;
@@ -340,7 +341,7 @@ export default class VideoFeature implements IFeature {
           console.log('isStableId', isStableId)
           const videoId = isStableId
             ? ctx.id
-            : this._videoId  // ToDo: may be bugs associated with video change
+            : this._ctx?.id === ctx.id
               ? this._videoId
               : [...crypto.getRandomValues(new Uint8Array(15))].map(m=>('0'+m.toString(16)).slice(-2)).join('');
           console.log('videoId', videoId)
