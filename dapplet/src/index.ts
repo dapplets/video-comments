@@ -38,13 +38,13 @@ export default class VideoFeature implements IFeature {
   private _isStableId: boolean
   private _$: any
   private _ctx: any
-  private _selectedCommentId: string
+  private _selectedCommentId: string | undefined
   private _sharedData: ISharedData
 
-  private _addingStickerId: string
-  private _addingStickerTransform: IStickerTransform
-  private _from: number
-  private _to: number
+  private _addingStickerId: string | undefined
+  private _addingStickerTransform: IStickerTransform | undefined
+  private _from: number | undefined
+  private _to: number | undefined
 
   async activate(): Promise<void> {
 
@@ -144,7 +144,7 @@ export default class VideoFeature implements IFeature {
               console.log('Cannot set new currentTime.', err);
             }
           },
-          hideItem: (op: any, { type, message }: { type?: any, message?: { props: any } }) => {
+          hideItem: (op: any, { type, message }: { type?: any, message: { props: any } }) => {
             const id = message.props.itemToHideId
             if (localStorage.getItem(id) === 'hidden') {
               localStorage.removeItem(id);
@@ -206,7 +206,7 @@ export default class VideoFeature implements IFeature {
             const { transformPointId, time } = message;
             this._addingStickerTransform = this._$(this._ctx, this._addingStickerId).transform = {
               ...this._addingStickerTransform,
-              [transformPointId]: { ...this._addingStickerTransform[transformPointId], time },
+              [transformPointId]: { ...this._addingStickerTransform![transformPointId], time },
             };
             this._overlay.send('changeStickerTransformPointTime_done', this._addingStickerTransform);
           },
@@ -220,10 +220,10 @@ export default class VideoFeature implements IFeature {
           },
           addPoint: () => {
             // console.log('here')
-            const sticker: HTMLElement = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
+            const sticker: HTMLElement | null = document.querySelector(`.dapplet-sticker-${this._addingStickerId}`);
             // console.log('this._addingStickerId', this._addingStickerId)
             // console.log('sticker', sticker)
-            const currentCSSTransform = sticker
+            const currentCSSTransform = sticker !== null
               ? parseCSS('transform', sticker.style.transform)
               : {
                 scale: 1,
@@ -250,6 +250,10 @@ export default class VideoFeature implements IFeature {
             this._overlay.send('transform', this._addingStickerTransform);
           },
           deletePoint: () => {
+            if (this._addingStickerTransform === undefined) {
+              this._overlay.send('deletePoint_undone', '');
+              return
+            };
             const time = roundToMultiple(this._ctx.currentTime);
             if (Object.keys(this._addingStickerTransform).length === 1) {
               this._addingStickerTransform = undefined;
@@ -265,6 +269,7 @@ export default class VideoFeature implements IFeature {
             }
             // console.log('this._addingStickerTransform', this._addingStickerTransform)
             this._overlay.send('transform', this._addingStickerTransform);
+            this._overlay.send('deletePoint_done', '');
           },
           highlightSticker: (op: any, { type, message }: { type?: any, message: { stickerID: string } }) => {
             if (message) {
@@ -366,10 +371,10 @@ export default class VideoFeature implements IFeature {
               const comment: IRemarkComment = commentData.comment;
               const name = comment.user.name
               const ensNames = await this.getEnsNames([comment.user.name]);
-              const ensName = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== '' && ensNames[0];
+              const ensName = ensNames && ensNames[0];
               let from = 0;
-              let to: number;
-              let sticker: ISticker;
+              let to: number | undefined;
+              let sticker: ISticker | undefined;
               if (comment.title !== undefined) { 
                 const title: { from: number, to: number, sticker: ISticker } = JSON.parse(comment.title);
                 from = title.from;
@@ -434,7 +439,7 @@ export default class VideoFeature implements IFeature {
             }
             if (this._sharedData.commentId && commentsData.map((commentData) => commentData.id).includes(this._sharedData.commentId)) {
               const selectedCommentData = commentsData.find((commentData) => commentData.id === this._sharedData.commentId);
-              this._videoEl.currentTime = selectedCommentData.from + 0.1; // +0.1 sec to make sure the sticker is shown
+              if (selectedCommentData !== undefined) this._videoEl.currentTime = selectedCommentData.from + 0.1; // +0.1 sec to make sure the sticker is shown
               this._wasPaused = this._videoEl.paused;
               if (!this._videoEl.paused) this._videoEl.pause();
 
@@ -460,10 +465,10 @@ export default class VideoFeature implements IFeature {
               id: commentData.id,
               initial: commentData.hidden ? 'HIDDEN' : (props && props.stickerName ? 'MUTED' : 'DEFAULT'),
               DEFAULT: {
-                img: allStickers[commentData.sticker.id],
-                vertical: commentData.sticker.vertical,
-                horizontal: commentData.sticker.horizontal,
-                transform: commentData.sticker.transform,
+                img: commentData.sticker !== undefined ? allStickers[commentData.sticker.id] : '',
+                vertical: commentData.sticker?.vertical,
+                horizontal: commentData.sticker?.horizontal,
+                transform: commentData.sticker?.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
@@ -486,10 +491,10 @@ export default class VideoFeature implements IFeature {
                 },
               },
               ACTIVE: {
-                img: allStickers[commentData.sticker.id],
-                vertical: commentData.sticker.vertical,
-                horizontal: commentData.sticker.horizontal,
-                transform: commentData.sticker.transform,
+                img: commentData.sticker !== undefined ? allStickers[commentData.sticker.id] : '',
+                vertical: commentData.sticker?.vertical,
+                horizontal: commentData.sticker?.horizontal,
+                transform: commentData.sticker?.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
@@ -506,10 +511,10 @@ export default class VideoFeature implements IFeature {
                 },
               },
               MUTED: {
-                img: allStickers[commentData.sticker.id],
-                vertical: commentData.sticker.vertical,
-                horizontal: commentData.sticker.horizontal,
-                transform: commentData.sticker.transform,
+                img: commentData.sticker !== undefined ? allStickers[commentData.sticker.id] : '',
+                vertical: commentData.sticker?.vertical,
+                horizontal: commentData.sticker?.horizontal,
+                transform: commentData.sticker?.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
@@ -527,20 +532,20 @@ export default class VideoFeature implements IFeature {
                 },
               },
               INACTIVE: {
-                img: allStickers[commentData.sticker.id],
-                vertical: commentData.sticker.vertical,
-                horizontal: commentData.sticker.horizontal,
-                transform: commentData.sticker.transform,
+                img: commentData.sticker !== undefined ? allStickers[commentData.sticker.id] : '',
+                vertical: commentData.sticker?.vertical,
+                horizontal: commentData.sticker?.horizontal,
+                transform: commentData.sticker?.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
                 opacity: '.3',
               },
               HIDDEN: {
-                img: allStickers[commentData.sticker.id],
-                vertical: commentData.sticker.vertical,
-                horizontal: commentData.sticker.horizontal,
-                transform: commentData.sticker.transform,
+                img: commentData.sticker !== undefined ? allStickers[commentData.sticker.id] : '',
+                vertical: commentData.sticker?.vertical,
+                horizontal: commentData.sticker?.horizontal,
+                transform: commentData.sticker?.transform,
                 from: commentData.from,
                 to: commentData.to,
                 mutable: false,
@@ -559,7 +564,7 @@ export default class VideoFeature implements IFeature {
               disabled: false,
               onChange: (e: any) => {
                 const time = roundToMultiple(this._ctx.currentTime);
-                if (time > this._to) return;
+                if (!this._to || time > this._to) return;
                 const movingStickerElement = e.target;
                 if (!movingStickerElement) return;
                 const currentCSSTransform = parseCSS('transform', movingStickerElement.style.transform);

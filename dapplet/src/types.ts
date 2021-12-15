@@ -55,7 +55,7 @@ export interface IData {
   selected: boolean
   hidden: boolean
   url: string
-  sticker: ISticker
+  sticker?: ISticker
   score: number
   vote: number
 }

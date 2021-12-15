@@ -1,7 +1,7 @@
 import { ICSSTransform } from './types';
 
-export const parseCSS = (style: string, value: string) => {
-    if (!style || !value) return;
+export const parseCSS = (style: string, value: string): ICSSTransform => {
+    //if (!style || !value) return;
     switch (style) {
         case 'transform' :
             const scale = Number(/scale\(([0-9\.?\-?]+)\)/.exec(value)![1]);
@@ -19,12 +19,18 @@ export const parseCSS = (style: string, value: string) => {
 
         default:
             console.log('Unknown style. Error in parseCSS');
+            return {
+                scale: 1,
+                translateX: 0, 
+                translateY: 0,
+                rotate: 0,
+            };
     }
 };
 
-export const getRandomInt = () => Math.trunc(Math.random() * 1_000_000_000);
+export const getRandomInt = (): number => Math.trunc(Math.random() * 1_000_000_000);
 
-export const roundToMultiple = (num: number, m: number = 3) => {
+export const roundToMultiple = (num: number, m: number = 3): number => {
   const a = Math.pow(10, m);
   return Math.trunc(num * a) / a;
 };
