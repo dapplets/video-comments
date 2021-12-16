@@ -13,6 +13,7 @@ import {
 } from './types';
 import { getRandomInt, parseCSS, roundToMultiple } from './utils';
 import MENU_ICON from './icons/white-menu-icon.svg';
+import MENU_ICON_UNI from './icons/white-menu-icon-uni.svg';
 import { allStickers } from './stickerPack';
 
 interface ISetConfigProps {
@@ -599,11 +600,11 @@ export default class VideoFeature implements IFeature {
             stickers.push(
               label({
                 DEFAULT: {
-                  img: MENU_ICON,
+                  img: MENU_ICON_UNI,
                   top: 20,
-                  left: 20,
-                  width: 48,
-                  height: 48,
+                  left: 16,
+                  width: 52,
+                  height: 52,
                   exec: () => {
                     if (this._overlay.isOpen()) {
                       this._overlay.close();
