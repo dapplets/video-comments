@@ -339,17 +339,17 @@ export default class VideoFeature implements IFeature {
         VIDEO: async (ctx: IVideoCtx ) => {
           if (!ctx.element) return;
           this._videoEl = <HTMLMediaElement>ctx.element;
-          console.log('ctx', ctx)
-          console.log('ctx.id', ctx.id)
-          console.log('ctx.isStableLink', ctx.isStableLink)
+          // console.log('ctx', ctx)
+          // console.log('ctx.id', ctx.id)
+          // console.log('ctx.isStableLink', ctx.isStableLink)
           const isStableId = !!ctx.parent || ctx.isStableLink;
-          console.log('isStableId', isStableId)
+          // console.log('isStableId', isStableId)
           const videoId = isStableId
             ? ctx.id
             : this._ctx?.id === ctx.id
               ? this._videoId
               : [...crypto.getRandomValues(new Uint8Array(15))].map(m=>('0'+m.toString(16)).slice(-2)).join('');
-          console.log('videoId', videoId)
+          // console.log('videoId', videoId)
 
           const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
           const isWalletConnected = await wallet.isConnected();
@@ -402,7 +402,7 @@ export default class VideoFeature implements IFeature {
           const commentsData = await Promise.all(structuredComments);
 
           // console.log('commentsData', commentsData)
-          console.log('this._sharedData', this._sharedData)
+          // console.log('this._sharedData', this._sharedData)
 
           this._commentsData = commentsData;
           this._duration = ctx.duration;
