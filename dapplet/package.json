@@ -1,6 +1,6 @@
 {
   "name": "video-comments-dapplet",
-  "version": "0.9.14",
+  "version": "0.9.15",
   "description": "Web video comments augmentation. Widgets",
   "main": "lib/index.js",
   "scripts": {
