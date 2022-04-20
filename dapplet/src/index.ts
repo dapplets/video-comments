@@ -47,9 +47,18 @@ export default class VideoFeature implements IFeature {
   private _to: number | undefined
 
   async activate(): Promise<void> {
+    if (Core.state === undefined) {
+      alert(`
+VIDEO COMMENTS DAPPLET
 
-    const core: any = Core;
-    core.onShareLink((sharedData: ISharedData) => this._sharedData = sharedData);
+Download the latest version of Dapplets Extension here:
+
+https://github.com/dapplets/dapplet-extension/releases/latest
+      `);
+      return;
+    }
+
+    Core.onShareLink((sharedData: ISharedData) => this._sharedData = sharedData);
 
     if (!this._overlay) {
       this._overlay = Core
@@ -57,7 +66,7 @@ export default class VideoFeature implements IFeature {
         .listen({
           connectWallet: async () => {
             try {
-              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
+              const wallet = await Core.wallet({ type: "ethereum", network: "goerli" });
               await wallet.connect();
               this._overlay.send('connectWallet_done', '');
             } catch (err) {
@@ -66,7 +75,7 @@ export default class VideoFeature implements IFeature {
           },
           disconnectWallet: async () => {
             try {
-              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
+              const wallet = await Core.wallet({ type: "ethereum", network: "goerli" });
               await wallet.disconnect();
               this._overlay.send('disconnectWallet_done', '');
             } catch (err) {
@@ -75,7 +84,7 @@ export default class VideoFeature implements IFeature {
           },
           isWalletConnected: async () => {
             try {
-              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
+              const wallet = await Core.wallet({ type: "ethereum", network: "goerli" });
               const isWalletConnected = await wallet.isConnected();
               this._overlay.send('isWalletConnected_done', isWalletConnected);
             } catch (err) {
@@ -84,13 +93,10 @@ export default class VideoFeature implements IFeature {
           },
           getCurrentEthereumAccount: async () => {
             try {
-              const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
-              wallet.sendAndListen('eth_accounts', [], {
-                result: (op, { data }) => {
-                  const currentAddress = data[0];
-                  this._overlay.send('getCurrentEthereumAccount_done', currentAddress);
-                },
-              });
+              const wallet = await Core.wallet({ type: "ethereum", network: "goerli" });
+              const accounts = await wallet.request({ method: 'eth_accounts', params: [] });
+              const currentAddress = accounts[0];
+              this._overlay.send('getCurrentEthereumAccount_done', currentAddress);
             } catch (err) {
               this._overlay.send('getCurrentEthereumAccount_undone', err);
             }
@@ -351,7 +357,7 @@ export default class VideoFeature implements IFeature {
               : [...crypto.getRandomValues(new Uint8Array(15))].map(m=>('0'+m.toString(16)).slice(-2)).join('');
           // console.log('videoId', videoId)
 
-          const wallet = await core.wallet({ type: "ethereum", network: "goerli" });
+          const wallet = await Core.wallet({ type: "ethereum", network: "goerli" });
           const isWalletConnected = await wallet.isConnected();
 
           let commentsRemarkData: any;
@@ -685,19 +691,18 @@ export default class VideoFeature implements IFeature {
     }
   }
   
-  async getAccountId(): Promise<string> {
-    const core: any = Core;
-    return new Promise((res, rej) => 
-      core.wallet({ type: "ethereum", network: "goerli" })
-        .then(w => w.sendAndListen('eth_accounts', [], {
-          result: (op, { data }) => {
-            const accountId =  data[0];
-            res(accountId);
-          },
-          reject: () => rej('Error getting etherium account.')
-        }))
-        .catch(() => rej('Error connecting to wallet.'))
-    );
+  async getAccountId(): Promise<string | undefined> {
+    try {
+      const wallet = await Core.wallet({ type: "ethereum", network: "goerli" });
+      try {
+        const accounts = await wallet.request({ method: 'eth_accounts', params: [] });
+        return accounts[0];
+      } catch (err) {
+        console.error('Error getting etherium account.')
+      }
+    } catch (err) {
+      console.error('Error connecting to wallet.')
+    }
   }
 
   getEnsNames = async ( eths: string[] ): Promise<string[] | undefined> => {

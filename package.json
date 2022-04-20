@@ -1,6 +1,6 @@
 {
   "name": "video-comments",
-  "version": "0.9.15",
+  "version": "0.10.0",
   "description": "Web video comments augmentation",
   "main": "",
   "scripts": {
