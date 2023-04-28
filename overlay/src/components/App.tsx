@@ -16,7 +16,7 @@ enum Pages {
   PublicationNotice,
 }
 
-export default () => {
+const App = (): JSX.Element => {
   const [data, setData] = useState<IData[] | undefined>();
   const [page, setPage] = useState(Pages.CommentsList);
   const [duration, addDuration] = useState<number>();
@@ -31,7 +31,7 @@ export default () => {
   const [accountEthId, getAccountEthId] = useState<string | undefined>();
   const [currentUser, setCurrentUser] = useState<string | undefined>();
   const [expandedComments, setExpandedComments] = useState<string[]>([]);
-  const [nextPage, setNextPage] = useState<number>(Pages.CommentsList)
+  const [nextPage, setNextPage] = useState<number>(Pages.CommentsList);
   const [sortType, setSortType] = useState(SortTypes.Timeline);
   const [avatar, setAvatar] = useState<string | undefined>();
   const [isConnectingWallet, setIsConnectingWallet] = useState(false);
@@ -47,15 +47,15 @@ export default () => {
   useEffect(() => setTopicInput(videoId), [videoId]);
 
   useEffect(() => {
-    bridge.onData(async (data) => {
-      setData(data.commentsData);
-      addImages(data.images);
-      addDuration(data.duration);
-      setVideoId(data.videoId);
-      setIsStableId(data.isStableId);
-      setSelectedCommentId(data.selectedCommentId);
+    bridge.onData(async (newData) => {
+      setData(newData.commentsData);
+      addImages(newData.images);
+      addDuration(newData.duration);
+      setVideoId(newData.videoId);
+      setIsStableId(newData.isStableId);
+      setSelectedCommentId(newData.selectedCommentId);
     });
-    bridge.onTime((data) => updateCurrentTime(roundToMultiple(data.time)));
+    bridge.onTime((newData) => updateCurrentTime(roundToMultiple(newData.time)));
   }, []);
 
   useEffect(() => {
@@ -67,7 +67,10 @@ export default () => {
         setIsAdmin(userInfo.admin);
         setAvatar(userInfo.picture);
         const ensNames = await bridge.getEnsNames(accountId);
-        const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+        const name =
+          ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''
+            ? ensNames[0]
+            : accountId;
         setCurrentUser(name);
       }
     });
@@ -78,10 +81,11 @@ export default () => {
       if (!expandedComments.includes(selectedCommentId)) {
         setExpandedComments([...expandedComments, selectedCommentId]);
       }
-      if (refs[selectedCommentId]) refs[selectedCommentId].current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'center',
-      });
+      if (refs[selectedCommentId])
+        refs[selectedCommentId].current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+        });
     }
     bridge.isWalletConnected().then(async (res: boolean) => {
       if (res) {
@@ -91,7 +95,10 @@ export default () => {
         setIsAdmin(userInfo.admin);
         setAvatar(userInfo.picture);
         const ensNames = await bridge.getEnsNames(accountId);
-        const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+        const name =
+          ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''
+            ? ensNames[0]
+            : accountId;
         setCurrentUser(name);
       }
     });
@@ -132,39 +139,47 @@ export default () => {
       setNextPage={setNextPage}
       sortType={sortType}
       setSortType={setSortType}
-    />
+    />,
   );
 
   openPage.set(
     Pages.CreateComment,
-    currentUser === undefined
-    ? <Authorization
-      back={Pages.CommentsList}
-      nextPage={nextPage}
-      setNextPage={setNextPage}
-      onPageChange={setPage}
-      accountEthId={accountEthId}
-      getAccountEthId={getAccountEthId}
-      setCurrentUser={setCurrentUser}
-      setIsAdmin={setIsAdmin}
-      setAvatar={setAvatar}
-      setIsConnectingWallet={setIsConnectingWallet}
-      isConnectingWallet={isConnectingWallet}
-    />
-    : <>{duration !== undefined && <CommentCreation
-      back={Pages.CommentsList}
-      publicationNotice={Pages.PublicationNotice}
-      images={images}
-      onPageChange={setPage}
-      videoLength={duration}
-      updateCurrentTime={updateCurrentTime}
-      currentTime={typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime}
-      videoId={videoId}
-      setIsCommentPublished={setIsCommentPublished}
-      message={message}
-      setMessage={setMessage}
-      setNextPage={setNextPage}
-    />}</>
+    currentUser === undefined ? (
+      <Authorization
+        back={Pages.CommentsList}
+        nextPage={nextPage}
+        setNextPage={setNextPage}
+        onPageChange={setPage}
+        accountEthId={accountEthId}
+        getAccountEthId={getAccountEthId}
+        setCurrentUser={setCurrentUser}
+        setIsAdmin={setIsAdmin}
+        setAvatar={setAvatar}
+        setIsConnectingWallet={setIsConnectingWallet}
+        isConnectingWallet={isConnectingWallet}
+      />
+    ) : (
+      <>
+        {duration !== undefined && (
+          <CommentCreation
+            back={Pages.CommentsList}
+            publicationNotice={Pages.PublicationNotice}
+            images={images}
+            onPageChange={setPage}
+            videoLength={duration}
+            updateCurrentTime={updateCurrentTime}
+            currentTime={
+              typeof currentTime !== 'number' || Number.isNaN(currentTime) ? 0 : currentTime
+            }
+            videoId={videoId}
+            setIsCommentPublished={setIsCommentPublished}
+            message={message}
+            setMessage={setMessage}
+            setNextPage={setNextPage}
+          />
+        )}
+      </>
+    ),
   );
 
   openPage.set(
@@ -181,7 +196,7 @@ export default () => {
       setAvatar={setAvatar}
       setIsConnectingWallet={setIsConnectingWallet}
       isConnectingWallet={isConnectingWallet}
-    />
+    />,
   );
 
   openPage.set(
@@ -193,34 +208,38 @@ export default () => {
       onPageChange={setPage}
       isCommentPublished={isCommentPublished}
       setMessage={setMessage}
-    />
+    />,
   );
 
   return (
     <>
-      <div className='dp-header'>
+      <div className="dp-header">
         {accountEthId === undefined || currentUser === undefined ? (
           <>
-            <div className='user-info unlogged'>
-              <div className='user-image' />
+            <div className="user-info unlogged">
+              <div className="user-image" />
             </div>
-            <h3 className='dp-title'>Video Comments</h3>
+            <h3 className="dp-title">Video Comments</h3>
             <div style={{ flexGrow: 1 }} />
-            <Button 
+            <Button
               className={cn('login-button', { 'bt-loading': isConnectingWallet })}
               loading={isConnectingWallet}
               onClick={() => {
                 if (isConnectingWallet) return;
                 setIsConnectingWallet(true);
-                bridge.connectWallet()
-                  .then(async() => {
+                bridge
+                  .connectWallet()
+                  .then(async () => {
                     const accountId = await bridge.getCurrentEthereumAccount();
                     getAccountEthId(accountId);
                     const userInfo = await getUserInfo(accountId);
                     setIsAdmin(userInfo.admin);
                     setAvatar(userInfo.picture);
                     const ensNames = await bridge.getEnsNames(accountId);
-                    const name = ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''  ? ensNames[0] : accountId;
+                    const name =
+                      ensNames !== undefined && ensNames.length !== 0 && ensNames[0] !== ''
+                        ? ensNames[0]
+                        : accountId;
                     setCurrentUser(name);
                     bridge.updateData();
                     setPage(nextPage);
@@ -232,28 +251,32 @@ export default () => {
               }}
             >
               {isConnectingWallet ? 'Loading' : 'Log in'}
-            </Button>          
+            </Button>
           </>
         ) : (
           <>
-            <div className='user-info'>
+            <div className="user-info">
               <div
-                className='user-image'
+                className="user-image"
                 style={{ background: `left 0 / 26px no-repeat url("${avatar!}")` }}
               />
-              {currentUser!.length > 28 ? `${currentUser!.slice(0, 6)}...${currentUser!.slice(-4)}` : currentUser}
+              {currentUser!.length > 28
+                ? `${currentUser!.slice(0, 6)}...${currentUser!.slice(-4)}`
+                : currentUser}
             </div>
-            <Button 
-              className='logout-button'
-              onClick={() => bridge.disconnectWallet()
-                .then(() => {
-                  setIsAdmin(false);
-                  setAvatar(undefined);
-                  getAccountEthId(undefined);
-                  setCurrentUser(undefined);
-                  bridge.updateData();
-                })
-                .catch((err) => console.log('Error connecting to the wallet.', err))
+            <Button
+              className="logout-button"
+              onClick={() =>
+                bridge
+                  .disconnectWallet()
+                  .then(() => {
+                    setIsAdmin(false);
+                    setAvatar(undefined);
+                    getAccountEthId(undefined);
+                    setCurrentUser(undefined);
+                    bridge.updateData();
+                  })
+                  .catch((err) => console.log('Error connecting to the wallet.', err))
               }
             >
               Log out
@@ -262,29 +285,29 @@ export default () => {
         )}
       </div>
       {!isStableId && (
-        <div className='topic-id'>
-          <label htmlFor='topic'>TOPIC ID</label>
+        <div className="topic-id">
+          <label htmlFor="topic">TOPIC ID</label>
           <input
-            type='text'
-            name='topic'
-            id='topic'
+            type="text"
+            name="topic"
+            id="topic"
             value={topicInput}
             onChange={(e) => {
               e.preventDefault();
-              console.log('e', e)
-              setTopicInput(e.target.value)
+              console.log('e', e);
+              setTopicInput(e.target.value);
             }}
-            onKeyPress ={(e) => {
+            onKeyPress={(e) => {
               e.preventDefault();
-              console.log('e', e)
+              console.log('e', e);
               if (e.key === 'Enter') {
                 bridge.changeTopicId(topicInput);
               }
             }}
           />
           <Popup
-            content='Topic ID copied!'
-            on='click'
+            content="Topic ID copied!"
+            on="click"
             hideOnScroll
             open={isCopyTopicIdPopupOpen}
             onClose={() => setIsCopyTopicIdPopupOpen(false)}
@@ -295,7 +318,7 @@ export default () => {
                 setSharedTopicId(false);
               }, 4000);
             }}
-            trigger={(
+            trigger={
               <Comment.Action
                 className={cn('copy-topic-id', { shared: sharedTopicId })}
                 onClick={(e: MouseEvent) => {
@@ -304,11 +327,11 @@ export default () => {
                   bridge.copyTopicId(videoId);
                 }}
               />
-            )}
+            }
           />
           <Popup
-            content='Topic link copied!'
-            on='click'
+            content="Topic link copied!"
+            on="click"
             hideOnScroll
             open={isShareTopicPopupOpen}
             onClose={() => setIsShareTopicPopupOpen(false)}
@@ -319,7 +342,7 @@ export default () => {
                 setSharedTopicLink(false);
               }, 4000);
             }}
-            trigger={(
+            trigger={
               <Comment.Action
                 className={cn('share-topic', { shared: sharedTopicLink })}
                 onClick={(e: MouseEvent) => {
@@ -328,7 +351,7 @@ export default () => {
                   bridge.createShareTopicLink(videoId);
                 }}
               />
-            )}
+            }
           />
         </div>
       )}
@@ -336,3 +359,5 @@ export default () => {
     </>
   );
 };
+
+export default App;

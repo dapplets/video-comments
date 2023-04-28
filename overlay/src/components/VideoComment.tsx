@@ -7,25 +7,25 @@ import { IData } from '../types';
 import { formatTime, setCommentDeleted, voteForComment } from '../utils';
 
 interface IVideoCommentProps {
-  commentsList: number
-  data: IData
-  currentTime: number
-  updateCurrentTime: any
-  toggleCommentHidden: any
-  expandedComments: string[]
-  setExpandedComments: any
-  selectedCommentId?: string
-  setSelectedCommentId: any
-  refs: any
-  currentUser?: string
-  videoId: string
-  accountEthId?: string
-  onPageChange: any
-  authorization: number
-  setNextPage: any
-};
+  commentsList: number;
+  data: IData;
+  currentTime: number;
+  updateCurrentTime: any;
+  toggleCommentHidden: any;
+  expandedComments: string[];
+  setExpandedComments: any;
+  selectedCommentId?: string;
+  setSelectedCommentId: any;
+  refs: any;
+  currentUser?: string;
+  videoId: string;
+  accountEthId?: string;
+  onPageChange: any;
+  authorization: number;
+  setNextPage: any;
+}
 
-export default (props: IVideoCommentProps) => {
+const VideoComment = (props: IVideoCommentProps): JSX.Element => {
   const {
     commentsList,
     data,
@@ -62,7 +62,7 @@ export default (props: IVideoCommentProps) => {
     setExpandedComments(
       isCollapsed
         ? [...expandedComments, id]
-        : expandedComments.filter((commentId) => commentId !== id)
+        : expandedComments.filter((commentId) => commentId !== id),
     );
   };
 
@@ -79,7 +79,8 @@ export default (props: IVideoCommentProps) => {
     } else {
       setSelectedCommentId();
       bridge.highlightSticker();
-      if (!isCollapsed) setExpandedComments(expandedComments.filter((commentId) => commentId !== id));
+      if (!isCollapsed)
+        setExpandedComments(expandedComments.filter((commentId) => commentId !== id));
     }
   };
 
@@ -93,10 +94,10 @@ export default (props: IVideoCommentProps) => {
     }
     await voteForComment(id, videoId, accountEthId, vote);
     bridge.updateData();
-  }
+  };
 
   const isCollapsed = !expandedComments.includes(id);
-  
+
   refs[id] = useRef();
 
   return (
@@ -109,28 +110,24 @@ export default (props: IVideoCommentProps) => {
           borderRadius: '15px',
         }}
         className={`${
-            currentTime >= from && (to === undefined || currentTime <= to) ? 'comment-active' : 'comment-inactive'
-          } ${
-            hidden ? 'comment-hidden' : ''
-          } ${
-            id === selectedCommentId ? 'comment-selected' : ''
-          }`}
-          onClick={handleSelectComment}
-        >
+          currentTime >= from && (to === undefined || currentTime <= to)
+            ? 'comment-active'
+            : 'comment-inactive'
+        } ${hidden ? 'comment-hidden' : ''} ${id === selectedCommentId ? 'comment-selected' : ''}`}
+        onClick={handleSelectComment}
+      >
         <Card.Content>
           <Comment.Group>
             <Comment>
               <Comment.Avatar src={image} />
               {!image && (
-                <div className='default-badge'>
+                <div className="default-badge">
                   {(ensName || name.slice(2, 3))[0].toUpperCase()}
-                </div>)}
+                </div>
+              )}
               <Comment.Content>
-                <div className='comment-header'>
-                  <Comment.Author
-                    as='a'
-                    className={hidden ? 'comment-hidden' : ''}
-                  >
+                <div className="comment-header">
+                  <Comment.Author as="a" className={hidden ? 'comment-hidden' : ''}>
                     {ensName || `${name.slice(0, 6)}...${name.slice(-4)}`}
                   </Comment.Author>
                   <Comment.Metadata style={{ flexGrow: 1 }}>
@@ -140,9 +137,13 @@ export default (props: IVideoCommentProps) => {
                   </Comment.Metadata>
                   {name === accountEthId && (
                     <>
-                      <Icon 
-                        name='trash alternate'
-                        className={(id === selectedCommentId || !isCollapsed) && !hidden ? 'trash-icon-selected' : 'trash-icon'}
+                      <Icon
+                        name="trash alternate"
+                        className={
+                          (id === selectedCommentId || !isCollapsed) && !hidden
+                            ? 'trash-icon-selected'
+                            : 'trash-icon'
+                        }
                         onClick={(e: any) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -151,8 +152,8 @@ export default (props: IVideoCommentProps) => {
                       />
                       <Confirm
                         open={openDimmer}
-                        content='Delete this comment?'
-                        confirmButton='Delete'
+                        content="Delete this comment?"
+                        confirmButton="Delete"
                         onCancel={(e: any) => {
                           e.preventDefault();
                           e.stopPropagation();
@@ -167,53 +168,55 @@ export default (props: IVideoCommentProps) => {
                       />
                     </>
                   )}
-                  <Icon 
+                  <Icon
                     name={hidden ? 'eye slash outline' : 'eye'}
-                    className={(id === selectedCommentId || !isCollapsed) && !hidden? 'eye-icon-selected' : 'eye-icon'}
+                    className={
+                      (id === selectedCommentId || !isCollapsed) && !hidden
+                        ? 'eye-icon-selected'
+                        : 'eye-icon'
+                    }
                     onClick={handleToggleIsHidden}
                   />
                 </div>
                 <div
-                  className='comment-header'
+                  className="comment-header"
                   style={{ margin: '5px 0 10px' }}
                   hidden={isCollapsed || hidden}
                 >
                   <Comment.Metadata>
-                    <div>
-                      begining: {formatTime(from)}
-                    </div>
+                    <div>begining: {formatTime(from)}</div>
                   </Comment.Metadata>
                   <Comment.Metadata>
-                    <div>
-                      end: {formatTime(to)}
-                    </div>
+                    <div>end: {formatTime(to)}</div>
                   </Comment.Metadata>
                 </div>
                 <Comment.Text
                   hidden={hidden}
-                  dangerouslySetInnerHTML={{ __html: text.length > 103 && isCollapsed
-                    ? `${text.substring(0, 99)}...`
-                    : text }}/>
+                  dangerouslySetInnerHTML={{
+                    __html: text.length > 103 && isCollapsed ? `${text.substring(0, 99)}...` : text,
+                  }}
+                />
                 {!hidden && (
-                  <Comment.Actions
-                    style={{ display: 'flex', alignItems: 'center' }}
-                  >
+                  <Comment.Actions style={{ display: 'flex', alignItems: 'center' }}>
                     <Comment.Action
                       index={id}
-                      className={cn('comment-button-like', { liked: vote === 1, disabled: name === accountEthId })}
-                      onClick={name !== accountEthId ? handleVoteForComment : (e: any) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                      }}
+                      className={cn('comment-button-like', {
+                        liked: vote === 1,
+                        disabled: name === accountEthId,
+                      })}
+                      onClick={
+                        name !== accountEthId
+                          ? handleVoteForComment
+                          : (e: any) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                            }
+                      }
                     />
-                    <Comment.Metadata
-                      style={{ margin: '0 24px 0 6px' }}
-                    >
-                      {score}
-                    </Comment.Metadata>
+                    <Comment.Metadata style={{ margin: '0 24px 0 6px' }}>{score}</Comment.Metadata>
                     <Popup
-                      content='Link copied!'
-                      on='click'
+                      content="Link copied!"
+                      on="click"
                       hideOnScroll
                       open={isCopyPopupOpen}
                       onClose={() => setIsCopyPopupOpen(false)}
@@ -224,7 +227,7 @@ export default (props: IVideoCommentProps) => {
                           setShared(false);
                         }, 4000);
                       }}
-                      trigger={(
+                      trigger={
                         <Comment.Action
                           index={id}
                           className={cn('comment-button-share', { shared })}
@@ -235,12 +238,9 @@ export default (props: IVideoCommentProps) => {
                             bridge.createShareLink(id);
                           }}
                         />
-                      )}
+                      }
                     />
-                    <Comment.Action
-                      index={id}
-                      onClick={handleToggleAdditionalInfo}
-                    >
+                    <Comment.Action index={id} onClick={handleToggleAdditionalInfo}>
                       {isCollapsed ? 'More' : 'Less'}
                     </Comment.Action>
                   </Comment.Actions>
@@ -251,5 +251,7 @@ export default (props: IVideoCommentProps) => {
         </Card.Content>
       </Card>
     </Ref>
-  )
+  );
 };
+
+export default VideoComment;
